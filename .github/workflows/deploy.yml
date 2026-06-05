@@ -1,0 +1,44 @@
+name: Deploy OmniVault
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint and type check
+      run: npm run lint
+
+    - name: Build Docker Image
+      run: docker build -t omnivault-pwa:latest .
+      
+    # - name: Push to Registry
+    #   run: |
+    #     docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    #     docker tag omnivault-pwa:latest ${{ secrets.DOCKER_USERNAME }}/omnivault-pwa:latest
+    #     docker push ${{ secrets.DOCKER_USERNAME }}/omnivault-pwa:latest
+
+    # - name: Deploy to VPS
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.VPS_HOST }}
+    #     username: ${{ secrets.VPS_USERNAME }}
+    #     key: ${{ secrets.VPS_SSH_KEY }}
+    #     script: |
+    #       docker pull ${{ secrets.DOCKER_USERNAME }}/omnivault-pwa:latest
+    #       docker stop omnivault || true
+    #       docker rm omnivault || true
+    #       docker run -d --name omnivault -p 3000:3000 --restart unless-stopped ${{ secrets.DOCKER_USERNAME }}/omnivault-pwa:latest
