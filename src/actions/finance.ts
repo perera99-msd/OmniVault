@@ -7,6 +7,7 @@ import { User } from "@/models/User";
 import { Wallet } from "@/models/Wallet";
 import { Category } from "@/models/Category";
 import { Transaction } from "@/models/Transaction";
+import { UpcomingPayment } from "@/models/UpcomingPayment";
 
 export async function createUser(data: { firebaseUid: string; email: string; name: string }) {
   await dbConnect();
@@ -25,7 +26,7 @@ export async function createWallet(data: { userId: string; name: string; type: "
   await dbConnect();
   try {
     const wallet = await Wallet.create(data);
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true, wallet: JSON.parse(JSON.stringify(wallet)) };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -54,17 +55,13 @@ export async function addTransaction(data: {
   date?: Date;
 }) {
   await dbConnect();
-  
-  // Start a Mongoose session for transaction integrity
-  const session = await mongoose.startSession();
-  session.startTransaction();
 
   try {
     // 1. Create the Transaction Record
-    const transaction = await Transaction.create([data], { session });
+    const transaction = await Transaction.create(data);
 
     // 2. Update Source Wallet
-    const sourceWallet = await Wallet.findById(data.sourceWalletId).session(session);
+    const sourceWallet = await Wallet.findById(data.sourceWalletId);
     if (!sourceWallet) throw new Error("Source wallet not found");
 
     if (data.type === "EXPENSE" || data.type === "TRANSFER") {
@@ -72,27 +69,400 @@ export async function addTransaction(data: {
     } else if (data.type === "INCOME") {
       sourceWallet.balance += data.amount;
     }
-    await sourceWallet.save({ session });
+    await sourceWallet.save();
 
     // 3. Update Destination Wallet (if Transfer)
     if (data.type === "TRANSFER" && data.destinationWalletId) {
-      const destWallet = await Wallet.findById(data.destinationWalletId).session(session);
+      const destWallet = await Wallet.findById(data.destinationWalletId);
       if (!destWallet) throw new Error("Destination wallet not found");
       
       destWallet.balance += data.amount;
-      await destWallet.save({ session });
+      await destWallet.save();
     }
 
-    // Commit the entire transaction
-    await session.commitTransaction();
-    session.endSession();
-
     revalidatePath("/");
-    return { success: true, transaction: JSON.parse(JSON.stringify(transaction[0])) };
+    return { success: true, transaction: JSON.parse(JSON.stringify(transaction)) };
   } catch (error: any) {
-    // Abort if anything fails
-    await session.abortTransaction();
-    session.endSession();
     return { success: false, error: error.message };
   }
 }
+
+export async function getUserDashboardData(firebaseUid: string, baseCurrency: string = "LKR") {
+  await dbConnect();
+  try {
+    let user = await User.findOne({ firebaseUid }).lean();
+    if (!user) {
+      // Auto-provision if missing (for older Firebase test accounts)
+      const newUser = await User.create({ firebaseUid, email: "missing@email.com", name: "OmniVault User" });
+      user = await User.findById(newUser._id).lean();
+    }
+
+    if (!user) {
+      return { success: false, error: "Critical error provisioning user" };
+    }
+
+    const userId = user._id;
+
+    // Concurrently fetch wallets, categories, and recent transactions
+    const [wallets, categories, recentTransactions, upcomingPayments, allTransactions] = await Promise.all([
+      Wallet.find({ userId }).lean(),
+      Category.find({ userId }).lean(),
+      Transaction.find({ userId })
+        .populate("sourceWalletId", "name type currency")
+        .populate("destinationWalletId", "name type currency")
+        .populate("categoryId", "name type color icon")
+        .sort({ date: -1, createdAt: -1 })
+        .limit(10)
+        .lean(),
+      UpcomingPayment.find({ userId, isPaid: false })
+        .populate("walletId", "name currency")
+        .sort({ dueDate: 1 })
+        .lean(),
+      Transaction.find({ userId }).lean() // Fetch all for accurate multi-currency aggregation in JS
+    ]);
+
+    // Import utility locally to avoid circular dependencies if any
+    const { convertCurrency } = require("@/lib/utils/currency");
+
+    // Spending Aggregation (Today, This Month, This Year) in baseCurrency
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+
+    const spendingData = { spentThisYear: 0, spentThisMonth: 0, spentToday: 0 };
+    const inflowData = { earnedThisYear: 0, earnedThisMonth: 0, earnedToday: 0 };
+
+    // Net Worth History variables
+    const last6MonthsStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).getTime();
+    const monthlyCashflowMap: Record<string, { income: number, expense: number }> = {};
+
+    allTransactions.forEach((tx: any) => {
+      const txDate = new Date(tx.date).getTime();
+      const txCurrency = tx.currency || "LKR"; // Fallback for old data
+      const convertedAmount = convertCurrency(tx.amount, txCurrency, baseCurrency);
+
+      // Income/Expense Aggregations
+      if (txDate >= startOfYear) {
+        if (tx.type === "EXPENSE") {
+          spendingData.spentThisYear += convertedAmount;
+          if (txDate >= startOfMonth) spendingData.spentThisMonth += convertedAmount;
+          if (txDate >= startOfToday) spendingData.spentToday += convertedAmount;
+        } else if (tx.type === "INCOME") {
+          inflowData.earnedThisYear += convertedAmount;
+          if (txDate >= startOfMonth) inflowData.earnedThisMonth += convertedAmount;
+          if (txDate >= startOfToday) inflowData.earnedToday += convertedAmount;
+        }
+      }
+
+      // Monthly Cashflow for Net Worth Chart
+      if (txDate >= last6MonthsStart) {
+        const dateObj = new Date(tx.date);
+        const key = `${dateObj.getFullYear()}-${dateObj.getMonth() + 1}`;
+        if (!monthlyCashflowMap[key]) monthlyCashflowMap[key] = { income: 0, expense: 0 };
+        
+        if (tx.type === "INCOME") monthlyCashflowMap[key].income += convertedAmount;
+        if (tx.type === "EXPENSE") monthlyCashflowMap[key].expense += convertedAmount;
+      }
+    });
+
+    // Net Worth History Calculation (Last 6 Months)
+    const currentTotalAssets = wallets.reduce((sum: number, w: any) => sum + convertCurrency(w.balance, w.currency || "LKR", baseCurrency), 0);
+    
+    // Build the history array backwards
+    const netWorthHistory = [];
+    let runningNetWorth = currentTotalAssets;
+    
+    // Create an array of the last 6 months (including current)
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    for (let i = 0; i < 6; i++) {
+      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const targetYear = targetDate.getFullYear();
+      const targetMonth = targetDate.getMonth() + 1; // 1-12
+      
+      const key = `${targetYear}-${targetMonth}`;
+      const monthData = monthlyCashflowMap[key] || { income: 0, expense: 0 };
+      
+      // The running net worth is the value AT THE END of this month
+      netWorthHistory.unshift({
+        month: monthNames[targetMonth - 1],
+        value: runningNetWorth,
+      });
+
+      // To find the net worth AT THE END of the PREVIOUS month, we reverse this month's flow
+      const netCashFlowThisMonth = monthData.income - monthData.expense;
+      runningNetWorth = runningNetWorth - netCashFlowThisMonth;
+    }
+
+    // Sort wallets: Recently used first
+    const orderedRecentWalletIds = Array.from(new Set(
+      recentTransactions.flatMap((tx: any) => [
+        tx.sourceWalletId?._id?.toString(),
+        tx.destinationWalletId?._id?.toString()
+      ]).filter(Boolean)
+    ));
+
+    const sortedWallets = [...wallets].sort((a: any, b: any) => {
+      const aId = a._id.toString();
+      const bId = b._id.toString();
+      
+      const aIndex = orderedRecentWalletIds.indexOf(aId);
+      const bIndex = orderedRecentWalletIds.indexOf(bId);
+
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
+    return {
+      success: true,
+      data: {
+        user: JSON.parse(JSON.stringify(user)),
+        wallets: JSON.parse(JSON.stringify(sortedWallets)),
+        categories: JSON.parse(JSON.stringify(categories)),
+        recentTransactions: JSON.parse(JSON.stringify(recentTransactions)),
+        upcomingPayments: JSON.parse(JSON.stringify(upcomingPayments)),
+        spendingData: JSON.parse(JSON.stringify(spendingData)),
+        inflowData: JSON.parse(JSON.stringify(inflowData)),
+        netWorthHistory: JSON.parse(JSON.stringify(netWorthHistory))
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getWalletsPageData(firebaseUid: string) {
+  await dbConnect();
+  try {
+    const user = await User.findOne({ firebaseUid }).lean();
+    if (!user) return { success: false, error: "User not found" };
+    
+    const wallets = await Wallet.find({ userId: user._id }).sort({ createdAt: -1 }).lean();
+    
+    return {
+      success: true,
+      data: {
+        user: JSON.parse(JSON.stringify(user)),
+        wallets: JSON.parse(JSON.stringify(wallets))
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateWalletName(walletId: string, newName: string) {
+  try {
+    await dbConnect();
+    await Wallet.findByIdAndUpdate(walletId, { name: newName });
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteWallet(walletId: string) {
+  try {
+    await dbConnect();
+    await Wallet.findByIdAndDelete(walletId);
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getTransactionsHistory(firebaseUid: string, filter: string = 'THIS_MONTH') {
+  await dbConnect();
+  try {
+    const user = await User.findOne({ firebaseUid }).lean();
+    if (!user) return { success: false, error: "User not found" };
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    let startDate, endDate;
+
+    switch (filter) {
+      case 'TODAY':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        break;
+      case 'THIS_WEEK': {
+        const firstDayOfWeek = new Date(now);
+        firstDayOfWeek.setDate(now.getDate() - now.getDay());
+        firstDayOfWeek.setHours(0, 0, 0, 0);
+        const lastDayOfWeek = new Date(firstDayOfWeek);
+        lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+        lastDayOfWeek.setHours(23, 59, 59, 999);
+        startDate = firstDayOfWeek;
+        endDate = lastDayOfWeek;
+        break;
+      }
+      case 'THIS_MONTH':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        break;
+      case 'Q1':
+        startDate = new Date(currentYear, 0, 1);
+        endDate = new Date(currentYear, 2, 31, 23, 59, 59, 999);
+        break;
+      case 'Q2':
+        startDate = new Date(currentYear, 3, 1);
+        endDate = new Date(currentYear, 5, 30, 23, 59, 59, 999);
+        break;
+      case 'Q3':
+        startDate = new Date(currentYear, 6, 1);
+        endDate = new Date(currentYear, 8, 30, 23, 59, 59, 999);
+        break;
+      case 'Q4':
+        startDate = new Date(currentYear, 9, 1);
+        endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+        break;
+      case 'FULL_YEAR':
+      default:
+        startDate = new Date(currentYear, 0, 1);
+        endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+        break;
+    }
+
+    const [transactions, wallets, categories] = await Promise.all([
+      Transaction.find({
+        userId: user._id,
+        date: { $gte: startDate, $lte: endDate }
+      })
+        .populate('sourceWalletId')
+        .populate('destinationWalletId')
+        .populate('categoryId')
+        .sort({ date: -1 })
+        .lean(),
+      Wallet.find({ userId: user._id }).lean(),
+      Category.find({ userId: user._id }).lean()
+    ]);
+
+    return {
+      success: true,
+      data: {
+        user: JSON.parse(JSON.stringify(user)),
+        transactions: JSON.parse(JSON.stringify(transactions)),
+        wallets: JSON.parse(JSON.stringify(wallets)),
+        categories: JSON.parse(JSON.stringify(categories)),
+      }
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteTransaction(transactionId: string) {
+  await dbConnect();
+  try {
+    const transaction = await Transaction.findById(transactionId);
+    if (!transaction) throw new Error("Transaction not found");
+
+    // 1. Reverse Source Wallet
+    const sourceWallet = await Wallet.findById(transaction.sourceWalletId);
+    if (sourceWallet) {
+      if (transaction.type === "EXPENSE" || transaction.type === "TRANSFER") {
+        sourceWallet.balance += transaction.amount;
+      } else if (transaction.type === "INCOME") {
+        sourceWallet.balance -= transaction.amount;
+      }
+      await sourceWallet.save();
+    }
+
+    // 2. Reverse Destination Wallet (if Transfer)
+    if (transaction.type === "TRANSFER" && transaction.destinationWalletId) {
+      const destWallet = await Wallet.findById(transaction.destinationWalletId);
+      if (destWallet) {
+        destWallet.balance -= transaction.amount;
+        await destWallet.save();
+      }
+    }
+
+    // 3. Delete the Transaction Record
+    await Transaction.findByIdAndDelete(transactionId);
+
+    revalidatePath("/");
+    revalidatePath("/transactions");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateTransaction(transactionId: string, newData: {
+  amount: number;
+  type: "INCOME" | "EXPENSE" | "TRANSFER";
+  sourceWalletId: string;
+  destinationWalletId?: string;
+  categoryId?: string;
+  description?: string;
+  date?: Date;
+}) {
+  await dbConnect();
+  try {
+    const oldTransaction = await Transaction.findById(transactionId);
+    if (!oldTransaction) throw new Error("Transaction not found");
+
+    // 1. REVERSE OLD TRANSACTION
+    const oldSourceWallet = await Wallet.findById(oldTransaction.sourceWalletId);
+    if (oldSourceWallet) {
+      if (oldTransaction.type === "EXPENSE" || oldTransaction.type === "TRANSFER") {
+        oldSourceWallet.balance += oldTransaction.amount;
+      } else if (oldTransaction.type === "INCOME") {
+        oldSourceWallet.balance -= oldTransaction.amount;
+      }
+      await oldSourceWallet.save();
+    }
+
+    if (oldTransaction.type === "TRANSFER" && oldTransaction.destinationWalletId) {
+      const oldDestWallet = await Wallet.findById(oldTransaction.destinationWalletId);
+      if (oldDestWallet) {
+        oldDestWallet.balance -= oldTransaction.amount;
+        await oldDestWallet.save();
+      }
+    }
+
+    // 2. APPLY NEW TRANSACTION
+    const newSourceWallet = await Wallet.findById(newData.sourceWalletId);
+    if (!newSourceWallet) throw new Error("New source wallet not found");
+
+    if (newData.type === "EXPENSE" || newData.type === "TRANSFER") {
+      newSourceWallet.balance -= newData.amount;
+    } else if (newData.type === "INCOME") {
+      newSourceWallet.balance += newData.amount;
+    }
+    await newSourceWallet.save();
+
+    if (newData.type === "TRANSFER" && newData.destinationWalletId) {
+      const newDestWallet = await Wallet.findById(newData.destinationWalletId);
+      if (!newDestWallet) throw new Error("New destination wallet not found");
+      
+      newDestWallet.balance += newData.amount;
+      await newDestWallet.save();
+    }
+
+    // 3. UPDATE RECORD
+    oldTransaction.amount = newData.amount;
+    oldTransaction.type = newData.type;
+    oldTransaction.sourceWalletId = newData.sourceWalletId as any;
+    oldTransaction.destinationWalletId = newData.destinationWalletId as any;
+    oldTransaction.categoryId = newData.categoryId as any;
+    oldTransaction.description = newData.description || "";
+    if (newData.date) oldTransaction.date = newData.date;
+
+    await oldTransaction.save();
+
+    revalidatePath("/");
+    revalidatePath("/transactions");
+    return { success: true, transaction: JSON.parse(JSON.stringify(oldTransaction)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
