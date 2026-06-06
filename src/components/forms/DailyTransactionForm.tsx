@@ -23,30 +23,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]),
-  amount: z.coerce.number().positive(),
-  sourceWalletId: z.string().min(1, "Source wallet is required"),
-  destinationWalletId: z.string().optional(),
+  type: z.enum(["INCOME", "EXPENSE"]),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
+  sourceWalletId: z.string().min(1, "Wallet is required"),
   categoryId: z.string().optional(),
+  newCategoryName: z.string().optional(),
   description: z.string().optional(),
+  dateString: z.string().min(1, "Date is required"),
 });
 
-export function DailyTransactionForm() {
+interface DailyTransactionFormProps {
+  userId: string;
+  wallets: any[];
+  categories: any[];
+}
+
+export function DailyTransactionForm({ userId, wallets, categories }: DailyTransactionFormProps) {
   const selectedWalletId = useAppStore((state) => state.selectedWalletId);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const defaultWalletId = selectedWalletId || (wallets.length > 0 ? wallets[0]._id : "");
+
+  // Default to today "YYYY-MM-DD"
+  const todayStr = new Date().toISOString().split("T")[0];
+
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       type: "EXPENSE",
       amount: 0,
-      sourceWalletId: selectedWalletId || "temp-wallet-id", // Fallback for UI testing
+      sourceWalletId: defaultWalletId,
       description: "",
+      dateString: todayStr,
+      newCategoryName: "",
     },
   });
 
@@ -54,10 +67,37 @@ export function DailyTransactionForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+
+    let finalCategoryId = values.categoryId;
+
+    if (isCreatingCategory && values.newCategoryName) {
+      const catRes = await createCategory({
+        userId,
+        name: values.newCategoryName,
+        type: watchType,
+        icon: "✨", 
+        color: "#009900" 
+      });
+      if (catRes.success) {
+        finalCategoryId = catRes.category._id;
+        setIsCreatingCategory(false);
+      } else {
+        alert("Error creating category: " + catRes.error);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Convert local YYYY-MM-DD back to a Date object, preserving current time
+    const [year, month, day] = values.dateString.split("-").map(Number);
+    const now = new Date();
+    const finalDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds());
+
     const res = await addTransaction({
-      userId: "temp-user-id", // To be replaced with Firebase Auth UID
+      userId,
       ...values,
-      date: new Date()
+      categoryId: finalCategoryId,
+      date: finalDate
     });
     
     setLoading(false);
@@ -73,59 +113,49 @@ export function DailyTransactionForm() {
     }
   }
 
-  async function handleCreateCategory(e: React.MouseEvent) {
-    e.preventDefault();
-    if (!newCategoryName) return;
-    
-    const res = await createCategory({
-      userId: "temp-user-id", // To be replaced with Auth UID
-      name: newCategoryName,
-      type: watchType === "TRANSFER" ? "EXPENSE" : watchType,
-      icon: "tag", // Default icon
-      color: "#009900" // Default color
-    });
-
-    if (res.success) {
-      form.setValue("categoryId", res.category._id);
-      setIsCreatingCategory(false);
-      setNewCategoryName("");
-    } else {
-      alert("Error creating category: " + res.error);
-    }
-  }
-
   return (
-    <Card className="w-full max-w-md mx-auto border-border bg-card shadow-lg shadow-primary/5">
-      <CardHeader>
-        <CardTitle className="text-2xl text-foreground">Add Transaction</CardTitle>
-        <CardDescription>Record an income, expense, or transfer.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="EXPENSE">Expense</SelectItem>
-                      <SelectItem value="INCOME">Income</SelectItem>
-                      <SelectItem value="TRANSFER">Transfer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="w-full">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="flex bg-zinc-100 dark:bg-white/5 p-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("EXPENSE")}
+                      className={cn(
+                        "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
+                        field.value === "EXPENSE" 
+                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-red-600 dark:text-red-400" 
+                          : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      )}
+                    >
+                      Add Expense
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange("INCOME")}
+                      className={cn(
+                        "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
+                        field.value === "INCOME" 
+                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-[#009900] dark:text-[#66cc66]" 
+                          : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      )}
+                    >
+                      Add Income
+                    </button>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="amount"
@@ -140,7 +170,48 @@ export function DailyTransactionForm() {
               )}
             />
 
-            {watchType !== "TRANSFER" && (
+            <FormField
+              control={form.control}
+              name="dateString"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="sourceWalletId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Wallet</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a wallet" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {wallets.map((w) => (
+                        <SelectItem key={w._id} value={w._id}>
+                          {w.name} (${w.balance.toLocaleString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="categoryId"
@@ -150,48 +221,72 @@ export function DailyTransactionForm() {
                     <Select onValueChange={(val) => {
                       if (val === "NEW") {
                         setIsCreatingCategory(true);
+                        field.onChange(undefined);
                       } else {
-                        field.onChange(val);
                         setIsCreatingCategory(false);
+                        field.onChange(val);
                       }
-                    }} defaultValue={field.value}>
+                    }} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="60d5ecb8b392d7001f3e3a12">Groceries</SelectItem>
-                        <SelectItem value="60d5ecb8b392d7001f3e3a13">Salary</SelectItem>
-                        <SelectItem value="NEW" className="text-primary font-bold">+ Create New Category</SelectItem>
+                        <SelectItem value="NEW" className="font-bold text-primary">
+                          + Create New Category
+                        </SelectItem>
+                        {categories
+                          .filter((c) => c.type === watchType)
+                          .map((c) => (
+                            <SelectItem key={c._id} value={c._id}>
+                              {c.icon} {c.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
 
-            {isCreatingCategory && (
-              <div className="p-4 border border-primary/20 rounded-xl space-y-3 bg-primary/5">
-                <FormLabel>New Category Name</FormLabel>
-                <div className="flex gap-2">
-                  <Input 
-                    value={newCategoryName} 
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    placeholder="e.g. Aunt's Donation" 
-                  />
-                  <Button type="button" variant="secondary" onClick={handleCreateCategory}>Save</Button>
-                </div>
-              </div>
-            )}
+              {isCreatingCategory && (
+                <FormField
+                  control={form.control}
+                  name="newCategoryName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Category Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Groceries" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
+          </div>
 
-            <Button type="submit" className="w-full font-bold shadow-md shadow-primary/30" disabled={loading}>
-              {loading ? "Adding..." : "Add Transaction"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="What was this for?" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" className="w-full font-bold shadow-md shadow-primary/30" disabled={loading || wallets.length === 0}>
+            {loading ? "Processing..." : (wallets.length === 0 ? "Create a Wallet First" : "Save Transaction")}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }

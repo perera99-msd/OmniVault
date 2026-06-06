@@ -5,6 +5,7 @@ export interface IWallet extends Document {
   name: string;
   balance: number;
   type: "Cash" | "Bank" | "Digital";
+  currency: "LKR" | "USD" | "EUR";
   isActive: boolean;
 }
 
@@ -14,10 +15,14 @@ const WalletSchema = new Schema<IWallet>(
     name: { type: String, required: true },
     balance: { type: Number, default: 0 },
     type: { type: String, enum: ["Cash", "Bank", "Digital"], required: true },
+    currency: { type: String, enum: ["LKR", "USD", "EUR"], default: "LKR" },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
 
-export const Wallet: Model<IWallet> =
-  mongoose.models.Wallet || mongoose.model<IWallet>("Wallet", WalletSchema);
+if (mongoose.models.Wallet) {
+  delete mongoose.models.Wallet;
+}
+
+export const Wallet: Model<IWallet> = mongoose.model<IWallet>("Wallet", WalletSchema);
