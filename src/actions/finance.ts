@@ -2,6 +2,7 @@
 
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import dbConnect from "@/lib/db";
 import { User } from "@/models/User";
 import { Wallet } from "@/models/Wallet";
@@ -22,10 +23,22 @@ export async function createUser(data: { firebaseUid: string; email: string; nam
   }
 }
 
-export async function createWallet(data: { userId: string; name: string; type: "Cash" | "Bank" | "Digital"; balance?: number }) {
+async function getAuthenticatedUser() {
+  const cookieStore = await cookies();
+  const firebaseUid = cookieStore.get("firebaseUid")?.value;
+  if (!firebaseUid) throw new Error("Unauthorized: No session found");
+  
   await dbConnect();
+  const user = await User.findOne({ firebaseUid }).lean();
+  if (!user) throw new Error("Unauthorized: User not found");
+  
+  return user;
+}
+
+export async function createWallet(data: { name: string; type: "Cash" | "Bank" | "Digital"; balance?: number }) {
   try {
-    const wallet = await Wallet.create(data);
+    const user = await getAuthenticatedUser();
+    const wallet = await Wallet.create({ ...data, userId: user._id });
     revalidatePath("/", "layout");
     return { success: true, wallet: JSON.parse(JSON.stringify(wallet)) };
   } catch (error: any) {
@@ -33,10 +46,10 @@ export async function createWallet(data: { userId: string; name: string; type: "
   }
 }
 
-export async function createCategory(data: { userId: string; name: string; type: "INCOME" | "EXPENSE"; icon: string; color: string }) {
-  await dbConnect();
+export async function createCategory(data: { name: string; type: "INCOME" | "EXPENSE"; icon: string; color: string }) {
   try {
-    const category = await Category.create(data);
+    const user = await getAuthenticatedUser();
+    const category = await Category.create({ ...data, userId: user._id });
     revalidatePath("/");
     return { success: true, category: JSON.parse(JSON.stringify(category)) };
   } catch (error: any) {
@@ -45,7 +58,6 @@ export async function createCategory(data: { userId: string; name: string; type:
 }
 
 export async function addTransaction(data: {
-  userId: string;
   amount: number;
   type: "INCOME" | "EXPENSE" | "TRANSFER";
   sourceWalletId: string;
@@ -54,15 +66,15 @@ export async function addTransaction(data: {
   description?: string;
   date?: Date;
 }) {
-  await dbConnect();
-
   try {
-    // 1. Create the Transaction Record
-    const transaction = await Transaction.create(data);
+    const user = await getAuthenticatedUser();
 
-    // 2. Update Source Wallet
-    const sourceWallet = await Wallet.findById(data.sourceWalletId);
-    if (!sourceWallet) throw new Error("Source wallet not found");
+    // Verify Source Wallet Ownership
+    const sourceWallet = await Wallet.findOne({ _id: data.sourceWalletId, userId: user._id });
+    if (!sourceWallet) throw new Error("Source wallet not found or unauthorized");
+
+    // Create the Transaction Record
+    const transaction = await Transaction.create({ ...data, userId: user._id });
 
     if (data.type === "EXPENSE" || data.type === "TRANSFER") {
       sourceWallet.balance -= data.amount;
@@ -71,10 +83,10 @@ export async function addTransaction(data: {
     }
     await sourceWallet.save();
 
-    // 3. Update Destination Wallet (if Transfer)
+    // Verify and Update Destination Wallet
     if (data.type === "TRANSFER" && data.destinationWalletId) {
-      const destWallet = await Wallet.findById(data.destinationWalletId);
-      if (!destWallet) throw new Error("Destination wallet not found");
+      const destWallet = await Wallet.findOne({ _id: data.destinationWalletId, userId: user._id });
+      if (!destWallet) throw new Error("Destination wallet not found or unauthorized");
       
       destWallet.balance += data.amount;
       await destWallet.save();
@@ -257,8 +269,13 @@ export async function getWalletsPageData(firebaseUid: string) {
 
 export async function updateWalletName(walletId: string, newName: string) {
   try {
-    await dbConnect();
-    await Wallet.findByIdAndUpdate(walletId, { name: newName });
+    const user = await getAuthenticatedUser();
+    const wallet = await Wallet.findOneAndUpdate(
+      { _id: walletId, userId: user._id },
+      { name: newName }
+    );
+    if (!wallet) throw new Error("Wallet not found or unauthorized");
+    
     revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
@@ -268,8 +285,10 @@ export async function updateWalletName(walletId: string, newName: string) {
 
 export async function deleteWallet(walletId: string) {
   try {
-    await dbConnect();
-    await Wallet.findByIdAndDelete(walletId);
+    const user = await getAuthenticatedUser();
+    const wallet = await Wallet.findOneAndDelete({ _id: walletId, userId: user._id });
+    if (!wallet) throw new Error("Wallet not found or unauthorized");
+
     revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
@@ -359,13 +378,13 @@ export async function getTransactionsHistory(firebaseUid: string, filter: string
 }
 
 export async function deleteTransaction(transactionId: string) {
-  await dbConnect();
   try {
-    const transaction = await Transaction.findById(transactionId);
-    if (!transaction) throw new Error("Transaction not found");
+    const user = await getAuthenticatedUser();
+    const transaction = await Transaction.findOne({ _id: transactionId, userId: user._id });
+    if (!transaction) throw new Error("Transaction not found or unauthorized");
 
     // 1. Reverse Source Wallet
-    const sourceWallet = await Wallet.findById(transaction.sourceWalletId);
+    const sourceWallet = await Wallet.findOne({ _id: transaction.sourceWalletId, userId: user._id });
     if (sourceWallet) {
       if (transaction.type === "EXPENSE" || transaction.type === "TRANSFER") {
         sourceWallet.balance += transaction.amount;
@@ -377,7 +396,7 @@ export async function deleteTransaction(transactionId: string) {
 
     // 2. Reverse Destination Wallet (if Transfer)
     if (transaction.type === "TRANSFER" && transaction.destinationWalletId) {
-      const destWallet = await Wallet.findById(transaction.destinationWalletId);
+      const destWallet = await Wallet.findOne({ _id: transaction.destinationWalletId, userId: user._id });
       if (destWallet) {
         destWallet.balance -= transaction.amount;
         await destWallet.save();
@@ -404,13 +423,13 @@ export async function updateTransaction(transactionId: string, newData: {
   description?: string;
   date?: Date;
 }) {
-  await dbConnect();
   try {
-    const oldTransaction = await Transaction.findById(transactionId);
-    if (!oldTransaction) throw new Error("Transaction not found");
+    const user = await getAuthenticatedUser();
+    const oldTransaction = await Transaction.findOne({ _id: transactionId, userId: user._id });
+    if (!oldTransaction) throw new Error("Transaction not found or unauthorized");
 
     // 1. REVERSE OLD TRANSACTION
-    const oldSourceWallet = await Wallet.findById(oldTransaction.sourceWalletId);
+    const oldSourceWallet = await Wallet.findOne({ _id: oldTransaction.sourceWalletId, userId: user._id });
     if (oldSourceWallet) {
       if (oldTransaction.type === "EXPENSE" || oldTransaction.type === "TRANSFER") {
         oldSourceWallet.balance += oldTransaction.amount;
@@ -421,7 +440,7 @@ export async function updateTransaction(transactionId: string, newData: {
     }
 
     if (oldTransaction.type === "TRANSFER" && oldTransaction.destinationWalletId) {
-      const oldDestWallet = await Wallet.findById(oldTransaction.destinationWalletId);
+      const oldDestWallet = await Wallet.findOne({ _id: oldTransaction.destinationWalletId, userId: user._id });
       if (oldDestWallet) {
         oldDestWallet.balance -= oldTransaction.amount;
         await oldDestWallet.save();
@@ -429,8 +448,8 @@ export async function updateTransaction(transactionId: string, newData: {
     }
 
     // 2. APPLY NEW TRANSACTION
-    const newSourceWallet = await Wallet.findById(newData.sourceWalletId);
-    if (!newSourceWallet) throw new Error("New source wallet not found");
+    const newSourceWallet = await Wallet.findOne({ _id: newData.sourceWalletId, userId: user._id });
+    if (!newSourceWallet) throw new Error("New source wallet not found or unauthorized");
 
     if (newData.type === "EXPENSE" || newData.type === "TRANSFER") {
       newSourceWallet.balance -= newData.amount;
@@ -440,8 +459,8 @@ export async function updateTransaction(transactionId: string, newData: {
     await newSourceWallet.save();
 
     if (newData.type === "TRANSFER" && newData.destinationWalletId) {
-      const newDestWallet = await Wallet.findById(newData.destinationWalletId);
-      if (!newDestWallet) throw new Error("New destination wallet not found");
+      const newDestWallet = await Wallet.findOne({ _id: newData.destinationWalletId, userId: user._id });
+      if (!newDestWallet) throw new Error("New destination wallet not found or unauthorized");
       
       newDestWallet.balance += newData.amount;
       await newDestWallet.save();

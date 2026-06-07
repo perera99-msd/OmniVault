@@ -32,11 +32,10 @@ const formSchema = z.object({
 });
 
 interface CreateWalletFormProps {
-  userId: string;
   onSuccess?: () => void;
 }
 
-export function CreateWalletForm({ userId, onSuccess }: CreateWalletFormProps) {
+export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,7 +51,6 @@ export function CreateWalletForm({ userId, onSuccess }: CreateWalletFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     const res = await createWallet({
-      userId,
       ...values,
     });
     

@@ -23,7 +23,7 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
     setLoading(false);
   };
 
-  const getInitials = (name: string) => name.substring(0, 2).toUpperCase();
+  const getInitials = (name: string) => name.charAt(0).toUpperCase();
   const isOverdue = loan.dueDate && new Date(loan.dueDate) < new Date() && !isSettled;
 
   // Calculate progress based on dates (mock progress if no start date, we'll assume 50% for visuals unless overdue)

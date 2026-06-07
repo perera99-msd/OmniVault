@@ -7,12 +7,11 @@ import { DailyTransactionForm } from "@/components/forms/DailyTransactionForm";
 import { motion } from "framer-motion";
 
 interface TransactionFABProps {
-  userId: string;
   wallets: any[];
   categories: any[];
 }
 
-export function TransactionFAB({ userId, wallets, categories }: TransactionFABProps) {
+export function TransactionFAB({ wallets, categories }: TransactionFABProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,7 +33,7 @@ export function TransactionFAB({ userId, wallets, categories }: TransactionFABPr
         <DialogHeader className="mb-6">
           <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white tracking-tight">New Transaction</DialogTitle>
         </DialogHeader>
-        <DailyTransactionForm userId={userId} wallets={wallets} categories={categories} />
+        <DailyTransactionForm wallets={wallets} categories={categories} />
       </DialogContent>
     </Dialog>
   );

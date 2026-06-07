@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 import {
   Select,
   SelectContent,
@@ -36,12 +37,11 @@ const formSchema = z.object({
 });
 
 interface DailyTransactionFormProps {
-  userId: string;
   wallets: any[];
   categories: any[];
 }
 
-export function DailyTransactionForm({ userId, wallets, categories }: DailyTransactionFormProps) {
+export function DailyTransactionForm({ wallets, categories }: DailyTransactionFormProps) {
   const selectedWalletId = useAppStore((state) => state.selectedWalletId);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,6 @@ export function DailyTransactionForm({ userId, wallets, categories }: DailyTrans
 
     if (isCreatingCategory && values.newCategoryName) {
       const catRes = await createCategory({
-        userId,
         name: values.newCategoryName,
         type: watchType,
         icon: "✨", 
@@ -94,7 +93,6 @@ export function DailyTransactionForm({ userId, wallets, categories }: DailyTrans
     const finalDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds());
 
     const res = await addTransaction({
-      userId,
       ...values,
       categoryId: finalCategoryId,
       date: finalDate
@@ -283,7 +281,7 @@ export function DailyTransactionForm({ userId, wallets, categories }: DailyTrans
           />
 
           <Button type="submit" className="w-full font-bold shadow-md shadow-primary/30" disabled={loading || wallets.length === 0}>
-            {loading ? "Processing..." : (wallets.length === 0 ? "Create a Wallet First" : "Save Transaction")}
+            {loading ? <PremiumSpinner size="sm" color="white" /> : (wallets.length === 0 ? "Create a Wallet First" : "Save Transaction")}
           </Button>
         </form>
       </Form>

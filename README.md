@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="public/Logos/Dark%20Logo.png" alt="OmniVault Logo" width="150" />
 
-## Getting Started
+  # 🛡️ OmniVault
 
-First, run the development server:
+  **The Ultimate Premium Financial SaaS Dashboard & Wealth Tracker**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+  [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ominivault-dun.vercel.app)
+  [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)](#)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+  [**ominivault-dun.vercel.app**](https://ominivault-dun.vercel.app)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+  Developed by **[Dimalsha Perera](https://dimalshaperera.dev)** 👨‍💻
+</div>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ✨ Overview
 
-To learn more about Next.js, take a look at the following resources:
+**OmniVault** is a cutting-edge, production-ready Progressive Web Application (PWA) designed to give users absolute control over their financial wealth. From tracking digital crypto wallets and physical cash reserves to managing bank institutions and upcoming loans, OmniVault presents your data through a beautifully designed, premium Dark/Light mode interface. 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+With deep integrations into Firebase Authentication and multi-currency global analytics, it serves as a secure, personal financial fortress.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Key Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+*   **💳 Comprehensive Vault Management:** Track physical cash, digital assets, and institutional bank balances all in one secure place.
+*   **🌍 Intelligent Global Currency Conversion:** Seamlessly toggle your entire dashboard and analytics between LKR (Rs), USD ($), and EUR (€) with real-time aggregated conversions.
+*   **📊 Dynamic SaaS Analytics Grid:** Interactive "Bento" style dashboard showcasing total net worth, income/expense tracking, and interactive charts.
+*   **📱 True PWA Experience:** Installable on iOS/Android devices with native-feeling UI, splash screens, and localized biometric logic (FaceID / TouchID).
+*   **🔐 Military-Grade Security:** Powered by secure Firebase Authentication with robust password-reset flows and localized data protection.
+*   **🎨 Stunning UI/UX Architecture:** Smooth 60FPS Framer Motion animations, deeply customizable themes (Dark/Light), and premium frosted-glass design tokens.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Tech Stack
+
+*   **Framework:** [Next.js 14](https://nextjs.org/) (App Router, Server Actions)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/)
+*   **Database:** [MongoDB](https://www.mongodb.com/) (Mongoose)
+*   **Authentication:** [Firebase Auth](https://firebase.google.com/)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+*   **Animations:** [Framer Motion](https://www.framer.com/motion/)
+*   **Icons:** [Lucide React](https://lucide.dev/)
+*   **Deployment:** [Vercel](https://vercel.com/)
+
+---
+
+## 👨‍💻 Developer
+
+**Developed with ❤️ by Dimalsha Perera**
+
+*   🌐 **Portfolio:** [dimalshaperera.dev](https://dimalshaperera.dev)
+*   🌟 **Version:** v1.0.0 Initial Release
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct, and the process for submitting pull requests to us.

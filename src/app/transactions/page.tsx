@@ -241,7 +241,7 @@ export default async function TransactionsPage({
       </div>
 
       {wallets.length > 0 && (
-        <TransactionFAB userId={user._id.toString()} wallets={wallets} categories={categories} />
+        <TransactionFAB wallets={wallets} categories={categories} />
       )}
     </div>
   );
