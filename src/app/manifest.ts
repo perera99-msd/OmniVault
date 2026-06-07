@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Your wealth. Every source. One vault.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#003300',
+    background_color: '#09090b',
+    theme_color: '#09090b',
     icons: [
       {
         src: '/icon-192x192.png',

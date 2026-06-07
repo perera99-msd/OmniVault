@@ -5,7 +5,7 @@ import { createLoan } from "@/actions/loans";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function CreateLoanForm({ userId }: { userId: string }) {
+export function CreateLoanForm({ onSuccess }: { onSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState("GIVEN");
   const [hasDeadline, setHasDeadline] = useState(true);
@@ -16,18 +16,18 @@ export function CreateLoanForm({ userId }: { userId: string }) {
     const formData = new FormData(e.currentTarget);
 
     const result = await createLoan({
-      userId,
-      personName: formData.get("personName"),
+      personName: formData.get("personName") as string,
       type,
       amount: Number(formData.get("amount")),
       hasDeadline,
-      dueDate: formData.get("dueDate"),
-      description: formData.get("description"),
+      dueDate: formData.get("dueDate") as string,
+      description: formData.get("description") as string,
     });
 
     setLoading(false);
     if (result?.success) {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      if (onSuccess) onSuccess();
     } else {
       alert("Failed to create loan: " + result?.error);
     }

@@ -5,7 +5,7 @@ import { useAppStore } from "@/lib/store/useStore";
 import { Button } from "@/components/ui/button";
 
 export function BiometricOverlay({ children }: { children: React.ReactNode }) {
-  const { biometricEnabled, isAppLocked, setAppLocked } = useAppStore();
+  const { biometricEnabled, biometricCredentialId, isAppLocked, setAppLocked } = useAppStore();
   const [unlocking, setUnlocking] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
@@ -17,15 +17,38 @@ export function BiometricOverlay({ children }: { children: React.ReactNode }) {
     }
   }, [biometricEnabled, hasInitialized, setAppLocked]);
 
+  const decodeBuffer = (base64Url: string) => {
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  };
+
   const handleUnlock = async () => {
     setUnlocking(true);
     try {
-      // Basic WebAuthn trigger (usually requires a challenge from a server)
-      // This is a front-end placeholder logic for the blueprint
+      if (!biometricCredentialId) {
+        throw new Error("No biometric credential saved.");
+      }
+
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credentialIdBuffer = decodeBuffer(biometricCredentialId);
+
       const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions = {
-        challenge: new Uint8Array(32), // Random challenge
+        challenge: challenge,
         timeout: 60000,
-        userVerification: "required", // Forces biometric or PIN
+        userVerification: "required",
+        allowCredentials: [
+          {
+            id: credentialIdBuffer,
+            type: "public-key",
+          }
+        ]
       };
 
       const credential = await navigator.credentials.get({
@@ -35,9 +58,9 @@ export function BiometricOverlay({ children }: { children: React.ReactNode }) {
       if (credential) {
         setAppLocked(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Biometric unlock failed:", err);
-      alert("Unlock failed. Please try again or use your fallback password.");
+      // Don't alert here to allow seamless fallback if they cancel, they can just click the button again.
     } finally {
       setUnlocking(false);
     }

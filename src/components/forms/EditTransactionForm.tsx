@@ -70,7 +70,6 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
 
     if (isCreatingCategory && values.newCategoryName) {
       const catRes = await createCategory({
-        userId: transaction.userId,
         name: values.newCategoryName,
         type: watchType === "TRANSFER" ? "EXPENSE" : watchType,
         icon: "✨", 

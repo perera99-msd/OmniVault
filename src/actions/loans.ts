@@ -4,6 +4,19 @@ import dbConnect from "@/lib/db/index";
 import { User } from "@/models/User";
 import { Loan } from "@/models/Loan";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
+async function getAuthenticatedUser() {
+  const cookieStore = await cookies();
+  const firebaseUid = cookieStore.get("firebaseUid")?.value;
+  if (!firebaseUid) throw new Error("Unauthorized: No session found");
+  
+  await dbConnect();
+  const user = await User.findOne({ firebaseUid }).lean();
+  if (!user) throw new Error("Unauthorized: User not found");
+  
+  return user;
+}
 
 export async function getLoansPageData(firebaseUid: string) {
   await dbConnect();
@@ -26,10 +39,10 @@ export async function getLoansPageData(firebaseUid: string) {
 }
 
 export async function createLoan(data: any) {
-  await dbConnect();
   try {
+    const user = await getAuthenticatedUser();
     const newLoan = await Loan.create({
-      userId: data.userId,
+      userId: user._id,
       personName: data.personName,
       type: data.type, // 'GIVEN' or 'RECEIVED'
       amount: data.amount,
@@ -47,9 +60,11 @@ export async function createLoan(data: any) {
 }
 
 export async function settleLoan(loanId: string) {
-  await dbConnect();
   try {
-    await Loan.findByIdAndUpdate(loanId, { status: 'SETTLED' });
+    const user = await getAuthenticatedUser();
+    const loan = await Loan.findOneAndUpdate({ _id: loanId, userId: user._id }, { status: 'SETTLED' });
+    if (!loan) throw new Error("Loan not found or unauthorized");
+    
     revalidatePath("/loans");
     revalidatePath("/", "layout");
     return { success: true };
@@ -59,9 +74,11 @@ export async function settleLoan(loanId: string) {
 }
 
 export async function extendLoanDate(loanId: string, newDate: Date) {
-  await dbConnect();
   try {
-    await Loan.findByIdAndUpdate(loanId, { dueDate: newDate });
+    const user = await getAuthenticatedUser();
+    const loan = await Loan.findOneAndUpdate({ _id: loanId, userId: user._id }, { dueDate: newDate });
+    if (!loan) throw new Error("Loan not found or unauthorized");
+    
     revalidatePath("/loans");
     return { success: true };
   } catch (error: any) {
@@ -70,9 +87,11 @@ export async function extendLoanDate(loanId: string, newDate: Date) {
 }
 
 export async function deleteLoan(loanId: string) {
-  await dbConnect();
   try {
-    await Loan.findByIdAndDelete(loanId);
+    const user = await getAuthenticatedUser();
+    const loan = await Loan.findOneAndDelete({ _id: loanId, userId: user._id });
+    if (!loan) throw new Error("Loan not found or unauthorized");
+    
     revalidatePath("/loans");
     revalidatePath("/", "layout");
     return { success: true };
@@ -82,10 +101,10 @@ export async function deleteLoan(loanId: string) {
 }
 
 export async function updateLoan(loanId: string, data: any) {
-  await dbConnect();
   try {
-    const loan = await Loan.findById(loanId);
-    if (!loan) throw new Error("Loan not found");
+    const user = await getAuthenticatedUser();
+    const loan = await Loan.findOne({ _id: loanId, userId: user._id });
+    if (!loan) throw new Error("Loan not found or unauthorized");
 
     loan.personName = data.personName;
     loan.type = data.type;

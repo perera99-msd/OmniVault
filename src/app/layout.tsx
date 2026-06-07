@@ -24,22 +24,38 @@ export const metadata: Metadata = {
   title: "OmniVault - Your wealth. Every source.",
   description: "A highly scalable, mobile-first Personal Finance PWA.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "OmniVault",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#003300",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-[#f5f5f5] dark:bg-[#0a0a0a] transition-colors duration-500" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-background transition-colors duration-500 overscroll-none prevent-select" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <div id="app-wrapper" className="flex-1 flex flex-col h-full w-full relative">
             {/* Global Ambient Background Effects - Adapts to Light/Dark */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-              <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-[#66cc66]/20 dark:bg-[#006600]/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen transition-all duration-700" />
-              <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#009900]/10 dark:bg-[#009900]/10 blur-[140px] mix-blend-multiply dark:mix-blend-screen transition-all duration-700" />
+              <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 blur-[120px] transition-all duration-700" />
+              <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-teal-400/10 dark:bg-emerald-900/10 blur-[140px] transition-all duration-700" />
             </div>
 
             <div className="relative z-10 w-full h-full flex flex-col flex-1">

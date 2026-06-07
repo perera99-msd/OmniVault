@@ -77,7 +77,7 @@ export default async function LoansPage() {
                 <DialogHeader className="mb-4">
                   <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Loan Details</DialogTitle>
                 </DialogHeader>
-                <CreateLoanForm userId={user._id} />
+                <CreateLoanForm />
               </DialogContent>
             </Dialog>
           </motion.header>

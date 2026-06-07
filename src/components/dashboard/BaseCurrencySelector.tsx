@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
@@ -13,6 +13,7 @@ const CURRENCIES = [
 export function BaseCurrencySelector({ currentBase }: { currentBase: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +30,7 @@ export function BaseCurrencySelector({ currentBase }: { currentBase: string }) {
   const handleSelect = (code: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("base", code);
-    router.push(`/?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
     setIsOpen(false);
   };
 

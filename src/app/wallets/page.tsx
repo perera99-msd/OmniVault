@@ -5,55 +5,45 @@ import { CreateWalletForm } from "@/components/forms/CreateWalletForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Landmark, CreditCard, Wallet as WalletIcon, ShieldCheck } from "lucide-react";
 import * as motion from "framer-motion/client";
+import { BaseCurrencySelector } from "@/components/dashboard/BaseCurrencySelector";
+import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
-export default async function WalletsPage() {
+export default async function WalletsPage(props: { searchParams: Promise<{ base?: string }> | { base?: string } }) {
   const cookieStore = await cookies();
   const firebaseUid = cookieStore.get("firebaseUid")?.value;
 
   if (!firebaseUid) return null;
 
+  const searchParams = await (props.searchParams instanceof Promise ? props.searchParams : Promise.resolve(props.searchParams));
+  const baseCurrency = searchParams?.base || "LKR";
+  const { convertCurrency } = require("@/lib/utils/currency");
+
   const res = await getWalletsPageData(firebaseUid);
   if (!res.success || !res.data) return null;
 
-  const { user, wallets } = res.data;
-
-  // Aggregate Data by Currency
-  const aggregateByCurrency = (walletList: any[]) => {
-    return {
-      USD: walletList.filter(w => w.currency === "USD" || !w.currency).reduce((acc: number, w: any) => acc + w.balance, 0),
-      EUR: walletList.filter(w => w.currency === "EUR").reduce((acc: number, w: any) => acc + w.balance, 0),
-      GBP: walletList.filter(w => w.currency === "GBP").reduce((acc: number, w: any) => acc + w.balance, 0),
-    };
-  };
+  const { wallets } = res.data;
 
   const bankWallets = wallets.filter((w: any) => w.type === "Bank");
   const digitalWallets = wallets.filter((w: any) => w.type === "Digital");
   const cashWallets = wallets.filter((w: any) => w.type === "Cash");
 
-  const totalWealth = aggregateByCurrency(wallets);
-  const bankTotals = aggregateByCurrency(bankWallets);
-  const digitalTotals = aggregateByCurrency(digitalWallets);
-  const cashTotals = aggregateByCurrency(cashWallets);
-
-  const formatCurrency = (amount: number, code: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: code,
-      minimumFractionDigits: 2,
-    }).format(amount);
+  const aggregateTotals = (walletList: any[]) => {
+    return walletList.reduce((sum: number, w: any) => sum + convertCurrency(w.balance, w.currency || "LKR", baseCurrency), 0);
   };
 
-  const renderTotals = (totals: {USD: number, EUR: number, GBP: number}, isHero: boolean = false) => (
+  const totalWealth = aggregateTotals(wallets);
+  const bankTotals = aggregateTotals(bankWallets);
+  const digitalTotals = aggregateTotals(digitalWallets);
+  const cashTotals = aggregateTotals(cashWallets);
+
+  const currentSymbol = CURRENCY_SYMBOLS[baseCurrency] || "Rs ";
+
+  const renderTotals = (total: number, isHero: boolean = false) => (
     <div className="flex flex-col mt-2">
-      <p className={`${isHero ? 'text-[2rem] text-zinc-900 dark:text-white' : 'text-2xl text-zinc-800 dark:text-zinc-100'} font-black tracking-tighter flex items-baseline gap-1 tabular-nums`}>
-        {formatCurrency(totals.USD, 'USD')}
+      <p className={`${isHero ? 'text-[2rem] text-white' : 'text-2xl text-zinc-900 dark:text-white'} font-black tracking-tighter flex items-baseline gap-1 tabular-nums`}>
+        <span className={`${isHero ? 'text-emerald-100/70 text-xl' : 'text-zinc-400 font-medium text-lg'}`}>{currentSymbol}</span>
+        {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </p>
-      {(totals.EUR > 0 || totals.GBP > 0) && (
-        <div className="flex gap-3 mt-3 border-t border-zinc-100 dark:border-zinc-800/60 pt-3">
-          {totals.EUR > 0 && <span className="text-[11px] font-bold text-zinc-500 tracking-tight tabular-nums">EUR €{totals.EUR.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
-          {totals.GBP > 0 && <span className="text-[11px] font-bold text-zinc-500 tracking-tight tabular-nums">GBP £{totals.GBP.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>}
-        </div>
-      )}
     </div>
   );
 
@@ -87,7 +77,11 @@ export default async function WalletsPage() {
         >
 
           {/* Header & New Vault Action */}
-          <motion.header variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-6">
+          <motion.header variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-6 relative">
+            <div className="absolute top-0 right-0 sm:hidden">
+              <BaseCurrencySelector currentBase={baseCurrency} />
+            </div>
+            
             <div className="space-y-3">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200/50 dark:border-zinc-800/50 mb-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -101,17 +95,22 @@ export default async function WalletsPage() {
               </p>
             </div>
 
-            <Dialog>
-              <DialogTrigger className="flex items-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-4 rounded-full font-bold text-[14px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300">
-                <Plus className="w-4 h-4 stroke-[3px]" /> Add New Vault
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
-                <DialogHeader className="mb-4">
-                  <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
-                </DialogHeader>
-                <CreateWalletForm userId={user._id} />
-              </DialogContent>
-            </Dialog>
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4 w-full sm:w-auto">
+              <div className="hidden sm:block">
+                <BaseCurrencySelector currentBase={baseCurrency} />
+              </div>
+              <Dialog>
+                <DialogTrigger className="flex items-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-4 rounded-full font-bold text-[14px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300 w-full sm:w-auto justify-center">
+                  <Plus className="w-4 h-4 stroke-[3px]" /> Add New Vault
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+                  <DialogHeader className="mb-4">
+                    <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
+                  </DialogHeader>
+                      <CreateWalletForm />
+                </DialogContent>
+              </Dialog>
+            </div>
           </motion.header>
 
           {/* Aggregated Analytics Cards (SaaS Bento) */}
@@ -119,11 +118,7 @@ export default async function WalletsPage() {
             <div className="bg-emerald-500 dark:bg-emerald-600 p-6 rounded-[2rem] shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               <p className="text-[10px] text-emerald-50 font-black uppercase tracking-[0.2em] mb-1">Total Wealth</p>
-              <div className="flex flex-col mt-2">
-                <p className="text-[2rem] text-white font-black tracking-tighter flex items-baseline gap-1 tabular-nums">
-                  {formatCurrency(totalWealth.USD, 'USD')}
-                </p>
-              </div>
+              {renderTotals(totalWealth, true)}
             </div>
             
             <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-6 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex flex-col justify-between group">
@@ -174,7 +169,7 @@ export default async function WalletsPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {bankWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance }} />
+                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
                     ))}
                   </div>
                 </motion.section>
@@ -191,7 +186,7 @@ export default async function WalletsPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {digitalWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance }} />
+                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
                     ))}
                   </div>
                 </motion.section>
@@ -208,7 +203,7 @@ export default async function WalletsPage() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {cashWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance }} />
+                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
                     ))}
                   </div>
                 </motion.section>
@@ -227,7 +222,7 @@ export default async function WalletsPage() {
                     <DialogHeader className="mb-4">
                       <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
                     </DialogHeader>
-                    <CreateWalletForm userId={user._id} />
+                        <CreateWalletForm />
                   </DialogContent>
                 </Dialog>
               </motion.section>

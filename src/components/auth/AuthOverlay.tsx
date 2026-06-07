@@ -105,22 +105,27 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div suppressHydrationWarning className="min-h-screen flex items-center justify-center bg-[#f5f5f5] dark:bg-[#212121]">
+      <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-zinc-50 dark:bg-[#09090b] transition-colors duration-500 relative overflow-hidden">
+        {/* Ambient Blur */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none" />
+        
         <motion.div
-          animate={{ opacity: [0.4, 1, 0.4], scale: [0.95, 1, 0.95] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-4"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="flex flex-col items-center gap-6 relative z-10"
         >
-          <div className="w-16 h-16 relative">
-            <Image src="/Logos/Main%20Logo.png" alt="OmniVault Logo" fill className="object-contain" priority />
+          {/* Dual Logo for Dark/Light */}
+          <div className="w-20 h-20 relative drop-shadow-xl">
+            <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" priority />
+            <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" priority />
           </div>
-          <div className="h-1 w-24 bg-[#d7ccc8] dark:bg-[#616161] rounded-full overflow-hidden relative">
-            <motion.div
-              className="absolute left-0 top-0 bottom-0 bg-[#009900] dark:bg-[#66cc66] rounded-full"
-              animate={{ left: ["-100%", "100%"] }}
-              transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-              style={{ width: "50%" }}
-            />
+          
+          {/* Custom Premium SaaS Spinner */}
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <div className="absolute inset-0 border-2 border-zinc-200 dark:border-zinc-800 rounded-full" />
+            <div className="absolute inset-0 border-2 border-transparent border-t-emerald-500 rounded-full animate-spin" style={{ animationDuration: "0.8s" }} />
+            <div className="absolute inset-2 border-2 border-transparent border-b-emerald-400 rounded-full animate-spin" style={{ animationDuration: "1.2s", animationDirection: "reverse" }} />
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
           </div>
         </motion.div>
       </div>
@@ -155,8 +160,8 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
             {/* Inner Content overlaying the image (Hidden entirely on mobile for space) */}
             <div className="absolute inset-0 p-6 md:p-10 lg:p-12 flex-col justify-end md:justify-between z-20 hidden md:flex">
-              <div className="hidden md:block w-12 h-12 relative bg-white/10 backdrop-blur-md rounded-2xl p-2.5 border border-white/20 shadow-lg">
-                <Image src="/Logos/Main%20Logo.png" alt="Logo" fill className="object-contain p-1.5" />
+              <div className="hidden md:flex items-center justify-center w-12 h-12 relative bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
+                <Image src="/Logos/Light%20Logo.png" alt="Logo" fill className="object-contain p-1.5" />
               </div>
               <div className="mb-4 md:mb-0">
                 <motion.div
@@ -252,9 +257,28 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     <div className="flex justify-between items-center ml-1">
                       <label className="text-[12px] font-bold text-[#a1887f] dark:text-[#9e9e9e] uppercase tracking-widest">Password</label>
                       {isLogin && (
-                        <a href="#" className="text-[11px] text-[#009900] dark:text-[#66cc66] font-bold hover:underline transition-all">
+                        <button 
+                          type="button"
+                          onClick={async () => {
+                            if (!email) {
+                              setError("Please enter your email address first.");
+                              return;
+                            }
+                            setAuthLoading(true);
+                            try {
+                              const { sendPasswordResetEmail } = await import("firebase/auth");
+                              await sendPasswordResetEmail(auth, email);
+                              setError("Password reset email sent! Please check your inbox.");
+                            } catch (err: any) {
+                              setError(err.message.replace("Firebase: ", ""));
+                            } finally {
+                              setAuthLoading(false);
+                            }
+                          }}
+                          className="text-[11px] text-[#009900] dark:text-[#66cc66] font-bold hover:underline transition-all"
+                        >
                           Forgot password?
-                        </a>
+                        </button>
                       )}
                     </div>
                     <input
