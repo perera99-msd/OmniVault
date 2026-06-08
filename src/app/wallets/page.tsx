@@ -39,10 +39,10 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
   const currentSymbol = CURRENCY_SYMBOLS[baseCurrency] || "Rs ";
 
   const renderTotals = (total: number, isHero: boolean = false) => (
-    <div className="flex flex-col mt-2">
-      <p className={`${isHero ? 'text-[2rem] text-white' : 'text-2xl text-zinc-900 dark:text-white'} font-black tracking-tighter flex items-baseline gap-1 tabular-nums`}>
-        <span className={`${isHero ? 'text-emerald-100/70 text-xl' : 'text-zinc-400 font-medium text-lg'}`}>{currentSymbol}</span>
-        {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+    <div className="flex flex-col mt-1 sm:mt-2">
+      <p className={`${isHero ? 'text-xl sm:text-[2rem] text-white' : 'text-lg sm:text-2xl text-zinc-900 dark:text-white'} font-black tracking-tighter flex items-baseline gap-0.5 sm:gap-1 tabular-nums truncate`}>
+        <span className={`${isHero ? 'text-emerald-100/70 text-sm sm:text-xl' : 'text-zinc-400 font-medium text-sm sm:text-lg'} shrink-0`}>{currentSymbol}</span>
+        <span className="truncate">{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       </p>
     </div>
   );
@@ -73,21 +73,21 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
 
           {/* Header & New Vault Action */}
-          <motion.header variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-6 relative">
+          <motion.header variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-2 sm:pb-6 relative">
             <div className="absolute top-0 right-0 sm:hidden">
               <BaseCurrencySelector currentBase={baseCurrency} />
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200/50 dark:border-zinc-800/50 mb-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                 <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Secure Storage</span>
               </div>
-              <h1 className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
                 Vaults
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-bold tracking-wide max-w-md">
@@ -105,7 +105,7 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
                   <DialogHeader className="mb-4">
-                    <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
                   </DialogHeader>
                       <CreateWalletForm />
                 </DialogContent>
@@ -114,33 +114,33 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
           </motion.header>
 
           {/* Aggregated Analytics Cards (SaaS Bento) */}
-          <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div className="bg-emerald-500 dark:bg-emerald-600 p-6 rounded-[2rem] shadow-lg relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-              <p className="text-[10px] text-emerald-50 font-black uppercase tracking-[0.2em] mb-1">Total Wealth</p>
+          <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <div className="bg-emerald-500 dark:bg-emerald-600 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-lg relative overflow-hidden group col-span-2 sm:col-span-1 lg:col-span-1">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/20 rounded-full blur-2xl -mr-6 -mt-6 sm:-mr-10 sm:-mt-10 transition-transform group-hover:scale-150"></div>
+              <p className="text-[9px] sm:text-[10px] text-emerald-50 font-bold uppercase tracking-[0.2em] mb-1">Total Wealth</p>
               {renderTotals(totalWealth, true)}
             </div>
             
-            <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-6 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex flex-col justify-between group">
-              <div className="flex items-center gap-2 mb-1">
-                <Landmark className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em]">Bank Assets</p>
+            <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm flex flex-col justify-between group col-span-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                <Landmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                <p className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate">Bank Assets</p>
               </div>
               {renderTotals(bankTotals)}
             </div>
 
-            <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-6 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex flex-col justify-between group">
-              <div className="flex items-center gap-2 mb-1">
-                <CreditCard className="w-4 h-4 text-zinc-400 group-hover:text-blue-500 transition-colors" />
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em]">Digital Assets</p>
+            <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm flex flex-col justify-between group col-span-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-blue-500 transition-colors" />
+                <p className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate">Digital Assets</p>
               </div>
               {renderTotals(digitalTotals)}
             </div>
 
-            <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-6 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex flex-col justify-between group">
-              <div className="flex items-center gap-2 mb-1">
-                <WalletIcon className="w-4 h-4 text-zinc-400 group-hover:text-rose-500 transition-colors" />
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em]">Physical Cash</p>
+            <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] shadow-sm flex flex-col justify-between group col-span-2 sm:col-span-1 lg:col-span-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                <WalletIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 group-hover:text-rose-500 transition-colors" />
+                <p className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate">Physical Cash</p>
               </div>
               {renderTotals(cashTotals)}
             </div>
@@ -148,11 +148,11 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
 
           {/* Categorized Wallet Grids */}
           {wallets.length === 0 ? (
-            <motion.div variants={itemVariants} className="text-center py-24 bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[2.5rem] shadow-xl shadow-zinc-200/40 dark:shadow-none">
+            <motion.div variants={itemVariants} className="text-center py-24 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-[2rem] shadow-sm">
               <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                 <WalletIcon className="w-10 h-10 text-zinc-300 dark:text-zinc-600" />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">No Vaults Connected</h3>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">No Vaults Connected</h3>
               <p className="text-zinc-500 font-medium text-sm">Add your first wallet to start tracking your net worth.</p>
             </motion.div>
           ) : (
@@ -161,15 +161,17 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
               {/* Bank Accounts Section */}
               {bankWallets.length > 0 && (
                 <motion.section variants={itemVariants}>
-                  <h3 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
+                  <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
                     <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
                       <Landmark className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     Bank Institutions
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="flex overflow-x-auto hide-scrollbar gap-4 pb-6 pt-2 snap-x snap-mandatory w-full -mx-4 px-4 sm:mx-0 sm:px-0">
                     {bankWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      <div key={w._id} className="shrink-0 w-[85vw] sm:w-[340px] xl:w-[380px] snap-center">
+                        <WalletCard wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -178,15 +180,17 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
               {/* Digital Wallets Section */}
               {digitalWallets.length > 0 && (
                 <motion.section variants={itemVariants}>
-                  <h3 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
+                  <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
                     <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg">
                       <CreditCard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     Digital & Crypto
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="flex overflow-x-auto hide-scrollbar gap-4 pb-6 pt-2 snap-x snap-mandatory w-full -mx-4 px-4 sm:mx-0 sm:px-0">
                     {digitalWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      <div key={w._id} className="shrink-0 w-[85vw] sm:w-[340px] xl:w-[380px] snap-center">
+                        <WalletCard wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -195,15 +199,17 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
               {/* Physical Cash Section */}
               {cashWallets.length > 0 && (
                 <motion.section variants={itemVariants}>
-                  <h3 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
+                  <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white mb-6 flex items-center gap-3">
                     <div className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-lg">
                       <WalletIcon className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                     </div>
                     Cash Reserves
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="flex overflow-x-auto hide-scrollbar gap-4 pb-6 pt-2 snap-x snap-mandatory w-full -mx-4 px-4 sm:mx-0 sm:px-0">
                     {cashWallets.map((w: any) => (
-                      <WalletCard key={w._id} wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      <div key={w._id} className="shrink-0 w-[85vw] sm:w-[340px] xl:w-[380px] snap-center">
+                        <WalletCard wallet={{ id: w._id, name: w.name, type: w.type, balance: w.balance, currency: w.currency }} />
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -212,7 +218,7 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
               {/* Dropzone Add Button */}
               <motion.section variants={itemVariants} className="pt-4 pb-8">
                 <Dialog>
-                  <DialogTrigger className="w-full flex flex-col items-center justify-center p-10 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-[2rem] bg-zinc-50/50 dark:bg-zinc-900/20 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 hover:border-emerald-500/50 transition-all duration-300 group">
+                  <DialogTrigger className="w-full flex flex-col items-center justify-center p-10 border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-[2rem] bg-zinc-50/50 dark:bg-[#121214] hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 hover:border-emerald-500/50 transition-all duration-300 group">
                     <div className="w-14 h-14 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300 mb-4">
                       <Plus className="w-6 h-6 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
                     </div>

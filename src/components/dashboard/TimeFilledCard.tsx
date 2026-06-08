@@ -60,18 +60,18 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
   return (
     <motion.div 
       variants={cardVariants}
-      className="relative flex flex-col h-full bg-white/70 dark:bg-[#121214]/70 backdrop-blur-3xl border border-zinc-200/50 dark:border-white/5 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden group hover:border-zinc-300/50 dark:hover:border-white/10 transition-colors duration-500"
+      className="relative flex flex-col h-full bg-white/70 dark:bg-[#121214]/70 backdrop-blur-3xl border border-zinc-200/50 dark:border-white/5 rounded-3xl p-5 xl:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden group hover:border-zinc-300/50 dark:hover:border-white/10 transition-colors duration-500"
     >
       {/* Soft Background Glow Blob */}
       <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700 ${isIncome ? 'bg-emerald-500' : 'bg-rose-500'}`} />
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-8 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center shadow-inner ${isIncome ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-rose-50 dark:bg-rose-500/10'}`}>
-            {isIncome ? <TrendingUp className="w-5 h-5 text-emerald-500 dark:text-emerald-400" /> : <TrendingDown className="w-5 h-5 text-rose-500 dark:text-rose-400" />}
+      <div className="flex items-start justify-between mb-4 xl:mb-8 relative z-10">
+        <div className="flex items-center gap-2 xl:gap-3">
+          <div className={`w-9 h-9 xl:w-11 xl:h-11 rounded-[12px] xl:rounded-[14px] flex items-center justify-center shadow-inner ${isIncome ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-rose-50 dark:bg-rose-500/10'}`}>
+            {isIncome ? <TrendingUp className="w-4 h-4 xl:w-5 xl:h-5 text-emerald-500 dark:text-emerald-400" /> : <TrendingDown className="w-4 h-4 xl:w-5 xl:h-5 text-rose-500 dark:text-rose-400" />}
           </div>
-          <h3 className="text-[1.1rem] font-bold text-zinc-900 dark:text-white tracking-tight">{label}</h3>
+          <h3 className="text-base xl:text-[1.1rem] font-bold text-zinc-900 dark:text-white tracking-tight">{label}</h3>
         </div>
 
         {/* Floating Minimal Pill Toggle */}
@@ -98,8 +98,8 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
       </div>
 
       {/* Amount Display with Animated Numbers */}
-      <div className="mb-6 relative z-10 flex items-center">
-        <span className="text-xl text-zinc-400 dark:text-zinc-500 font-medium mr-2 self-start mt-1.5">{currencySymbol}</span>
+      <div className="mb-4 xl:mb-6 relative z-10 flex items-center">
+        <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-medium mr-2 self-start mt-1.5">{currencySymbol}</span>
         <AnimatePresence mode="popLayout">
           <motion.p 
             key={period}
@@ -107,7 +107,7 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white"
+            className="text-3xl xl:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white"
           >
             {displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </motion.p>

@@ -36,10 +36,10 @@ export function ProfileSettingsClient({ user }: ProfileProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-zinc-200/40 dark:shadow-none relative overflow-hidden group">
+    <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-8 sm:p-10 rounded-[2.5rem] shadow-sm relative overflow-hidden group">
       <div className="absolute top-0 right-0 w-64 h-64 blur-[80px] rounded-full pointer-events-none opacity-0 bg-emerald-500 transition-opacity duration-700 group-hover:opacity-10" />
       
-      <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-8 flex items-center gap-3">
+      <h3 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white mb-8 flex items-center gap-3">
         <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl">
           <UserIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
         </div>

@@ -29,9 +29,9 @@ export function TransactionFAB({ wallets, categories }: TransactionFABProps) {
           <Plus className="w-8 h-8 stroke-[2.5px] drop-shadow-md group-hover:rotate-90 transition-transform duration-500" />
         </motion.div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-[#121214]/95 backdrop-blur-3xl border-zinc-200 dark:border-zinc-800 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
-        <DialogHeader className="mb-6">
-          <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white tracking-tight">New Transaction</DialogTitle>
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-white dark:bg-[#121214] border-0 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-6 sm:p-8 rounded-[2.5rem] gap-0">
+        <DialogHeader className="mb-6 flex flex-row items-center justify-center relative">
+          <DialogTitle className="text-xl font-bold text-center text-zinc-900 dark:text-white tracking-tight">Add transaction</DialogTitle>
         </DialogHeader>
         <DailyTransactionForm wallets={wallets} categories={categories} />
       </DialogContent>

@@ -87,7 +87,7 @@ export default async function UpcomingPaymentsPage() {
                 <CalendarHeart className="w-3.5 h-3.5 text-amber-500" />
                 <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Scheduled</span>
               </div>
-              <h1 className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
                 Upcoming
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-bold tracking-wide">
@@ -101,12 +101,12 @@ export default async function UpcomingPaymentsPage() {
             
             {/* Pending Column */}
             <div className="space-y-6">
-              <motion.h2 variants={itemVariants} className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
+              <motion.h2 variants={itemVariants} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-pulse"></span> Pending Bills
               </motion.h2>
               
               {unpaidPayments.length === 0 ? (
-                <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[2rem] p-12 text-center shadow-xl shadow-zinc-200/40 dark:shadow-none">
+                <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-[2rem] p-12 text-center shadow-sm">
                   <p className="text-zinc-500 font-bold text-sm">No pending payments. You're all caught up!</p>
                 </motion.div>
               ) : (
@@ -115,14 +115,14 @@ export default async function UpcomingPaymentsPage() {
                     const isOverdue = isPast(new Date(payment.dueDate)) && !isToday(new Date(payment.dueDate));
                     
                     return (
-                      <div key={payment._id} className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[1.5rem] p-6 shadow-xl shadow-zinc-200/40 dark:shadow-none hover:-translate-y-1 hover:shadow-2xl hover:shadow-zinc-200/60 transition-all duration-300 group">
+                      <div key={payment._id} className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-[1.5rem] p-6 shadow-sm hover:-translate-y-1 transition-all duration-300 group">
                         <div className="flex justify-between items-start mb-6">
                           <div className="flex items-center gap-4">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner ${getColorClass(payment.dueDate)}`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl shadow-inner ${getColorClass(payment.dueDate)}`}>
                               {payment.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <h3 className="font-black text-xl text-zinc-900 dark:text-white tracking-tight">{payment.name}</h3>
+                              <h3 className="font-bold text-xl text-zinc-900 dark:text-white tracking-tight">{payment.name}</h3>
                               <div className="flex items-center gap-1.5 mt-1">
                                 <Clock className={`w-3.5 h-3.5 ${isOverdue ? "text-rose-500" : "text-zinc-400"}`} />
                                 <p className={`text-xs font-bold ${isOverdue ? "text-rose-600 dark:text-rose-400" : "text-zinc-500 dark:text-zinc-400"}`}>
@@ -132,7 +132,7 @@ export default async function UpcomingPaymentsPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className={`font-black text-2xl tabular-nums tracking-tight ${isOverdue ? "text-rose-600 dark:text-rose-400" : "text-zinc-900 dark:text-white"}`}>
+                            <p className={`font-bold text-2xl tabular-nums tracking-tight ${isOverdue ? "text-rose-600 dark:text-rose-400" : "text-zinc-900 dark:text-white"}`}>
                               <span className="text-sm mr-1 opacity-50">USD</span>
                               {payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </p>
@@ -175,18 +175,18 @@ export default async function UpcomingPaymentsPage() {
 
             {/* Paid Column */}
             <div className="space-y-6 lg:opacity-70 lg:hover:opacity-100 transition-opacity duration-500">
-              <motion.h2 variants={itemVariants} className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
+              <motion.h2 variants={itemVariants} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-zinc-300 dark:bg-zinc-700"></span> Completed
               </motion.h2>
               
               {paidPayments.length === 0 ? (
-                <motion.div variants={itemVariants} className="bg-white/50 dark:bg-[#121214]/50 border border-zinc-100 dark:border-zinc-800/60 rounded-[2rem] p-12 text-center shadow-sm">
+                <motion.div variants={itemVariants} className="bg-white/50 dark:bg-[#121214]/50 border border-zinc-200 dark:border-white/5 rounded-[2rem] p-12 text-center shadow-sm">
                   <p className="text-zinc-400 font-bold text-sm">No completed payments yet.</p>
                 </motion.div>
               ) : (
                 <motion.div variants={itemVariants} className="space-y-3">
                   {paidPayments.map((payment: any) => (
-                    <div key={payment._id} className="bg-zinc-50 dark:bg-[#121214] border border-zinc-200/60 dark:border-zinc-800/60 rounded-[1.2rem] p-4 flex justify-between items-center transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+                    <div key={payment._id} className="bg-zinc-50 dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-sm rounded-[1.2rem] p-4 flex justify-between items-center transition-all hover:border-zinc-300 dark:hover:border-white/10">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                           <CheckCircle className="w-5 h-5" />
@@ -197,7 +197,7 @@ export default async function UpcomingPaymentsPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-sm text-zinc-400 dark:text-zinc-500 tabular-nums">
+                        <p className="font-bold text-sm text-zinc-400 dark:text-zinc-500 tabular-nums">
                           USD {payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </p>
                       </div>

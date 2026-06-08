@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
+import { LogoText } from "@/components/ui/LogoText";
+
 interface HeaderProps {
   userName: string;
 }
@@ -33,9 +35,7 @@ export function Header({ userName }: HeaderProps) {
             <Image src="/Logos/Light%20Logo.png" alt="Logo" fill className="object-contain p-1.5 dark:hidden" />
             <Image src="/Logos/Dark%20Logo.png" alt="Logo" fill className="object-contain p-1.5 hidden dark:block" />
           </div>
-          <span className="font-black text-zinc-900 dark:text-white text-xl tracking-tight">
-            OmniVault
-          </span>
+          <LogoText className="text-xl" />
         </div>
 
         {/* Desktop Greeting */}

@@ -24,6 +24,26 @@ With deep integrations into Firebase Authentication and multi-currency global an
 
 ---
 
+## 📸 Screenshots
+
+### Desktop View
+<div align="center" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <img src="public/screenshots/log in.png" alt="Login Page" width="48%" />
+  <img src="public/screenshots/Dashboard.png" alt="Dashboard" width="48%" />
+  <img src="public/screenshots/Transactions.png" alt="Transactions" width="48%" />
+  <img src="public/screenshots/Vaults.png" alt="Vaults" width="48%" />
+  <img src="public/screenshots/UpComing.png" alt="Upcoming" width="48%" />
+</div>
+
+### Mobile View
+<div align="center" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <img src="public/screenshots/Mobile1.png" alt="Mobile View 1" width="30%" />
+  <img src="public/screenshots/Mobile2.png" alt="Mobile View 2" width="30%" />
+  <img src="public/screenshots/Mobile3.png" alt="Mobile View 3" width="30%" />
+</div>
+
+---
+
 ## 🚀 Key Features
 
 *   **💳 Comprehensive Vault Management:** Track physical cash, digital assets, and institutional bank balances all in one secure place.

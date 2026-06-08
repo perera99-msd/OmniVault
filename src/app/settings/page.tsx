@@ -56,7 +56,7 @@ export default async function SettingsPage() {
                 <SettingsIcon className="w-3.5 h-3.5 text-emerald-500" />
                 <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Preferences</span>
               </div>
-              <h1 className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
                 Settings
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-bold tracking-wide">
@@ -88,7 +88,7 @@ export default async function SettingsPage() {
               </motion.div>
 
               {/* Notifications */}
-              <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-8 sm:p-10 rounded-[2.5rem] shadow-xl shadow-zinc-200/40 dark:shadow-none relative overflow-hidden group">
+              <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-8 sm:p-10 rounded-[2.5rem] shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-64 h-64 blur-[80px] rounded-full pointer-events-none opacity-0 bg-blue-500 transition-opacity duration-700 group-hover:opacity-10" />
 
                 <div className="flex items-center justify-between mb-8 relative z-10">
@@ -97,7 +97,7 @@ export default async function SettingsPage() {
                       <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white">Notifications</h3>
+                      <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">Notifications</h3>
                       <p className="text-xs text-blue-500 font-bold mt-1 uppercase tracking-widest">Coming Soon</p>
                     </div>
                   </div>
@@ -120,7 +120,7 @@ export default async function SettingsPage() {
               </motion.div>
 
               {/* Support */}
-              <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-6 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex items-center justify-between group cursor-pointer hover:border-emerald-500/50 transition-colors">
+              <motion.div variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-6 rounded-[2rem] shadow-sm flex items-center justify-between group cursor-pointer hover:border-emerald-500/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
                     <HelpCircle className="w-5 h-5 text-emerald-500" />

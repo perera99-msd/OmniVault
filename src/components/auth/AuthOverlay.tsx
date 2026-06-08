@@ -17,6 +17,7 @@ import { createUser } from "@/actions/finance";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Header } from "@/components/layout/Header";
+import { LogoText } from "@/components/ui/LogoText";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -105,27 +106,41 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-zinc-50 dark:bg-[#09090b] transition-colors duration-500 relative overflow-hidden">
-        {/* Ambient Blur */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none" />
+      <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-zinc-50 dark:bg-[#050505] transition-colors duration-500 relative overflow-hidden">
+        {/* Massive Ambient Aura */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] rounded-full bg-emerald-500/20 dark:bg-emerald-500/10 blur-[120px] pointer-events-none" 
+        />
         
         <motion.div
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center gap-6 relative z-10"
         >
-          {/* Dual Logo for Dark/Light */}
-          <div className="w-20 h-20 relative drop-shadow-xl">
+          {/* Pulsing Logo Container */}
+          <motion.div 
+            animate={{ scale: [1, 1.05, 1], filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"] }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+            className="w-24 h-24 sm:w-32 sm:h-32 relative drop-shadow-2xl"
+          >
             <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" priority />
             <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" priority />
-          </div>
+          </motion.div>
           
-          {/* Custom Premium SaaS Spinner */}
-          <div className="relative w-12 h-12 flex items-center justify-center">
-            <div className="absolute inset-0 border-2 border-zinc-200 dark:border-zinc-800 rounded-full" />
-            <div className="absolute inset-0 border-2 border-transparent border-t-emerald-500 rounded-full animate-spin" style={{ animationDuration: "0.8s" }} />
-            <div className="absolute inset-2 border-2 border-transparent border-b-emerald-400 rounded-full animate-spin" style={{ animationDuration: "1.2s", animationDirection: "reverse" }} />
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <LogoText className="text-3xl sm:text-4xl drop-shadow-md" />
+          
+          {/* Subtle loading bar */}
+          <div className="w-32 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full mt-4 overflow-hidden relative">
+            <motion.div 
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-emerald-500 to-transparent rounded-full"
+            />
           </div>
         </motion.div>
       </div>
@@ -184,18 +199,16 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* RIGHT SIDE PANEL: Form */}
-          <div className="w-full md:w-[55%] lg:w-[55%] bg-[#ffffff] dark:bg-[#424242] px-6 py-8 sm:px-10 sm:py-8 lg:px-16 lg:py-12 flex flex-col justify-start relative rounded-t-[2rem] sm:rounded-[1.5rem] md:rounded-[2rem] -mt-10 sm:-mt-8 md:mt-0 z-30 shadow-[0_-20px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_-20px_40px_rgba(0,0,0,0.5)] md:shadow-none flex-1 overflow-y-auto sm:overflow-visible transition-colors duration-500">
+          <div className="w-full md:w-[55%] lg:w-[55%] bg-white dark:bg-[#121214] px-6 py-8 sm:px-10 sm:py-8 lg:px-16 lg:py-12 flex flex-col justify-start relative rounded-t-[2rem] sm:rounded-[1.5rem] md:rounded-[2rem] -mt-10 sm:-mt-8 md:mt-0 z-30 shadow-none flex-1 overflow-y-auto sm:overflow-visible transition-colors duration-500">
             
             {/* Top Bar: Clean Logo Only */}
             <div className="flex justify-center md:justify-start items-center mb-8 sm:mb-10 sm:absolute sm:top-8 sm:left-10">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 relative">
+                <div className="w-8 h-8 relative drop-shadow-md">
                   <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" />
                   <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" />
                 </div>
-                <span className="font-outfit font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-emerald-400 dark:from-emerald-400 dark:to-emerald-200 text-2xl tracking-tight">
-                  OmniVault
-                </span>
+                <LogoText className="text-2xl" />
               </div>
             </div>
 
@@ -209,10 +222,10 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                 className="flex-1 flex flex-col"
               >
                 <div className="mb-6 text-center md:text-left">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-[#8d6e63] dark:text-[#ffffff] tracking-tight mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-2">
                     {isLogin ? "Welcome back" : "Create account"}
                   </h2>
-                  <p className="text-[13px] sm:text-[14px] text-[#a1887f] dark:text-[#9e9e9e] font-medium">
+                  <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 font-medium">
                     {isLogin ? "Enter your credentials to access your vault." : "Start managing your wealth today."}
                   </p>
                 </div>
@@ -227,14 +240,14 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         transition={{ duration: 0.2 }}
                       >
                         <div className="space-y-1.5">
-                          <label className="text-[12px] font-bold text-[#a1887f] dark:text-[#9e9e9e] uppercase tracking-widest ml-1">Full Name</label>
+                          <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Full Name</label>
                           <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="John Doe"
                             required={!isLogin}
-                            className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] text-[#8d6e63] dark:text-[#ffffff] placeholder:text-[#d7ccc8] dark:placeholder:text-[#616161] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#009900] dark:focus:border-[#66cc66] transition-colors"
+                            className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                           />
                         </div>
                       </motion.div>
@@ -242,20 +255,20 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                   </AnimatePresence>
 
                   <div className="space-y-1.5">
-                    <label className="text-[12px] font-bold text-[#a1887f] dark:text-[#9e9e9e] uppercase tracking-widest ml-1">Email</label>
+                    <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Email</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="hello@omnivault.com"
                       required
-                      className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] text-[#8d6e63] dark:text-[#ffffff] placeholder:text-[#d7ccc8] dark:placeholder:text-[#616161] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#009900] dark:focus:border-[#66cc66] transition-colors"
+                      className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                     />
                   </div>
 
                   <div className="space-y-1.5 relative">
                     <div className="flex justify-between items-center ml-1">
-                      <label className="text-[12px] font-bold text-[#a1887f] dark:text-[#9e9e9e] uppercase tracking-widest">Password</label>
+                      <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Password</label>
                       {isLogin && (
                         <button 
                           type="button"
@@ -275,7 +288,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                               setAuthLoading(false);
                             }
                           }}
-                          className="text-[11px] text-[#009900] dark:text-[#66cc66] font-bold hover:underline transition-all"
+                          className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline transition-all"
                         >
                           Forgot password?
                         </button>
@@ -287,7 +300,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] text-[#8d6e63] dark:text-[#ffffff] placeholder:text-[#d7ccc8] dark:placeholder:text-[#616161] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#009900] dark:focus:border-[#66cc66] transition-colors tracking-widest"
+                      className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all tracking-widest"
                     />
                   </div>
 
@@ -300,14 +313,14 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         transition={{ duration: 0.2 }}
                       >
                         <div className="space-y-1.5">
-                          <label className="text-[12px] font-bold text-[#a1887f] dark:text-[#9e9e9e] uppercase tracking-widest ml-1">Confirm Password</label>
+                          <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Confirm Password</label>
                           <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="••••••••"
                             required={!isLogin}
-                            className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] text-[#8d6e63] dark:text-[#ffffff] placeholder:text-[#d7ccc8] dark:placeholder:text-[#616161] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#009900] dark:focus:border-[#66cc66] transition-colors tracking-widest"
+                            className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all tracking-widest"
                           />
                         </div>
                       </motion.div>
@@ -321,7 +334,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
-                        className="text-xs text-[#ffffff] bg-[#8d6e63] border border-[#a1887f] rounded-xl px-3 py-2.5 font-medium text-center mt-2"
+                        className="text-xs text-white bg-red-500/90 border border-red-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
                       >
                         {error}
                       </motion.p>
@@ -333,10 +346,10 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     <button
                       type="submit"
                       disabled={authLoading}
-                      className="w-full h-[48px] bg-gradient-to-r from-[#009900] to-[#006600] text-[#ffffff] font-bold text-[14px] rounded-xl shadow-[0_10px_20px_rgba(0,153,0,0.2)] hover:shadow-[0_10px_25px_rgba(0,153,0,0.3)] hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="w-full h-[48px] bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-[14px] rounded-xl shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
                       {authLoading ? (
-                        <span className="w-4 h-4 border-2 border-[#ffffff]/30 border-t-[#ffffff] rounded-full animate-spin" />
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         <>
                           {isLogin ? "Sign In" : "Create Account"} 
@@ -348,9 +361,9 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
                   {/* Divider */}
                   <div className="flex items-center my-4">
-                    <div className="flex-1 border-t border-[#d7ccc8] dark:border-[#616161]"></div>
-                    <span className="px-4 text-[10px] font-black tracking-widest uppercase text-[#a1887f] dark:text-[#9e9e9e]">OR</span>
-                    <div className="flex-1 border-t border-[#d7ccc8] dark:border-[#616161]"></div>
+                    <div className="flex-1 border-t border-zinc-200 dark:border-white/10"></div>
+                    <span className="px-4 text-[10px] font-black tracking-widest uppercase text-zinc-400 dark:text-zinc-500">OR</span>
+                    <div className="flex-1 border-t border-zinc-200 dark:border-white/10"></div>
                   </div>
 
                   {/* Google Sign In */}
@@ -358,7 +371,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={authLoading}
-                    className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] hover:bg-[#ffffff] dark:hover:bg-[#424242] text-[#8d6e63] dark:text-[#ffffff] font-bold text-[14px] rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
+                    className="w-full h-[48px] bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-[#27272a] text-zinc-900 dark:text-white font-bold text-[14px] rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -378,7 +391,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     >
                       <button
                         type="button"
-                        className="w-full h-[48px] bg-[#f5f5f5] dark:bg-[#212121] border border-[#d7ccc8] dark:border-[#616161] hover:bg-[#ffffff] dark:hover:bg-[#424242] text-[#009900] dark:text-[#66cc66] font-bold text-[14px] rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group shadow-sm"
+                        className="w-full h-[48px] bg-white dark:bg-[#18181b] border border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-bold text-[14px] rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-sm"
                       >
                         <Fingerprint className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                         Biometric Login
@@ -389,11 +402,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
                 {/* Toggle Login/Register Link */}
                 <div className="mt-8 text-center">
-                  <p className="text-[13px] text-[#a1887f] dark:text-[#9e9e9e] font-bold">
+                  <p className="text-[13px] text-zinc-500 dark:text-zinc-400 font-bold">
                     {isLogin ? "New to OmniVault? " : "Already have an account? "}
                     <button 
                       onClick={() => { setIsLogin(!isLogin); setError(""); }}
-                      className="text-[#009900] dark:text-[#66cc66] font-black hover:text-[#006600] dark:hover:text-[#ccffcc] transition-colors hover:underline"
+                      className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors hover:underline"
                     >
                       {isLogin ? "Create an account" : "Sign in"}
                     </button>
@@ -403,11 +416,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Bottom Footer Links */}
-            <div className="mt-auto pt-6 flex justify-center text-[11px] text-[#a1887f] dark:text-[#9e9e9e] font-bold uppercase tracking-widest">
+            <div className="mt-auto pt-6 flex justify-center text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
               <div className="flex gap-5">
                 <span>© {new Date().getFullYear()} OmniVault</span>
-                <a href="#" className="hover:text-[#8d6e63] dark:hover:text-[#ffffff] transition-colors">Contact</a>
-                <a href="#" className="hover:text-[#8d6e63] dark:hover:text-[#ffffff] transition-colors">Privacy</a>
+                <a href="#" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">Contact</a>
+                <a href="#" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">Privacy</a>
               </div>
             </div>
           </div>
@@ -417,9 +430,9 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f5f5f5] dark:bg-[#212121] w-full transition-colors duration-500">
+    <div className="flex min-h-[100svh] bg-white dark:bg-[#09090b] w-full transition-colors duration-500">
       <Sidebar />
-      <div className="flex-1 flex flex-col md:ml-[280px] pb-24 md:pb-0 min-w-0">
+      <div className="flex-1 flex flex-col md:ml-[260px] pb-24 md:pb-0 min-w-0">
         <Header userName={user.displayName || "OmniVault User"} />
         <main className="flex-1 overflow-x-hidden relative">
           {children}

@@ -72,7 +72,7 @@ export function LoanTabs({ loans }: { loans: any[] }) {
           transition={{ duration: 0.2 }}
         >
           {displayLoans.length === 0 ? (
-            <div className="text-center py-24 bg-white/50 dark:bg-[#121214]/50 border border-zinc-100 dark:border-zinc-800/60 rounded-[2.5rem] shadow-sm">
+            <div className="text-center py-24 bg-white/50 dark:bg-[#121214]/50 border border-zinc-200 dark:border-white/5 rounded-[2rem] shadow-sm">
               <p className="text-zinc-400 font-bold text-sm">No loan contracts found in this category.</p>
             </div>
           ) : (
