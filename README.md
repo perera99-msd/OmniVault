@@ -39,7 +39,7 @@ With deep integrations into Firebase Authentication and multi-currency global an
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
   <img src="./public/Screenshots/Mobile1.png" alt="Mobile View 1" width="30%" />
   <img src="./public/Screenshots/Mobile2.png" alt="Mobile View 2" width="30%" />
-  <img src="/Screenshots/Mobile3.png" alt="Mobile View 3" width="30%" />
+  <img src="./public/Screenshots/Mobile3.png" alt="Mobile View 3" width="30%" />
 </div>
 
 ---
