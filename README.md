@@ -28,18 +28,18 @@ With deep integrations into Firebase Authentication and multi-currency global an
 
 ### Desktop View
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-  <img src="./public/screenshots/log%20in.png" alt="Login Page" width="48%" />
-  <img src="./public/screenshots/Dashboard.png" alt="Dashboard" width="48%" />
-  <img src="./public/screenshots/Transactions.png" alt="Transactions" width="48%" />
-  <img src="./public/screenshots/Vaults.png" alt="Vaults" width="48%" />
-  <img src="./public/screenshots/UpComing.png" alt="Upcoming" width="48%" />
+  <img src="./public/Screenshots/log%20in.png" alt="Login Page" width="48%" />
+  <img src="./public/Screenshots/Dashboard.png" alt="Dashboard" width="48%" />
+  <img src="./public/Screenshots/Transactions.png" alt="Transactions" width="48%" />
+  <img src="./public/Screenshots/Vaults.png" alt="Vaults" width="48%" />
+  <img src="./public/Screenshots/UpComing.png" alt="Upcoming" width="48%" />
 </div>
 
 ### Mobile View
 <div align="center" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-  <img src="./public/screenshots/Mobile1.png" alt="Mobile View 1" width="30%" />
-  <img src="./public/screenshots/Mobile2.png" alt="Mobile View 2" width="30%" />
-  <img src="/screenshots/Mobile3.png" alt="Mobile View 3" width="30%" />
+  <img src="./public/Screenshots/Mobile1.png" alt="Mobile View 1" width="30%" />
+  <img src="./public/Screenshots/Mobile2.png" alt="Mobile View 2" width="30%" />
+  <img src="/Screenshots/Mobile3.png" alt="Mobile View 3" width="30%" />
 </div>
 
 ---
