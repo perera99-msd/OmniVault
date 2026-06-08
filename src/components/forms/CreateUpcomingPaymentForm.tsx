@@ -23,13 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { createUpcomingPayment } from "@/actions/upcoming";
 
 const formSchema = z.object({
@@ -85,32 +85,30 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets }: CreateUpcomi
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={
-        <Button className="bg-[#009900] hover:bg-[#007700] text-white rounded-xl shadow-lg hover:shadow-xl transition-all">
-          <Plus className="w-5 h-5 mr-2" /> Add Upcoming Payment
-        </Button>
-      } />
-      <SheetContent className="bg-white dark:bg-[#161917] border-l border-zinc-200 dark:border-white/5 sm:max-w-md w-full">
-        <SheetHeader className="mb-6">
-          <SheetTitle className="text-2xl font-extrabold text-zinc-900 dark:text-white">Schedule Payment</SheetTitle>
-          <SheetDescription className="text-zinc-500 font-medium">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-sm hover:shadow-md transition-all h-12 px-6" />}>
+        <Plus className="w-5 h-5 mr-2" /> Add Upcoming Payment
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+        <DialogHeader className="mb-6">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Schedule Payment</DialogTitle>
+          <DialogDescription className="text-zinc-500 font-medium">
             Keep track of your future bills and subscriptions.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Payment Name</FormLabel>
+                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Payment Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Netflix Subscription" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl" {...field} />
+                    <Input placeholder="e.g. Netflix Subscription" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-emerald-500/50" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="ml-1" />
                 </FormItem>
               )}
             />
@@ -119,72 +117,85 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets }: CreateUpcomi
               control={form.control}
               name="amount"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Amount</FormLabel>
+                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-4 sm:p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
+                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl font-mono" {...field} />
+                    <div className="flex items-center mt-1">
+                      <span className="text-2xl font-black mr-1 opacity-80 text-emerald-600">Rs</span>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="0.00"
+                        className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full placeholder:text-zinc-300 dark:placeholder:text-zinc-600 p-0" 
+                        {...field} 
+                      />
+                    </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="ml-1" />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Due Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="walletId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Pay From (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Due Date</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl">
-                        <SelectValue placeholder="Select a vault" />
-                      </SelectTrigger>
+                      <Input type="date" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-emerald-500/50" {...field} />
                     </FormControl>
-                    <SelectContent className="bg-white dark:bg-[#161917] border-zinc-200 dark:border-white/10 rounded-xl">
-                      <SelectItem value="none">Don't specify</SelectItem>
-                      {wallets.map((wallet) => (
-                        <SelectItem key={wallet._id} value={wallet._id}>
-                          {wallet.name} ({wallet.currency || "LKR"})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage className="ml-1" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="walletId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Pay From (Optional)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-emerald-500/50">
+                          <SelectValue placeholder="Select a vault" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
+                        <SelectItem value="none" className="font-bold">Don't specify</SelectItem>
+                        {wallets.map((wallet) => (
+                          <SelectItem key={wallet._id} value={wallet._id} className="font-bold">
+                            {wallet.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="ml-1" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {submitMessage && (
-              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
+              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"}`}>
                 {submitMessage.text}
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full bg-[#009900] hover:bg-[#007700] text-white rounded-xl h-12 shadow-lg shadow-[#009900]/20 font-bold transition-all"
-            >
-              {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Payment"}
-            </Button>
+            <div className="pt-4">
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
+              >
+                {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Payment"}
+              </Button>
+            </div>
           </form>
         </Form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

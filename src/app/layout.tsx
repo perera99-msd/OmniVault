@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthOverlay } from "@/components/auth/AuthOverlay";
 import { BiometricOverlay } from "@/components/auth/BiometricOverlay";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <BiometricOverlay>{children}</BiometricOverlay>
               </AuthOverlay>
             </div>
+            <Toaster position="top-center" richColors theme="system" />
           </div>
         </ThemeProvider>
       </body>

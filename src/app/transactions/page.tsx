@@ -105,38 +105,38 @@ export default async function TransactionsPage({
                 <Calendar className="w-3.5 h-3.5 text-emerald-500" />
                 <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Ledger</span>
               </div>
-              <h1 className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
                 Transactions
               </h1>
             </div>
 
             {/* Premium Summary Cards */}
-            <div className="flex gap-4 w-full xl:w-auto overflow-x-auto hide-scrollbar pb-2 xl:pb-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full xl:w-auto pb-2 xl:pb-0">
               {/* Income Card */}
-              <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[1.5rem] p-5 shadow-xl shadow-zinc-200/40 dark:shadow-none min-w-[160px] flex-shrink-0 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1">Total In</p>
-                <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1 tabular-nums">
-                  <ArrowDownLeft className="w-4 h-4" />
-                  {formatCurrency(totalIncome, baseCurrency)}
+              <div className="order-2 sm:order-1 col-span-1 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-emerald-500/10 rounded-full blur-xl sm:blur-2xl -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <p className="text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 truncate">Total In</p>
+                <p className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5 sm:gap-1 tabular-nums">
+                  <ArrowDownLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">{formatCurrency(totalIncome, baseCurrency)}</span>
                 </p>
               </div>
               
               {/* Expense Card */}
-              <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[1.5rem] p-5 shadow-xl shadow-zinc-200/40 dark:shadow-none min-w-[160px] flex-shrink-0 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1">Total Out</p>
-                <p className="text-xl font-black text-rose-600 dark:text-rose-400 flex items-center gap-1 tabular-nums">
-                  <ArrowUpRight className="w-4 h-4" />
-                  {formatCurrency(totalExpense, baseCurrency)}
+              <div className="order-3 sm:order-2 col-span-1 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-rose-500/10 rounded-full blur-xl sm:blur-2xl -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+                <p className="text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 truncate">Total Out</p>
+                <p className="text-lg sm:text-xl font-bold text-rose-600 dark:text-rose-400 flex items-center gap-0.5 sm:gap-1 tabular-nums">
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">{formatCurrency(totalExpense, baseCurrency)}</span>
                 </p>
               </div>
 
               {/* Net Flow Card */}
-              <div className="bg-zinc-900 dark:bg-zinc-50 border border-zinc-800 dark:border-zinc-200 rounded-[1.5rem] p-5 shadow-2xl min-w-[160px] flex-shrink-0 relative overflow-hidden group">
-                <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1">Net Flow</p>
-                <p className={cn("text-xl font-black flex items-center gap-1 tabular-nums", netFlow >= 0 ? "text-white dark:text-zinc-900" : "text-rose-400 dark:text-rose-500")}>
-                  {netFlow >= 0 ? "+" : ""}{formatCurrency(netFlow, baseCurrency)}
+              <div className="order-1 sm:order-3 col-span-2 sm:col-span-1 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden group">
+                <p className="text-[10px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 truncate">Net Flow</p>
+                <p className={cn("text-2xl sm:text-2xl font-bold flex items-center gap-0.5 sm:gap-1 tabular-nums", netFlow >= 0 ? "text-zinc-900 dark:text-white" : "text-rose-600 dark:text-rose-400")}>
+                  <span className="truncate">{netFlow >= 0 ? "+" : ""}{formatCurrency(netFlow, baseCurrency)}</span>
                 </p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default async function TransactionsPage({
 
           {/* Filters (SaaS Pill Design) */}
           <motion.section variants={itemVariants} className="w-full overflow-x-auto hide-scrollbar pb-2">
-            <div className="flex items-center gap-2 p-1.5 bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-2xl w-max shadow-sm">
+            <div className="flex items-center gap-2 p-1.5 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-2xl w-max shadow-sm">
               {filterOptions.map((opt) => {
                 const isActive = currentFilter === opt.id;
                 return (
@@ -173,13 +173,13 @@ export default async function TransactionsPage({
           </motion.section>
 
           {/* Transactions List */}
-          <motion.section variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 rounded-[2rem] p-4 sm:p-8 shadow-2xl shadow-zinc-200/40 dark:shadow-none">
+          <motion.section variants={itemVariants} className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-[2rem] p-4 sm:p-8 shadow-sm">
             {transactions.length === 0 ? (
               <div className="py-20 flex flex-col items-center justify-center text-center">
                 <div className="w-20 h-20 bg-zinc-50 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                   <Search className="w-10 h-10 text-zinc-300 dark:text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-2">No Records Found</h3>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">No Records Found</h3>
                 <p className="text-zinc-500 font-medium max-w-xs">
                   There are no financial movements matching this time period.
                 </p>
@@ -192,44 +192,46 @@ export default async function TransactionsPage({
                   const isIncome = t.type === "INCOME";
 
                   return (
-                    <div key={t._id} className="group p-4 sm:p-5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/20 border border-zinc-100 dark:border-zinc-800/50 hover:bg-white dark:hover:bg-zinc-800/60 hover:shadow-xl hover:shadow-zinc-200/30 dark:hover:shadow-none hover:-translate-y-0.5 transition-all flex items-center justify-between">
-                      <div className="flex items-center gap-5">
-                        <div className={`w-14 h-14 rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner ${isIncome ? 'bg-emerald-50 dark:bg-emerald-500/10' : isTransfer ? 'bg-blue-50 dark:bg-blue-500/10' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
+                    <div key={t._id} className="group p-3 sm:p-5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/20 border border-zinc-200 dark:border-white/5 hover:bg-white dark:hover:bg-[#121214] hover:shadow-sm hover:border-zinc-300 dark:hover:border-white/10 hover:-translate-y-0.5 transition-all flex items-center justify-between gap-2 sm:gap-3">
+                      <div className="flex items-center gap-3 sm:gap-5 min-w-0 flex-1">
+                        <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-[1.2rem] flex items-center justify-center shrink-0 shadow-inner ${isIncome ? 'bg-emerald-50 dark:bg-emerald-500/10' : isTransfer ? 'bg-blue-50 dark:bg-blue-500/10' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
                           {getTransactionIcon(t.type)}
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-black text-zinc-900 dark:text-white text-lg tracking-tight">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="font-bold text-zinc-900 dark:text-white text-sm sm:text-lg tracking-tight truncate">
                             {t.description || (isTransfer ? "Wallet Transfer" : t.categoryId?.name || t.type)}
                           </span>
-                          <div className="flex items-center gap-2 text-xs font-bold text-zinc-500 mt-1">
-                            <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2 py-0.5 rounded-md shadow-sm">
-                              {new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold text-zinc-500 mt-0.5 sm:mt-1 truncate">
+                            <span className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-1.5 sm:px-2 py-0.5 rounded-md shadow-sm shrink-0">
+                              {new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                             </span>
-                            <span>•</span>
-                            <span className="truncate max-w-[100px] sm:max-w-[150px]">{t.sourceWalletId?.name || 'Unknown'}</span>
+                            <span className="shrink-0 hidden sm:inline">•</span>
+                            <span className="truncate">{t.sourceWalletId?.name || 'Unknown'}</span>
                             {isTransfer && t.destinationWalletId && (
                               <>
-                                <ArrowRightLeft className="w-3 h-3 mx-0.5 opacity-50" />
-                                <span className="truncate max-w-[100px] sm:max-w-[150px]">{t.destinationWalletId.name}</span>
+                                <ArrowRightLeft className="w-2.5 h-2.5 sm:w-3 sm:h-3 mx-0.5 opacity-50 shrink-0" />
+                                <span className="truncate">{t.destinationWalletId.name}</span>
                               </>
                             )}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-4 sm:gap-6">
-                        <div className="flex flex-col items-end">
-                          <span className={cn("font-black text-xl tabular-nums tracking-tight", getTransactionColor(t.type))}>
+                      <div className="flex items-center gap-2 sm:gap-6 shrink-0">
+                        <div className="flex flex-col items-end max-w-[100px] sm:max-w-[150px]">
+                          <span className={cn("font-bold text-sm sm:text-xl tabular-nums tracking-tight truncate w-full text-right", getTransactionColor(t.type))}>
                             {t.type === "EXPENSE" ? "-" : t.type === "INCOME" ? "+" : ""}
                             {formatCurrency(t.amount, currency)}
                           </span>
                           {t.categoryId && (
-                            <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">
+                            <span className="text-[8px] sm:text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-0.5 sm:mt-1 truncate w-full text-right">
                               {t.categoryId.name}
                             </span>
                           )}
                         </div>
-                        <TransactionRowActions transaction={t} wallets={wallets} categories={categories} />
+                        <div className="hidden sm:block">
+                          <TransactionRowActions transaction={t} wallets={wallets} categories={categories} />
+                        </div>
                       </div>
                     </div>
                   );

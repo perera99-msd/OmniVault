@@ -61,7 +61,7 @@ export default async function LoansPage() {
                 <FileText className="w-3.5 h-3.5 text-blue-500" />
                 <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Contracts</span>
               </div>
-              <h1 className="text-[3.5rem] md:text-[4.5rem] font-black tracking-tighter text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
                 Loans
               </h1>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-bold tracking-wide">
@@ -75,7 +75,7 @@ export default async function LoansPage() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
                 <DialogHeader className="mb-4">
-                  <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Loan Details</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold text-center text-zinc-900 dark:text-white">Loan Details</DialogTitle>
                 </DialogHeader>
                 <CreateLoanForm />
               </DialogContent>
@@ -83,31 +83,31 @@ export default async function LoansPage() {
           </motion.header>
 
           {/* Aggregated Analytics Cards */}
-          <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-6">
             {/* LENT (ASSET) CARD */}
-            <div className="bg-emerald-500 dark:bg-emerald-600 p-8 rounded-[2rem] shadow-lg relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-              <div className="flex items-center gap-2 mb-4 relative z-10">
-                <div className="p-2 rounded-xl bg-white/20">
-                  <ArrowUpRight className="w-5 h-5 text-white" />
+            <div className="bg-emerald-500 dark:bg-emerald-600 p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] shadow-lg relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-white/20 rounded-full blur-2xl sm:blur-3xl -mr-6 -mt-6 sm:-mr-10 sm:-mt-10 transition-transform group-hover:scale-150"></div>
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4 relative z-10">
+                <div className="p-1 sm:p-2 rounded-lg sm:rounded-xl bg-white/20">
+                  <ArrowUpRight className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
                 </div>
-                <p className="text-[11px] text-emerald-50 font-black uppercase tracking-[0.2em]">Owed To You (Lent)</p>
+                <p className="text-[9px] sm:text-[11px] text-emerald-50 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate">Owed To You</p>
               </div>
-              <p className="text-[2.5rem] font-black tracking-tighter text-white relative z-10 tabular-nums">
+              <p className="text-xl sm:text-[2.5rem] font-bold tracking-tight text-white relative z-10 tabular-nums">
                 {formatCurrency(totalLent, baseCurrency)}
               </p>
             </div>
 
             {/* BORROWED (LIABILITY) CARD */}
-            <div className="bg-white dark:bg-[#121214] border border-zinc-100 dark:border-zinc-800/60 p-8 rounded-[2rem] shadow-xl shadow-zinc-200/40 dark:shadow-none flex flex-col justify-between overflow-hidden relative transition-colors duration-500 group">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
-              <div className="flex items-center gap-2 mb-4 relative z-10">
-                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-500/10">
-                  <ArrowDownRight className="w-5 h-5 text-blue-500" />
+            <div className="bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] shadow-sm flex flex-col justify-between overflow-hidden relative transition-colors duration-500 group">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-2xl sm:blur-3xl -mr-6 -mt-6 sm:-mr-10 sm:-mt-10 transition-transform group-hover:scale-150"></div>
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-4 relative z-10">
+                <div className="p-1 sm:p-2 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-500/10">
+                  <ArrowDownRight className="w-3 h-3 sm:w-5 sm:h-5 text-blue-500" />
                 </div>
-                <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.2em]">You Owe (Borrowed)</p>
+                <p className="text-[9px] sm:text-[11px] text-zinc-500 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] truncate">You Owe</p>
               </div>
-              <p className="text-[2.5rem] font-black tracking-tighter text-zinc-900 dark:text-white relative z-10 tabular-nums">
+              <p className="text-xl sm:text-[2.5rem] font-bold tracking-tight text-zinc-900 dark:text-white relative z-10 tabular-nums">
                 {formatCurrency(totalBorrowed, baseCurrency)}
               </p>
             </div>

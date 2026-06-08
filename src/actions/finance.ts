@@ -187,6 +187,9 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
     
     // Create an array of the last 6 months (including current)
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const userCreatedAt = new Date((user as any).createdAt || now);
+    const userCreatedYear = userCreatedAt.getFullYear();
+    const userCreatedMonth = userCreatedAt.getMonth() + 1;
     
     for (let i = 0; i < 6; i++) {
       const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -196,10 +199,27 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
       const key = `${targetYear}-${targetMonth}`;
       const monthData = monthlyCashflowMap[key] || { income: 0, expense: 0 };
       
-      // The running net worth is the value AT THE END of this month
+      let valueForMonth = runningNetWorth;
+      // If this month is strictly before the user joined, net worth is 0
+      if (targetYear < userCreatedYear || (targetYear === userCreatedYear && targetMonth < userCreatedMonth)) {
+        valueForMonth = 0;
+      }
+
+      // Calculate the specific date to show in the tooltip
+      let dateLabel = "";
+      if (i === 0) {
+        // Current month: Show today's date
+        dateLabel = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } else {
+        // Previous months: Show the last day of that month
+        const lastDayOfMonth = new Date(targetYear, targetMonth, 0);
+        dateLabel = lastDayOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+      
       netWorthHistory.unshift({
         month: monthNames[targetMonth - 1],
-        value: runningNetWorth,
+        dateLabel: dateLabel,
+        value: valueForMonth,
       });
 
       // To find the net worth AT THE END of the PREVIOUS month, we reverse this month's flow

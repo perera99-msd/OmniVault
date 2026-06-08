@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "sonner";
 import { addTransaction, createCategory } from "@/actions/finance";
 import { useAppStore } from "@/lib/store/useStore";
 import {
@@ -81,7 +82,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
         finalCategoryId = catRes.category._id;
         setIsCreatingCategory(false);
       } else {
-        alert("Error creating category: " + catRes.error);
+        toast.error("Failed to create category: " + catRes.error);
         setLoading(false);
         return;
       }
@@ -105,47 +106,52 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
         amount: 0,
         description: "",
       });
-      alert("Transaction Added!");
+      toast.success("Transaction successfully added!", {
+        description: `Added to ${values.type.toLowerCase()}s.`
+      });
     } else {
-      alert("Error: " + res.error);
+      toast.error("Failed to add transaction", {
+        description: res.error
+      });
     }
   }
 
   return (
     <div className="w-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col">
           
+          {/* INCOME/EXPENSE TOGGLE */}
           <FormField
             control={form.control}
             name="type"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormControl>
-                  <div className="flex bg-zinc-100 dark:bg-white/5 p-1 rounded-xl">
+                  <div className="flex bg-zinc-50/80 dark:bg-zinc-800/50 p-1.5 rounded-2xl w-full mx-auto shadow-inner">
                     <button
                       type="button"
                       onClick={() => field.onChange("EXPENSE")}
                       className={cn(
-                        "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
+                        "flex-1 py-2.5 text-[13px] font-bold rounded-xl transition-all duration-300",
                         field.value === "EXPENSE" 
-                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-red-600 dark:text-red-400" 
+                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-red-500 dark:text-red-400" 
                           : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                       )}
                     >
-                      Add Expense
+                      Expense
                     </button>
                     <button
                       type="button"
                       onClick={() => field.onChange("INCOME")}
                       className={cn(
-                        "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
+                        "flex-1 py-2.5 text-[13px] font-bold rounded-xl transition-all duration-300",
                         field.value === "INCOME" 
-                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-[#009900] dark:text-[#66cc66]" 
+                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-emerald-600 dark:text-emerald-400" 
                           : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                       )}
                     >
-                      Add Income
+                      Income
                     </button>
                   </div>
                 </FormControl>
@@ -153,55 +159,76 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="0.00" step="0.01" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {/* AMOUNT BLOCK */}
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
+                <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
+                <FormControl>
+                  <div className="flex items-center mt-1">
+                    <span className={cn("text-2xl font-black mr-1 opacity-80", watchType === "EXPENSE" ? "text-red-500" : "text-emerald-600")}>Rs</span>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      step="0.01" 
+                      className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full placeholder:text-zinc-300 dark:placeholder:text-zinc-600 p-0"
+                      {...field} 
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
+          {/* CATEGORY BLOCK */}
+          <div className="space-y-4">
             <FormField
               control={form.control}
-              name="dateString"
+              name="categoryId"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="sourceWalletId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Wallet</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
+                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Category</FormLabel>
+                  <Select onValueChange={(val) => {
+                    if (val === "NEW") {
+                      setIsCreatingCategory(true);
+                      field.onChange(undefined);
+                    } else {
+                      setIsCreatingCategory(false);
+                      field.onChange(val);
+                    }
+                  }} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a wallet" />
+                      <SelectTrigger className="w-full bg-transparent border-none shadow-none p-0 h-auto focus:ring-0 text-lg font-bold text-zinc-900 dark:text-white mt-2 hover:bg-transparent data-[state=open]:bg-transparent">
+                        <div className="flex items-center gap-3">
+                          {field.value && field.value !== "NEW" ? (
+                            <div className="w-10 h-10 rounded-xl bg-[#fdf5e6] dark:bg-amber-500/10 flex items-center justify-center text-xl shadow-sm border border-amber-900/5">
+                              {categories.find(c => c._id === field.value)?.icon || "✨"}
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 shadow-sm">
+                              ?
+                            </div>
+                          )}
+                          <span>
+                            {field.value ? categories.find(c => c._id === field.value)?.name : "Select Category"}
+                          </span>
+                        </div>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {wallets.map((w) => (
-                        <SelectItem key={w._id} value={w._id}>
-                          {w.name} (${w.balance.toLocaleString()})
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-xl">
+                      <SelectItem value="NEW" className="font-bold text-emerald-600 py-3">
+                        + Create New Category
+                      </SelectItem>
+                      {categories
+                        .filter((c) => c.type === watchType)
+                        .map((c) => (
+                          <SelectItem key={c._id} value={c._id} className="py-3 cursor-pointer">
+                            <span className="mr-2 text-lg">{c.icon}</span> <span className="font-medium text-base">{c.name}</span>
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -209,80 +236,91 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
               )}
             />
 
-            <div className="space-y-4">
+            {isCreatingCategory && (
               <FormField
                 control={form.control}
-                name="categoryId"
+                name="newCategoryName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={(val) => {
-                      if (val === "NEW") {
-                        setIsCreatingCategory(true);
-                        field.onChange(undefined);
-                      } else {
-                        setIsCreatingCategory(false);
-                        field.onChange(val);
-                      }
-                    }} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NEW" className="font-bold text-primary">
-                          + Create New Category
-                        </SelectItem>
-                        {categories
-                          .filter((c) => c.type === watchType)
-                          .map((c) => (
-                            <SelectItem key={c._id} value={c._id}>
-                              {c.icon} {c.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                  <FormItem className="px-2 animate-in slide-in-from-top-2">
+                    <FormLabel className="text-xs font-bold text-emerald-600">New Category Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Groceries" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b]" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              {isCreatingCategory && (
-                <FormField
-                  control={form.control}
-                  name="newCategoryName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Category Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Groceries" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
+            )}
           </div>
 
+          {/* PAYMENT TYPE (WALLETS) */}
           <FormField
             control={form.control}
-            name="description"
+            name="sourceWalletId"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="What was this for?" {...field} />
-                </FormControl>
+              <FormItem className="space-y-2">
+                <FormLabel className="text-[15px] text-zinc-900 dark:text-white font-bold ml-1">Payment Type</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full h-14 rounded-2xl bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold text-[15px] px-4 focus:ring-emerald-500/50 shadow-sm transition-colors">
+                      {field.value ? wallets.find(w => w._id === field.value)?.name : "Select a Wallet"}
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-xl">
+                    {wallets.map((w) => (
+                      <SelectItem key={w._id} value={w._id} className="py-3 cursor-pointer font-bold">
+                        {w.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button type="submit" className="w-full font-bold shadow-md shadow-primary/30" disabled={loading || wallets.length === 0}>
-            {loading ? <PremiumSpinner size="sm" color="white" /> : (wallets.length === 0 ? "Create a Wallet First" : "Save Transaction")}
-          </Button>
+          {/* DATE & DESCRIPTION */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="dateString"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input type="date" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] text-sm font-medium" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="Note (Optional)" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] text-sm font-medium" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="pt-4 pb-2">
+            <Button 
+              type="submit" 
+              disabled={loading || wallets.length === 0}
+              className={cn(
+                "w-full h-14 rounded-2xl text-[16px] font-bold text-white shadow-sm transition-colors",
+                watchType === "EXPENSE" ? "bg-red-500 hover:bg-red-600" : "bg-[#abcfa8] hover:bg-[#95c590] text-zinc-900"
+              )}
+            >
+              {loading ? <PremiumSpinner size="sm" color={watchType === "EXPENSE" ? "white" : "zinc"} /> : "Add Transaction"}
+            </Button>
+          </div>
+
         </form>
       </Form>
     </div>

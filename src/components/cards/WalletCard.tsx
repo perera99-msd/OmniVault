@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Wallet as WalletIcon, Landmark, CreditCard, Wifi, Settings2, Trash2 } from "lucide-react";
+import { Landmark, CreditCard, Banknote, Settings2, Trash2, Cpu, Wifi } from "lucide-react";
 import { updateWalletName, deleteWallet } from "@/actions/finance";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
@@ -24,35 +24,39 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
   // Deep Premium SaaS Card Themes
   const typeStyles = {
     BANK: {
-      bg: "bg-gradient-to-br from-[#1c1c1e] to-[#09090b] dark:from-[#18181b] dark:to-[#000000]",
+      bg: "bg-gradient-to-br from-[#1e3a8a] via-[#172554] to-[#020617]", // Sapphire Blue
       text: "text-white",
-      subtext: "text-zinc-400",
-      icon: <Landmark className="w-5 h-5 text-white" />,
-      border: "border border-white/5",
-      shadow: "shadow-2xl shadow-black/50",
-      accent: "bg-white/10"
+      subtext: "text-blue-200/70",
+      icon: <Landmark className="w-5 h-5 text-white drop-shadow-md" />,
+      border: "border border-blue-400/20",
+      shadow: "shadow-[0_10px_40px_-10px_rgba(30,58,138,0.5)]",
+      accent: "bg-white/10",
+      chip: "text-amber-200/80"
     },
     CASH: {
-      bg: "bg-gradient-to-br from-[#1f2937] to-[#111827]",
-      text: "text-white",
-      subtext: "text-zinc-400",
-      icon: <WalletIcon className="w-5 h-5 text-white" />,
-      border: "border border-white/5",
-      shadow: "shadow-2xl shadow-black/40",
-      accent: "bg-white/10"
-    },
-    DIGITAL: {
-      bg: "bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22]", // Rich Emerald
+      bg: "bg-gradient-to-br from-[#064e3b] via-[#022c22] to-[#000000]", // Wealth Green
       text: "text-white",
       subtext: "text-emerald-200/70",
-      icon: <CreditCard className="w-5 h-5 text-white" />,
+      icon: <Banknote className="w-5 h-5 text-white drop-shadow-md" />,
       border: "border border-emerald-500/20",
-      shadow: "shadow-2xl shadow-emerald-900/40",
-      accent: "bg-white/20"
+      shadow: "shadow-[0_10px_40px_-10px_rgba(6,78,59,0.5)]",
+      accent: "bg-white/10",
+      chip: "text-amber-100/80"
+    },
+    DIGITAL: {
+      bg: "bg-gradient-to-br from-[#27272a] via-[#09090b] to-[#000000]", // Titanium Black
+      text: "text-white",
+      subtext: "text-zinc-400",
+      icon: <CreditCard className="w-5 h-5 text-white drop-shadow-md" />,
+      border: "border border-white/10 border-b-zinc-800",
+      shadow: "shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)]",
+      accent: "bg-white/10",
+      chip: "text-zinc-300/80"
     },
   };
 
-  const style = typeStyles[wallet.type as keyof typeof typeStyles] || typeStyles.BANK;
+  const normalizedType = (wallet.type || "BANK").toUpperCase();
+  const style = typeStyles[normalizedType as keyof typeof typeStyles] || typeStyles.BANK;
 
   // Format balance nicely
   const nativeCurrency = wallet.currency || "LKR";
@@ -89,40 +93,43 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
         whileHover={{ scale: 1.02, rotateY: 2, rotateX: -2 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className={`relative w-full aspect-[1.6/1] rounded-[1.5rem] p-6 flex flex-col justify-between overflow-hidden group cursor-pointer ${style.bg} ${style.border} ${style.shadow}`}
+        className={`relative w-full aspect-[1.6/1] min-h-[210px] rounded-[1.5rem] p-5 sm:p-6 flex flex-col justify-between overflow-hidden group cursor-pointer ${style.bg} ${style.border} ${style.shadow}`}
         style={{ transformPerspective: 1000 }}
       >
         {/* Soft Noise Texture Overlay for physical card feel */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
         
         {/* Holographic Shimmer Effect */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 -translate-x-[100%] group-hover:translate-x-[100%] transition-all duration-[1.5s] ease-in-out pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 -translate-x-[100%] group-hover:translate-x-[100%] transition-all duration-[1.5s] ease-in-out pointer-events-none" />
 
         {/* Card Header */}
         <div className="flex justify-between items-start relative z-10">
-          <div className="flex flex-col gap-1.5">
-            <span className={`text-[11px] font-black tracking-[0.2em] uppercase ${style.subtext}`}>
+          <div className="flex flex-col gap-2">
+            <span className={`text-[10px] font-black tracking-[0.2em] uppercase ${style.subtext}`}>
               {wallet.type}
             </span>
-            <div className="flex items-center gap-2">
-              <Wifi className={`w-5 h-5 rotate-90 ${style.text} opacity-70`} />
-              <div className={`w-8 h-5 rounded-md backdrop-blur-md border border-white/20 ${style.accent}`} />
+            <div className="flex items-center gap-3 mt-1">
+              {/* EMV Chip */}
+              <div className={`w-9 h-7 rounded-md border border-current flex items-center justify-center opacity-80 shadow-inner ${style.chip}`}>
+                <Cpu className="w-5 h-5 opacity-80" strokeWidth={1.5} />
+              </div>
+              {/* NFC Wave */}
+              <Wifi className={`w-5 h-5 rotate-90 opacity-60 ${style.text}`} />
             </div>
           </div>
           
           <button 
             onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-            className={`p-2.5 rounded-full bg-white/5 hover:bg-white/20 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0`}
+            className={`p-2.5 rounded-full bg-black/20 hover:bg-white/20 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 border border-white/5`}
           >
             <Settings2 className={`w-4 h-4 ${style.text}`} />
           </button>
         </div>
 
         {/* Card Balance (Middle) */}
-        <div className="relative z-10 mt-auto mb-4">
-          <h3 className={`text-xs font-bold uppercase tracking-wider ${style.subtext} mb-1`}>Balance</h3>
-          <div className={`font-black tracking-tighter flex items-baseline ${style.text}`}>
-            <span className="text-[1.5rem] leading-none opacity-80 mr-1">{symbol}</span>
+        <div className="relative z-10 flex-1 flex flex-col justify-center mt-3 mb-1">
+          <div className={`font-black tracking-tighter flex items-baseline ${style.text} drop-shadow-md`}>
+            <span className="text-[1.3rem] leading-none opacity-80 mr-1.5">{symbol}</span>
             <span className="text-[2.5rem] leading-none">{whole}</span>
             <span className="text-xl opacity-80">.{fraction}</span>
           </div>
@@ -131,12 +138,11 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
         {/* Card Footer (Name & Brand) */}
         <div className={`flex justify-between items-end relative z-10 ${style.text}`}>
           <div className="flex flex-col">
-            <span className={`text-[10px] font-bold tracking-widest uppercase ${style.subtext} mb-0.5`}>Card Holder</span>
-            <span className="text-[13px] font-bold tracking-wide">{wallet.name}</span>
+            <span className={`text-[9px] font-bold tracking-[0.15em] uppercase ${style.subtext} mb-0.5`}>Card Holder</span>
+            <span className="text-[14px] font-bold tracking-wide drop-shadow-sm uppercase">{wallet.name}</span>
           </div>
-          <div className="flex items-center gap-1.5 opacity-90">
+          <div className="flex items-center gap-2 opacity-90 drop-shadow-sm">
             {style.icon}
-            <span className="font-black tracking-tighter text-sm">Vault</span>
           </div>
         </div>
       </motion.div>

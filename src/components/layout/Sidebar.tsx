@@ -7,6 +7,8 @@ import Image from "next/image";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
 
+import { LogoText } from "@/components/ui/LogoText";
+
 const navItems = [
   { name: "Overview", href: "/", icon: LayoutDashboard },
   { name: "Ledger", href: "/transactions", icon: ArrowRightLeft },
@@ -31,9 +33,7 @@ export function Sidebar() {
           <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain p-1.5 dark:hidden" />
           <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain p-1.5 hidden dark:block" />
         </div>
-        <span className="font-black text-zinc-900 dark:text-white text-[1.35rem] tracking-tight">
-          OmniVault
-        </span>
+        <LogoText className="text-[1.35rem]" />
       </div>
 
       <div className="px-8 pb-3">
