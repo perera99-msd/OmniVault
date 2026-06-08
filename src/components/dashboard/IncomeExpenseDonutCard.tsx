@@ -102,17 +102,17 @@ export function IncomeExpenseDonutCard({
       <div className="absolute bottom-0 right-0 w-24 h-24 xl:w-32 xl:h-32 bg-rose-500/10 rounded-full blur-[40px] xl:blur-[60px] pointer-events-none" />
 
       {/* Left Side: Stats */}
-      <div className="flex flex-col justify-center gap-6 xl:gap-8 z-10 w-[55%] xl:w-1/2 relative">
+      <div className="flex flex-col justify-center gap-6 xl:gap-8 z-10 w-[55%] relative min-w-0">
         {/* Income Stat */}
-        <div className="group/stat">
+        <div className="group/stat overflow-hidden">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover/stat:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all">
+            <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover/stat:shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all shrink-0">
               <ArrowDownLeft className="w-4 h-4 xl:w-4 xl:h-4 text-emerald-500" strokeWidth={3} />
             </div>
-            <p className="text-[11px] xl:text-xs font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.15em]">Income</p>
+            <p className="text-[11px] xl:text-xs font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.15em] truncate">Income</p>
           </div>
-          <div className="flex items-center">
-            <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-bold mr-1 self-start mt-0.5 xl:mt-1">{currencySymbol}</span>
+          <div className="flex items-center w-full">
+            <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-bold mr-1 self-start mt-0.5 xl:mt-1 shrink-0">{currencySymbol}</span>
             <AnimatePresence mode="popLayout">
               <motion.p
                 key={`income-${period}`}
@@ -120,7 +120,7 @@ export function IncomeExpenseDonutCard({
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight text-emerald-600 dark:text-emerald-400 drop-shadow-sm"
+                className="text-3xl sm:text-4xl md:text-[36px] xl:text-[42px] font-black tracking-tight text-emerald-600 dark:text-emerald-400 drop-shadow-sm truncate pr-2 min-w-0"
               >
                 {incomeAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.p>
@@ -129,15 +129,15 @@ export function IncomeExpenseDonutCard({
         </div>
 
         {/* Spent Stat */}
-        <div className="group/stat">
+        <div className="group/stat overflow-hidden">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover/stat:shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all">
+            <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.15)] group-hover/stat:shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all shrink-0">
               <ArrowUpRight className="w-4 h-4 xl:w-4 xl:h-4 text-rose-500" strokeWidth={3} />
             </div>
-            <p className="text-[11px] xl:text-xs font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.15em]">Spent</p>
+            <p className="text-[11px] xl:text-xs font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.15em] truncate">Spent</p>
           </div>
-          <div className="flex items-center">
-            <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-bold mr-1 self-start mt-0.5 xl:mt-1">{currencySymbol}</span>
+          <div className="flex items-center w-full">
+            <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-bold mr-1 self-start mt-0.5 xl:mt-1 shrink-0">{currencySymbol}</span>
             <AnimatePresence mode="popLayout">
               <motion.p
                 key={`spent-${period}`}
@@ -145,7 +145,7 @@ export function IncomeExpenseDonutCard({
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight text-zinc-900 dark:text-white"
+                className="text-3xl sm:text-4xl md:text-[36px] xl:text-[42px] font-black tracking-tight text-zinc-900 dark:text-white truncate pr-2 min-w-0"
               >
                 {expenseAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </motion.p>
@@ -155,7 +155,7 @@ export function IncomeExpenseDonutCard({
       </div>
 
       {/* Right Side: Donut Chart */}
-      <div className="w-[45%] xl:w-1/2 h-[110px] xl:h-full flex items-center justify-center relative z-10 mt-10 xl:mt-0">
+      <div className="w-[45%] h-[110px] md:h-[130px] xl:h-full flex items-center justify-center relative z-10 mt-10 xl:mt-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Tooltip content={<CustomTooltip />} cursor={false} />

@@ -197,9 +197,9 @@ export default async function DashboardPage(props: { searchParams: Promise<{ bas
                               {isOverdue ? "Overdue " : "Due "}
                               {dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                             </div>
-                            <button className="text-[11px] font-bold px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border dark:border-emerald-500/20 dark:hover:bg-emerald-500/20 transition-colors tracking-widest uppercase shadow-md shadow-emerald-500/20">
-                              Pay
-                            </button>
+                            <Link href="/upcoming" className="text-[11px] font-bold px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border dark:border-emerald-500/20 dark:hover:bg-emerald-500/20 transition-colors tracking-widest uppercase shadow-md shadow-emerald-500/20">
+                              View
+                            </Link>
                           </div>
                         </div>
                       );

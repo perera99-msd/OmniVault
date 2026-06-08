@@ -30,8 +30,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
   const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [isPWA, setIsPWA] = useState(false);
+  const [isProcessingAuth, setIsProcessingAuth] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -57,6 +60,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
 
     if (!isLogin && password !== confirmPassword) {
       setError("Passwords do not match");
@@ -66,45 +70,61 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
     setAuthLoading(true);
     try {
       if (isLogin) {
+        setIsProcessingAuth(true);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        document.cookie = `firebaseUid=${userCredential.user.uid}; path=/; max-age=31536000; SameSite=Lax`;
         await createUser({
           firebaseUid: userCredential.user.uid,
           email: userCredential.user.email || email,
           name: userCredential.user.displayName || "User"
         });
+        window.location.href = "/";
       } else {
+        setIsRegistering(true);
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await createUser({
           firebaseUid: userCredential.user.uid,
           email: userCredential.user.email || email,
           name: name
         });
+        await auth.signOut();
+        setIsRegistering(false);
+        setSuccessMessage("Account created successfully! Please sign in.");
+        setIsLogin(true);
+        setPassword("");
+        setConfirmPassword("");
+        setAuthLoading(false);
       }
     } catch (err: any) {
-      setError(err.message.replace("Firebase: ", ""));
-    } finally {
+      setIsRegistering(false);
+      setIsProcessingAuth(false);
       setAuthLoading(false);
+      setError(err.message.replace("Firebase: ", ""));
     }
   };
 
   const handleGoogleSignIn = async () => {
     setError("");
+    setSuccessMessage("");
     setAuthLoading(true);
     try {
+      setIsProcessingAuth(true);
       const userCredential = await signInWithPopup(auth, googleProvider);
+      document.cookie = `firebaseUid=${userCredential.user.uid}; path=/; max-age=31536000; SameSite=Lax`;
       await createUser({
         firebaseUid: userCredential.user.uid,
         email: userCredential.user.email || "",
         name: userCredential.user.displayName || "Google User"
       });
+      window.location.href = "/";
     } catch (err: any) {
-      setError(err.message.replace("Firebase: ", ""));
-    } finally {
+      setIsProcessingAuth(false);
       setAuthLoading(false);
+      setError(err.message.replace("Firebase: ", ""));
     }
   };
 
-  if (loading) {
+  if (loading || isProcessingAuth) {
     return (
       <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-zinc-50 dark:bg-[#050505] transition-colors duration-500 relative overflow-hidden">
         {/* Massive Ambient Aura */}
@@ -147,7 +167,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) {
+  if (!user || isRegistering) {
     return (
       <div 
         suppressHydrationWarning
@@ -327,7 +347,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     )}
                   </AnimatePresence>
 
-                  {/* Error Message */}
+                  {/* Error / Success Messages */}
                   <AnimatePresence>
                     {error && (
                       <motion.p
@@ -337,6 +357,16 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         className="text-xs text-white bg-red-500/90 border border-red-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
                       >
                         {error}
+                      </motion.p>
+                    )}
+                    {successMessage && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        className="text-xs text-white bg-emerald-500/90 border border-emerald-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
+                      >
+                        {successMessage}
                       </motion.p>
                     )}
                   </AnimatePresence>
@@ -405,7 +435,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                   <p className="text-[13px] text-zinc-500 dark:text-zinc-400 font-bold">
                     {isLogin ? "New to OmniVault? " : "Already have an account? "}
                     <button 
-                      onClick={() => { setIsLogin(!isLogin); setError(""); }}
+                      onClick={() => { setIsLogin(!isLogin); setError(""); setSuccessMessage(""); }}
                       className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors hover:underline"
                     >
                       {isLogin ? "Create an account" : "Sign in"}
