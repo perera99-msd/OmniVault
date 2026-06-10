@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 
 const formSchema = z.object({
   type: z.enum(["INCOME", "EXPENSE", "TRANSFER"]),
@@ -53,10 +54,10 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
     defaultValues: {
       type: transaction.type,
       amount: transaction.amount,
-      sourceWalletId: transaction.sourceWalletId?._id || transaction.sourceWalletId,
+      sourceWalletId: transaction.sourceWalletId?._id?.toString() || transaction.sourceWalletId?.toString(),
       description: transaction.description || "",
       dateString: initialDateStr,
-      categoryId: transaction.categoryId?._id || transaction.categoryId || undefined,
+      categoryId: transaction.categoryId?._id?.toString() || transaction.categoryId?.toString() || undefined,
       newCategoryName: "",
     },
   });
@@ -132,7 +133,7 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
                         className={cn(
                           "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
                           field.value === "EXPENSE" 
-                            ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-red-600 dark:text-red-400" 
+                            ? "bg-white dark:bg-[#1a1a1c] shadow-sm text-rose-600 dark:text-rose-500" 
                             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                         )}
                       >
@@ -144,7 +145,7 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
                         className={cn(
                           "flex-1 py-3 text-sm font-bold rounded-lg transition-all",
                           field.value === "INCOME" 
-                            ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-[#009900] dark:text-[#66cc66]" 
+                            ? "bg-white dark:bg-[#1a1a1c] shadow-sm text-emerald-600 dark:text-emerald-500" 
                             : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                         )}
                       >
@@ -169,9 +170,9 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="0.00" step="0.01" {...field} />
+                    <Input className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus-visible:ring-emerald-500/50" type="number" placeholder="0.00" step="0.01" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,9 +184,9 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
               name="dateString"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus-visible:ring-emerald-500/50" type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,16 +200,18 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
               name="sourceWalletId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Wallet</FormLabel>
+                  <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">Wallet</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a wallet" />
+                      <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus:ring-emerald-500/50">
+                        <SelectValue placeholder="Select a wallet">
+                          {wallets.find((w) => w._id.toString() === field.value)?.name || "Select a wallet"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl">
                       {wallets.map((w) => (
-                        <SelectItem key={w._id} value={w._id}>
+                        <SelectItem key={w._id.toString()} value={w._id.toString()} className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-white/5">
                           {w.name}
                         </SelectItem>
                       ))}
@@ -221,43 +224,49 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
 
             {watchType !== "TRANSFER" && (
               <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={(val) => {
-                        if (val === "NEW") {
-                          setIsCreatingCategory(true);
-                          field.onChange(undefined);
-                        } else {
-                          setIsCreatingCategory(false);
-                          field.onChange(val);
-                        }
-                      }} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="NEW" className="font-bold text-primary">
-                            + Create New Category
-                          </SelectItem>
-                          {categories
-                            .filter((c) => c.type === watchType)
-                            .map((c) => (
-                              <SelectItem key={c._id} value={c._id}>
-                                {c.icon} {c.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">Category</FormLabel>
+                        <Select onValueChange={(val) => {
+                          if (val === "NEW") {
+                            setIsCreatingCategory(true);
+                            field.onChange(undefined);
+                          } else {
+                            setIsCreatingCategory(false);
+                            field.onChange(val);
+                          }
+                        }} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus:ring-emerald-500/50">
+                              <SelectValue placeholder="Select category">
+                                {(() => {
+                                  if (field.value === "NEW") return "+ Create New Category";
+                                  const cat = categories.find((c) => c._id.toString() === field.value);
+                                  return cat ? `${cat.icon} ${cat.name}` : "Select category";
+                                })()}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-white dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                            <SelectItem value="NEW" className="font-bold text-emerald-600 dark:text-emerald-500 cursor-pointer focus:bg-zinc-100 dark:focus:bg-white/5">
+                              + Create New Category
+                            </SelectItem>
+                            {categories
+                              .filter((c) => c.type === watchType)
+                              .map((c) => (
+                                <SelectItem key={c._id.toString()} value={c._id.toString()} className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-white/5">
+                                  {c.icon} {c.name}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                 {isCreatingCategory && (
                   <FormField
@@ -265,9 +274,9 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
                     name="newCategoryName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>New Category Name</FormLabel>
+                        <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">New Category Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Groceries" {...field} />
+                          <Input className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus-visible:ring-emerald-500/50" placeholder="e.g. Groceries" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -283,17 +292,17 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description (Optional)</FormLabel>
+                <FormLabel className="text-xs font-bold uppercase tracking-wider text-zinc-500">Description (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="What was this for?" {...field} />
+                  <Input className="h-14 bg-zinc-50 dark:bg-[#1a1a1c] border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus-visible:ring-emerald-500/50" placeholder="What was this for?" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button type="submit" className="w-full font-bold shadow-md shadow-primary/30" disabled={loading}>
-            {loading ? "Updating..." : "Update Transaction"}
+          <Button type="submit" className="w-full h-14 font-bold rounded-xl text-md shadow-[0_5px_15px_rgba(16,185,129,0.3)] bg-emerald-500 hover:bg-emerald-600 text-white transition-all hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2" disabled={loading}>
+            {loading ? <PremiumSpinner /> : "Update Transaction"}
           </Button>
         </form>
       </Form>

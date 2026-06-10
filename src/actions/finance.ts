@@ -505,3 +505,162 @@ export async function updateTransaction(transactionId: string, newData: {
   }
 }
 
+// --- CATEGORIES PAGE ACTIONS ---
+
+export async function getCategoriesPageData(firebaseUid: string, baseCurrency: string = "LKR") {
+  await dbConnect();
+  try {
+    const user = await User.findOne({ firebaseUid });
+    if (!user) throw new Error("User not found");
+
+    const { convertCurrency } = require("@/lib/utils/currency");
+
+    const categories = await Category.find({ userId: user._id }).lean();
+    const transactions = await Transaction.find({ userId: user._id, type: { $in: ["INCOME", "EXPENSE"] } }).populate('sourceWalletId', 'currency').lean();
+    
+    const txStatsMap: Record<string, {
+      dayAmount: number; dayCount: number;
+      monthAmount: number; monthCount: number;
+      yearAmount: number; yearCount: number;
+      allAmount: number; allCount: number;
+    }> = {};
+
+    const uncategorizedIncomeStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0 };
+    const uncategorizedExpenseStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0 };
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    for (const tx of transactions as any[]) {
+      const currency = tx.currency || tx.sourceWalletId?.currency || "LKR";
+      const convertedAmount = convertCurrency(tx.amount, currency, baseCurrency);
+      const txDate = new Date(tx.date);
+
+      if (!tx.categoryId) {
+        const stats = tx.type === "INCOME" ? uncategorizedIncomeStats : uncategorizedExpenseStats;
+        stats.allAmount += convertedAmount;
+        stats.allCount += 1;
+        if (txDate >= startOfYear) { stats.yearAmount += convertedAmount; stats.yearCount += 1; }
+        if (txDate >= startOfMonth) { stats.monthAmount += convertedAmount; stats.monthCount += 1; }
+        if (txDate >= today) { stats.dayAmount += convertedAmount; stats.dayCount += 1; }
+        continue;
+      }
+
+      const catId = tx.categoryId.toString();
+      if (!txStatsMap[catId]) {
+        txStatsMap[catId] = {
+          dayAmount: 0, dayCount: 0,
+          monthAmount: 0, monthCount: 0,
+          yearAmount: 0, yearCount: 0,
+          allAmount: 0, allCount: 0
+        };
+      }
+      
+      txStatsMap[catId].allAmount += convertedAmount;
+      txStatsMap[catId].allCount += 1;
+
+      if (txDate >= startOfYear) {
+        txStatsMap[catId].yearAmount += convertedAmount;
+        txStatsMap[catId].yearCount += 1;
+      }
+      if (txDate >= startOfMonth) {
+        txStatsMap[catId].monthAmount += convertedAmount;
+        txStatsMap[catId].monthCount += 1;
+      }
+      if (txDate >= today) {
+        txStatsMap[catId].dayAmount += convertedAmount;
+        txStatsMap[catId].dayCount += 1;
+      }
+    }
+
+    const categoriesWithStats = categories.map(cat => {
+      const stats = txStatsMap[cat._id.toString()] || {
+        dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0
+      };
+      return { ...cat, ...stats };
+    });
+
+    if (uncategorizedIncomeStats.allAmount > 0) {
+      categoriesWithStats.push({
+        _id: "uncategorized-income",
+        name: "Uncategorized",
+        type: "INCOME",
+        icon: "📁",
+        color: "#71717a",
+        ...uncategorizedIncomeStats
+      } as any);
+    }
+
+    if (uncategorizedExpenseStats.allAmount > 0) {
+      categoriesWithStats.push({
+        _id: "uncategorized-expense",
+        name: "Uncategorized",
+        type: "EXPENSE",
+        icon: "📁",
+        color: "#71717a",
+        ...uncategorizedExpenseStats
+      } as any);
+    }
+
+    return { success: true, data: JSON.parse(JSON.stringify(categoriesWithStats)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateCategory(categoryId: string, newName: string, newIcon?: string) {
+  await dbConnect();
+  const cookieStore = await cookies();
+  const firebaseUid = cookieStore.get("firebaseUid")?.value;
+  if (!firebaseUid) return { success: false, error: "Unauthorized" };
+
+  try {
+    const user = await User.findOne({ firebaseUid });
+    if (!user) throw new Error("User not found");
+
+    const updateData: any = { name: newName };
+    if (newIcon) updateData.icon = newIcon;
+
+    const category = await Category.findOneAndUpdate(
+      { _id: categoryId, userId: user._id },
+      updateData,
+      { new: true }
+    );
+    if (!category) throw new Error("Category not found");
+
+    revalidatePath("/categories");
+    revalidatePath("/transactions");
+    return { success: true, category: JSON.parse(JSON.stringify(category)) };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteCategory(categoryId: string) {
+  await dbConnect();
+  const cookieStore = await cookies();
+  const firebaseUid = cookieStore.get("firebaseUid")?.value;
+  if (!firebaseUid) return { success: false, error: "Unauthorized" };
+
+  try {
+    const user = await User.findOne({ firebaseUid });
+    if (!user) throw new Error("User not found");
+
+    const category = await Category.findOneAndDelete({ _id: categoryId, userId: user._id });
+    if (!category) throw new Error("Category not found");
+
+    // Unassign transactions
+    await Transaction.updateMany(
+      { categoryId: categoryId, userId: user._id },
+      { $unset: { categoryId: "" } }
+    );
+
+    revalidatePath("/categories");
+    revalidatePath("/transactions");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
