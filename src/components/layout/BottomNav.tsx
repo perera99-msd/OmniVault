@@ -2,18 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, HandCoins, ArrowRightLeft, CalendarClock } from "lucide-react";
+import { LayoutDashboard, Wallet, HandCoins, ArrowRightLeft, CalendarClock, Menu, PieChart, Settings } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useState } from "react";
 
 const navItems = [
   { name: "Upcomings", href: "/upcoming", icon: CalendarClock },
   { name: "Ledger", href: "/transactions", icon: ArrowRightLeft },
   { name: "Home", href: "/", icon: LayoutDashboard },
   { name: "Wallets", href: "/wallets", icon: Wallet },
-  { name: "Loans", href: "/loans", icon: HandCoins },
+];
+
+const menuItems = [
+  { name: "Categories", href: "/categories", icon: PieChart, color: "text-purple-500 bg-purple-50 dark:bg-purple-500/10" },
+  { name: "Loans", href: "/loans", icon: HandCoins, color: "text-amber-500 bg-amber-50 dark:bg-amber-500/10" },
+  { name: "Settings", href: "/settings", icon: Settings, color: "text-zinc-500 bg-zinc-100 dark:bg-zinc-800" },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-safe pointer-events-none">
@@ -47,6 +61,38 @@ export function BottomNav() {
               </Link>
             );
           })}
+
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger className={`flex flex-col items-center justify-center w-[60px] h-[60px] rounded-[1.5rem] transition-all duration-300 relative group text-zinc-400 hover:text-zinc-900 dark:hover:text-white`}>
+              <div className={`p-1 transition-transform duration-300 z-10 group-hover:-translate-y-0.5`}>
+                <Menu className={`w-[22px] h-[22px] stroke-[2px]`} />
+              </div>
+              <span className={`text-[10px] font-bold tracking-wide z-10 transition-all duration-300 opacity-0 translate-y-2 absolute`}>
+                More
+              </span>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-[2rem] bg-white dark:bg-[#121214] border-t border-zinc-200 dark:border-white/10 px-6 py-8">
+              <SheetHeader className="mb-6 text-left">
+                <SheetTitle className="text-2xl font-black text-zinc-900 dark:text-white">More Options</SheetTitle>
+              </SheetHeader>
+              <div className="grid grid-cols-1 gap-3">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-4 p-4 rounded-[1.5rem] bg-zinc-50 dark:bg-[#18181b] hover:bg-zinc-100 dark:hover:bg-[#27272a] transition-colors border border-transparent hover:border-zinc-200 dark:hover:border-white/5"
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${item.color}`}>
+                      <item.icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">{item.name}</span>
+                  </Link>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+
         </div>
       </div>
     </nav>

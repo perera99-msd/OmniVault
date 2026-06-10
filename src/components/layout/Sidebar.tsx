@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, HandCoins, Settings, LogOut, ArrowRightLeft, CalendarClock } from "lucide-react";
+import { LayoutDashboard, Wallet, HandCoins, Settings, LogOut, ArrowRightLeft, CalendarClock, PieChart } from "lucide-react";
 import Image from "next/image";
 import { auth } from "@/lib/firebase/config";
 import { signOut } from "firebase/auth";
@@ -14,6 +14,7 @@ const navItems = [
   { name: "Ledger", href: "/transactions", icon: ArrowRightLeft },
   { name: "Upcoming", href: "/upcoming", icon: CalendarClock },
   { name: "Wallets", href: "/wallets", icon: Wallet },
+  { name: "Categories", href: "/categories", icon: PieChart },
   { name: "Loans", href: "/loans", icon: HandCoins },
 ];
 

@@ -229,7 +229,7 @@ export default async function TransactionsPage({
                             </span>
                           )}
                         </div>
-                        <div className="hidden sm:block">
+                        <div>
                           <TransactionRowActions transaction={t} wallets={wallets} categories={categories} />
                         </div>
                       </div>

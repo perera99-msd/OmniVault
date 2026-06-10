@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Landmark, CreditCard, Banknote, Settings2, Trash2, Cpu, Wifi } from "lucide-react";
+import { Landmark, CreditCard, Banknote, Settings2, Trash2, Cpu, Wifi, AlertTriangle } from "lucide-react";
 import { updateWalletName, deleteWallet } from "@/actions/finance";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { formatCurrency, CURRENCY_SYMBOLS } from "@/lib/utils/currency";
+import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 
 type Wallet = {
   id: string;
@@ -85,6 +86,7 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
     await deleteWallet(wallet.id);
     setIsSubmitting(false);
     setIsDeleting(false);
+    setIsEditing(false);
   };
 
   return (
@@ -120,7 +122,7 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
           
           <button 
             onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-            className={`p-2.5 rounded-full bg-black/20 hover:bg-white/20 backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 border border-white/5`}
+            className={`p-2.5 rounded-full bg-black/20 hover:bg-white/20 backdrop-blur-md transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0 border border-white/5`}
           >
             <Settings2 className={`w-4 h-4 ${style.text}`} />
           </button>
@@ -148,63 +150,74 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
       </motion.div>
 
       {/* Editing/Delete Modal */}
-      <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-200 dark:border-zinc-800 rounded-[2rem] shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-zinc-900 dark:text-white font-black text-2xl tracking-tight">Edit Wallet</DialogTitle>
-          </DialogHeader>
-          
+      <Dialog open={isEditing} onOpenChange={(open) => {
+        setIsEditing(open);
+        if (!open) setTimeout(() => setIsDeleting(false), 200);
+      }}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-200 dark:border-zinc-800 rounded-[2rem] shadow-2xl p-6">
           {!isDeleting ? (
-            <div className="space-y-6 py-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Wallet Name</label>
-                <input 
-                  type="text" 
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full h-12 bg-zinc-50 dark:bg-[#1a1a1c] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
-                />
+            <>
+              <DialogHeader className="mb-4">
+                <DialogTitle className="text-zinc-900 dark:text-white font-black text-2xl tracking-tight">Edit Wallet</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Wallet Name</label>
+                  <input 
+                    type="text" 
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-full h-14 bg-zinc-50 dark:bg-[#1a1a1c] border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 text-zinc-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button 
+                    onClick={() => setIsDeleting(true)}
+                    className="w-14 h-14 flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold rounded-xl border border-rose-200 dark:border-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors shrink-0"
+                    title="Delete Wallet"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={handleUpdate}
+                    disabled={isSubmitting || newName === wallet.name || newName.trim() === ""}
+                    className="flex-1 h-14 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {isSubmitting ? <PremiumSpinner /> : "Save Changes"}
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={() => setIsDeleting(true)}
-                  className="flex-1 h-12 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold rounded-xl border border-rose-200 dark:border-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" /> Delete
-                </button>
-                <button 
-                  onClick={handleUpdate}
-                  disabled={isSubmitting || newName === wallet.name || newName.trim() === ""}
-                  className="flex-1 h-12 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </div>
+            </>
           ) : (
-            <div className="space-y-6 py-4">
-              <div className="p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl">
-                <p className="text-rose-600 dark:text-rose-400 font-bold text-sm text-center">
-                  Are you absolutely sure you want to delete this wallet? This action cannot be undone.
+            <>
+              <DialogHeader className="mb-2">
+                <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-rose-500" /> Delete Wallet
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-2">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                  Are you sure you want to delete <span className="font-bold text-zinc-900 dark:text-white">{wallet.name}</span>? 
+                  This action cannot be undone and will permanently remove all associated transactions.
                 </p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex justify-end gap-3 mt-6">
                 <button 
                   onClick={() => setIsDeleting(false)}
                   disabled={isSubmitting}
-                  className="flex-1 h-12 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                  className="px-4 h-12 bg-transparent text-zinc-500 font-bold rounded-xl hover:text-zinc-900 dark:hover:text-white transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDelete}
                   disabled={isSubmitting}
-                  className="flex-1 h-12 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors disabled:opacity-50 shadow-[0_4px_15px_rgba(225,29,72,0.3)]"
+                  className="px-6 h-12 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition-colors disabled:opacity-50 min-w-[100px] flex items-center justify-center shadow-[0_4px_15px_rgba(225,29,72,0.3)]"
                 >
-                  {isSubmitting ? "Deleting..." : "Yes, Delete"}
+                  {isSubmitting ? <PremiumSpinner /> : "Yes, Delete"}
                 </button>
               </div>
-            </div>
+            </>
           )}
         </DialogContent>
       </Dialog>

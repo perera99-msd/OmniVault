@@ -2,10 +2,20 @@
 
 import { useState } from "react";
 import { settleLoan, deleteLoan } from "@/actions/loans";
-import { ArrowUpRight, ArrowDownRight, CalendarClock, CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, CalendarClock, CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { EditLoanForm } from "@/components/forms/EditLoanForm";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/utils/currency";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface LoanCardProps {
   loan: any;
@@ -14,14 +24,10 @@ interface LoanCardProps {
 
 export function LoanCard({ loan, variants }: LoanCardProps) {
   const [loading, setLoading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [settleOpen, setSettleOpen] = useState(false);
   const isGiven = loan.type === "GIVEN"; // Lent (Asset) -> Emerald
   const isSettled = loan.status === "SETTLED";
-
-  const handleSettle = async () => {
-    setLoading(true);
-    await settleLoan(loan._id);
-    setLoading(false);
-  };
 
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
   const isOverdue = loan.dueDate && new Date(loan.dueDate) < new Date() && !isSettled;
@@ -111,23 +117,74 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
         {!isSettled && (
           <div className="flex items-center gap-2">
             <EditLoanForm loan={loan} />
-            <button
-              onClick={() => {
-                if (confirm("Delete this loan record entirely?")) deleteLoan(loan._id);
-              }}
-              className="p-2.5 rounded-xl text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleSettle}
-              disabled={loading}
-              className="flex items-center gap-1.5 text-xs font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-105 px-4 py-2.5 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100 active:scale-95"
-            >
-              {loading ? <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-              Settle
-            </button>
+            
+            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+              <DialogTrigger className="w-11 h-11 flex items-center justify-center rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors disabled:opacity-50" title="Delete">
+                <Trash2 className="w-5 h-5" />
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 rounded-[2rem]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-500" /> Delete Loan Record
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                    Are you sure you want to delete this loan record entirely? This action cannot be undone.
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button onClick={() => setDeleteOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                  <Button 
+                    onClick={async () => {
+                      setLoading(true);
+                      await deleteLoan(loan._id);
+                      setLoading(false);
+                      setDeleteOpen(false);
+                    }} 
+                    disabled={loading} 
+                    className="rounded-xl font-bold bg-rose-500 hover:bg-rose-600 text-white min-w-[100px]"
+                  >
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Yes, Delete"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={settleOpen} onOpenChange={setSettleOpen}>
+              <DialogTrigger className="flex items-center justify-center gap-1.5 text-xs font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-105 px-4 h-11 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
+                <Check className="w-3.5 h-3.5" />
+                Settle
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 rounded-[2rem]">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-emerald-500" /> Settle Loan
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                    Are you sure you want to mark this loan as fully settled? This will update your records and mark the contract as complete.
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                  <Button 
+                    onClick={async () => {
+                      setLoading(true);
+                      await settleLoan(loan._id);
+                      setLoading(false);
+                      setSettleOpen(false);
+                    }} 
+                    disabled={loading} 
+                    className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[100px]"
+                  >
+                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Yes, Settle"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
           </div>
         )}
       </div>

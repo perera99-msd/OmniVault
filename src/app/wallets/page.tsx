@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
 import { getWalletsPageData } from "@/actions/finance";
 import { WalletCard } from "@/components/cards/WalletCard";
+import { TransferFundsForm } from "@/components/forms/TransferFundsForm";
 import { CreateWalletForm } from "@/components/forms/CreateWalletForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Landmark, CreditCard, Wallet as WalletIcon, ShieldCheck } from "lucide-react";
+import { Plus, Landmark, CreditCard, Wallet as WalletIcon, ShieldCheck, ArrowRightLeft } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { BaseCurrencySelector } from "@/components/dashboard/BaseCurrencySelector";
 import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
@@ -99,17 +100,32 @@ export default async function WalletsPage(props: { searchParams: Promise<{ base?
               <div className="hidden sm:block">
                 <BaseCurrencySelector currentBase={baseCurrency} />
               </div>
-              <Dialog>
-                <DialogTrigger className="flex items-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-8 py-4 rounded-full font-bold text-[14px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300 w-full sm:w-auto justify-center">
-                  <Plus className="w-4 h-4 stroke-[3px]" /> Add New Vault
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
-                  <DialogHeader className="mb-4">
-                    <DialogTitle className="text-2xl font-bold text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
-                  </DialogHeader>
-                      <CreateWalletForm />
-                </DialogContent>
-              </Dialog>
+              
+              <div className="flex w-full sm:w-auto gap-3">
+                <Dialog>
+                  <DialogTrigger className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 px-6 sm:px-8 py-4 rounded-full font-bold text-[14px] shadow-sm hover:shadow-md hover:bg-blue-100 dark:hover:bg-blue-500/20 active:scale-95 transition-all duration-300">
+                    <ArrowRightLeft className="w-4 h-4" /> Transfer
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+                    <DialogHeader className="mb-4">
+                      <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Transfer Funds</DialogTitle>
+                    </DialogHeader>
+                    <TransferFundsForm wallets={wallets} />
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 sm:px-8 py-4 rounded-full font-bold text-[14px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300">
+                    <Plus className="w-4 h-4 stroke-[3px]" /> Add Vault
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+                    <DialogHeader className="mb-4">
+                      <DialogTitle className="text-2xl font-black text-center text-zinc-900 dark:text-white">Create Vault</DialogTitle>
+                    </DialogHeader>
+                    <CreateWalletForm />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </motion.header>
 

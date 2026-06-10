@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Pencil } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,14 +24,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { updateLoan } from "@/actions/loans";
+import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 
 const formSchema = z.object({
   personName: z.string().min(2, "Name must be at least 2 characters."),
@@ -91,88 +92,98 @@ export function EditLoanForm({ loan }: EditLoanFormProps) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={
-        <Button size="icon" variant="ghost" className="h-8 w-8 text-[#8d6e63] dark:text-[#9e9e9e] hover:bg-[#d7ccc8]/30 dark:hover:bg-[#616161]/30 rounded-xl">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      } />
-      <SheetContent className="bg-white dark:bg-[#161917] border-l border-zinc-200 dark:border-white/5 sm:max-w-md w-full overflow-y-auto">
-        <SheetHeader className="mb-6">
-          <SheetTitle className="text-2xl font-extrabold text-zinc-900 dark:text-white">Edit Loan</SheetTitle>
-          <SheetDescription className="text-zinc-500 font-medium">
-            Update the details of this loan.
-          </SheetDescription>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="w-11 h-11 flex items-center justify-center rounded-xl text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors border border-transparent hover:border-blue-200 dark:hover:border-blue-500/20" title="Edit">
+        <Edit2 className="w-4 h-4" />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-2xl p-6 sm:p-8 rounded-[2rem] max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <DialogHeader className="mb-6">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
+            <Edit2 className="w-5 h-5 text-blue-500" /> Edit Contract
+          </DialogTitle>
+          <DialogDescription className="text-zinc-500 font-medium">
+            Update the details of this loan contract.
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
               name="personName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Person Name</FormLabel>
+                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Person / Entity Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. John Doe" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl" {...field} />
+                    <Input placeholder="e.g. John Doe" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-blue-500/50" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="ml-1" />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Loan Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Loan Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-blue-500/50">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
+                        <SelectItem value="GIVEN" className="font-bold">I Lent Money</SelectItem>
+                        <SelectItem value="RECEIVED" className="font-bold">I Borrowed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="ml-1" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hasDeadline"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#18181b] p-4 h-14 mt-6">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Set Deadline?</FormLabel>
+                    </div>
                     <FormControl>
-                      <SelectTrigger className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="w-5 h-5 accent-blue-500"
+                      />
                     </FormControl>
-                    <SelectContent className="bg-white dark:bg-[#161917] border-zinc-200 dark:border-white/10 rounded-xl">
-                      <SelectItem value="GIVEN">I lent money to them</SelectItem>
-                      <SelectItem value="RECEIVED">I borrowed from them</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
               name="amount"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Amount</FormLabel>
+                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-4 sm:p-5 border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm">
+                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl font-mono" {...field} />
+                    <div className="flex items-center mt-1">
+                      <span className="text-2xl font-black mr-1 opacity-80 text-blue-600">Rs</span>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full p-0" 
+                        {...field} 
+                      />
+                    </div>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="hasDeadline"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-sm font-bold text-zinc-900 dark:text-white">Set a Deadline?</FormLabel>
-                  </div>
-                  <FormControl>
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={field.onChange}
-                      className="w-5 h-5 accent-[#009900]"
-                    />
-                  </FormControl>
+                  <FormMessage className="ml-1" />
                 </FormItem>
               )}
             />
@@ -183,11 +194,11 @@ export function EditLoanForm({ loan }: EditLoanFormProps) {
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Due Date</FormLabel>
+                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Due Date</FormLabel>
                     <FormControl>
-                      <Input type="date" className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl" {...field} value={field.value || ""} />
+                      <Input type="date" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-blue-500/50" {...field} value={field.value || ""} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="ml-1" />
                   </FormItem>
                 )}
               />
@@ -198,35 +209,37 @@ export function EditLoanForm({ loan }: EditLoanFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Notes (Optional)</FormLabel>
+                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Notes (Optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="e.g. For dinner last night" 
-                      className="bg-zinc-50 dark:bg-black/20 border-zinc-200 dark:border-white/10 rounded-xl resize-none" 
+                      className="bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl resize-none p-4 text-zinc-900 dark:text-white focus-visible:ring-blue-500/50" 
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="ml-1" />
                 </FormItem>
               )}
             />
 
             {submitMessage && (
-              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"}`}>
+              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"}`}>
                 {submitMessage.text}
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-              className="w-full bg-[#009900] hover:bg-[#007700] text-white rounded-xl h-12 shadow-lg shadow-[#009900]/20 font-bold transition-all"
-            >
-              {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
-            </Button>
+            <div className="pt-4">
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
+              >
+                {form.formState.isSubmitting ? <PremiumSpinner /> : "Save Changes"}
+              </Button>
+            </div>
           </form>
         </Form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

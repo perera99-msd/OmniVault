@@ -11,6 +11,7 @@ import {
   CalendarClock,
   ArrowRight,
   Activity,
+  ArrowRightLeft,
   Plus,
 } from "lucide-react";
 import { cookies } from "next/headers";
@@ -236,27 +237,38 @@ export default async function DashboardPage(props: { searchParams: Promise<{ bas
                   <div className="flex flex-col gap-3">
                     {recentTx.map((tx: any) => {
                       const isIncome = tx.type === "INCOME";
+                      const isTransfer = tx.type === "TRANSFER";
                       return (
                         <div
                           key={tx._id}
                           className="group/tx flex items-center justify-between p-4 sm:p-5 rounded-[1.5rem] bg-zinc-50/80 dark:bg-[#18181b]/80 hover:bg-white dark:hover:bg-[#27272a]/80 transition-all duration-300 border border-transparent hover:border-zinc-200/50 dark:hover:border-white/5 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1"
                         >
                           <div className="flex items-center gap-4 sm:gap-5">
-                            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-sm border ${isIncome ? 'bg-emerald-50 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-white border-zinc-100 dark:bg-[#1f1f22] dark:border-white/5 text-zinc-600 dark:text-zinc-400'}`}>
-                              {isIncome ? <ArrowDownLeft className="w-6 h-6" strokeWidth={2.5} /> : <ArrowUpRight className="w-6 h-6" strokeWidth={2.5} />}
+                            <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-sm border ${isIncome ? 'bg-emerald-50 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : isTransfer ? 'bg-blue-50 border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 text-blue-600 dark:text-blue-400' : 'bg-rose-50 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 text-rose-600 dark:text-rose-400'}`}>
+                              {isIncome ? <ArrowDownLeft className="w-6 h-6" strokeWidth={2.5} /> : isTransfer ? <ArrowRightLeft className="w-6 h-6" strokeWidth={2.5} /> : <ArrowUpRight className="w-6 h-6" strokeWidth={2.5} />}
                             </div>
                             <div>
-                              <p className="text-base sm:text-[1.15rem] font-bold text-zinc-900 dark:text-white tracking-tight">{tx.description || tx.categoryId?.name}</p>
+                              <p className="text-base sm:text-[1.15rem] font-bold text-zinc-900 dark:text-white tracking-tight">
+                                {tx.description || (isTransfer ? "Wallet Transfer" : tx.categoryId?.name)}
+                              </p>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500">{tx.sourceWalletId?.name}</span>
+                                {isTransfer && tx.destinationWalletId && (
+                                  <>
+                                    <ArrowRightLeft className="w-3 h-3 text-zinc-300 dark:text-zinc-600" />
+                                    <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500">{tx.destinationWalletId.name}</span>
+                                  </>
+                                )}
                                 <span className="text-zinc-300 dark:text-zinc-700">•</span>
                                 <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">{new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                               </div>
                             </div>
                           </div>
-                          <p className={`text-[1.15rem] sm:text-[1.35rem] font-black tabular-nums tracking-tight drop-shadow-sm ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-900 dark:text-white'}`}>
-                            {isIncome ? "+" : "-"}{formatCurrency(tx.amount, tx.currency || tx.sourceWalletId?.currency || "LKR")}
-                          </p>
+                          <div className="flex flex-col items-end">
+                            <p className={`text-[1.15rem] sm:text-[1.35rem] font-black tabular-nums tracking-tight drop-shadow-sm ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : isTransfer ? 'text-blue-600 dark:text-blue-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                              {isIncome ? "+" : isTransfer ? "" : "-"}{formatCurrency(tx.amount, tx.currency || tx.sourceWalletId?.currency || "LKR")}
+                            </p>
+                          </div>
                         </div>
                       );
                     })}

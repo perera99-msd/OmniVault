@@ -4,6 +4,7 @@ import { getUpcomingPayments, markUpcomingPaymentAsPaid, deleteUpcomingPayment }
 import { getUserDashboardData } from "@/actions/finance";
 import { CreateUpcomingPaymentForm } from "@/components/forms/CreateUpcomingPaymentForm";
 import { EditUpcomingPaymentForm } from "@/components/forms/EditUpcomingPaymentForm";
+import { PaymentQuickActions } from "@/components/upcoming/PaymentQuickActions";
 import { CalendarClock, CheckCircle, Trash2, Wallet, DollarSign, Clock, CalendarHeart } from "lucide-react";
 import { format, isPast, isToday, isTomorrow, differenceInDays } from "date-fns";
 import * as motion from "framer-motion/client";
@@ -147,24 +148,7 @@ export default async function UpcomingPaymentsPage() {
 
                         <div className="flex justify-end gap-3 mt-4 border-t border-zinc-100 dark:border-zinc-800/60 pt-5">
                           <EditUpcomingPaymentForm payment={payment} wallets={wallets} />
-                          
-                          <form action={async () => {
-                            "use server";
-                            await deleteUpcomingPayment(payment._id);
-                          }}>
-                            <button type="submit" className="w-11 h-11 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors border border-transparent hover:border-rose-200 dark:hover:border-rose-500/20" title="Delete">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </form>
-                          
-                          <form action={async () => {
-                            "use server";
-                            await markUpcomingPaymentAsPaid(payment._id);
-                          }}>
-                            <button type="submit" className="px-6 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm shadow-[0_5px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_20px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 transition-all">
-                              <CheckCircle className="w-4 h-4" /> Mark as Paid
-                            </button>
-                          </form>
+                          <PaymentQuickActions paymentId={payment._id.toString()} paymentName={payment.name} />
                         </div>
                       </div>
                     );
