@@ -31,6 +31,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { createUpcomingPayment } from "@/actions/upcoming";
+import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -42,9 +43,10 @@ const formSchema = z.object({
 interface CreateUpcomingPaymentFormProps {
   firebaseUid: string;
   wallets: any[];
+  baseCurrency?: string;
 }
 
-export function CreateUpcomingPaymentForm({ firebaseUid, wallets }: CreateUpcomingPaymentFormProps) {
+export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }: CreateUpcomingPaymentFormProps) {
   const [open, setOpen] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -57,6 +59,11 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets }: CreateUpcomi
       walletId: "none",
     },
   });
+
+  const selectedWalletId = form.watch("walletId");
+  const selectedWallet = wallets?.find((w) => w._id === selectedWalletId);
+  const currentCurrency = selectedWallet?.currency || baseCurrency || "LKR";
+  const currencySymbol = (CURRENCY_SYMBOLS[currentCurrency] || currentCurrency).trim();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setSubmitMessage(null);
@@ -121,7 +128,7 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets }: CreateUpcomi
                   <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
                   <FormControl>
                     <div className="flex items-center mt-1">
-                      <span className="text-2xl font-black mr-1 opacity-80 text-emerald-600">Rs</span>
+                      <span className="text-2xl font-black mr-1 opacity-80 text-emerald-600">{currencySymbol}</span>
                       <input 
                         type="number" 
                         step="0.01" 

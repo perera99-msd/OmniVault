@@ -1,25 +1,41 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowDownLeft, ArrowUpRight, PieChart } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { motion as clientMotion, Variants } from "framer-motion";
 import { CategoryManagement } from "@/components/categories/CategoryManagement";
 import { CategoryDonutChart } from "@/components/categories/CategoryDonutChart";
+import { CategoriesFilterBar } from "@/components/categories/CategoriesFilterBar";
 
-type Period = "Day" | "Month" | "Year" | "All Time";
+export function CategoriesClient({
+  categoriesData,
+  currentSymbol,
+  initialFilter = "Month"
+}: {
+  categoriesData: any[];
+  currentSymbol: string;
+  initialFilter?: string;
+}) {
+  const [period, setPeriod] = useState<string>(initialFilter);
 
-export function CategoriesClient({ categoriesData, currentSymbol }: { categoriesData: any[], currentSymbol: string }) {
-  const [period, setPeriod] = useState<Period>("Month");
+  useEffect(() => {
+    if (initialFilter) {
+      setPeriod(initialFilter);
+    }
+  }, [initialFilter]);
 
   const categories = useMemo(() => {
     return categoriesData.map(cat => {
       let amount = 0;
       let count = 0;
-      if (period === "Day") { amount = cat.dayAmount; count = cat.dayCount; }
-      else if (period === "Month") { amount = cat.monthAmount; count = cat.monthCount; }
-      else if (period === "Year") { amount = cat.yearAmount; count = cat.yearCount; }
-      else { amount = cat.allAmount; count = cat.allCount; }
+      if (period === "Day") { amount = cat.dayAmount || 0; count = cat.dayCount || 0; }
+      else if (period === "Month" || period === "THIS_MONTH") { amount = cat.monthAmount || 0; count = cat.monthCount || 0; }
+      else if (period === "Last Month") { amount = cat.lastMonthAmount || 0; count = cat.lastMonthCount || 0; }
+      else if (period === "Year") { amount = cat.yearAmount || 0; count = cat.yearCount || 0; }
+      else if (period === "All Time") { amount = cat.allAmount || 0; count = cat.allCount || 0; }
+      else if (period.startsWith("MONTH:") || /^\d{4}-\d{2}$/.test(period)) { amount = cat.customAmount || 0; count = cat.customCount || 0; }
+      else { amount = cat.monthAmount || 0; count = cat.monthCount || 0; }
       
       return { ...cat, totalAmount: amount, count };
     });
@@ -32,28 +48,8 @@ export function CategoriesClient({ categoriesData, currentSymbol }: { categories
 
   return (
     <>
-      <motion.div variants={itemVariants} className="flex justify-end mb-6">
-        {/* Period Selector Toggle */}
-        <div className="flex bg-white dark:bg-[#121214] p-1 rounded-[1rem] shadow-sm border border-zinc-200/50 dark:border-white/5">
-          {(["Day", "Month", "Year", "All Time"] as Period[]).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className="relative px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-bold rounded-[0.75rem] transition-colors z-10"
-            >
-              {period === p && (
-                <clientMotion.div
-                  layoutId="category-period-indicator"
-                  className="absolute inset-0 bg-zinc-100 dark:bg-[#27272a] shadow-sm rounded-[0.75rem]"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className={`relative z-10 ${period === p ? "text-zinc-900 dark:text-white" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}>
-                {p}
-              </span>
-            </button>
-          ))}
-        </div>
+      <motion.div variants={itemVariants} className="w-full mb-6">
+        <CategoriesFilterBar currentFilter={period} onSelect={(p) => setPeriod(p)} />
       </motion.div>
 
       {/* Visual Insights */}

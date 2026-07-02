@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, HandCoins, ArrowRightLeft, CalendarClock, Menu, PieChart, Settings } from "lucide-react";
+import { LayoutDashboard, Wallet, HandCoins, ArrowRightLeft, CalendarClock, Menu, PieChart, Settings, Gem } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -20,6 +20,7 @@ const navItems = [
 ];
 
 const menuItems = [
+  { name: "My Assets", href: "/assets", icon: Gem, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10" },
   { name: "Categories", href: "/categories", icon: PieChart, color: "text-purple-500 bg-purple-50 dark:bg-purple-500/10" },
   { name: "Loans", href: "/loans", icon: HandCoins, color: "text-amber-500 bg-amber-50 dark:bg-amber-500/10" },
   { name: "Settings", href: "/settings", icon: Settings, color: "text-zinc-500 bg-zinc-100 dark:bg-zinc-800" },

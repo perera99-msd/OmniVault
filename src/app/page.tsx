@@ -116,12 +116,18 @@ export default async function DashboardPage(props: { searchParams: Promise<{ bas
                   currencySymbol={currentSymbol}
                   incomeData={{
                     today: data.inflowData?.earnedToday || 0,
+                    lastWeek: data.inflowData?.earnedLastWeek || 0,
                     month: data.inflowData?.earnedThisMonth || 0,
+                    lastMonth: data.inflowData?.earnedLastMonth || 0,
+                    last3Months: data.inflowData?.earnedLast3Months || 0,
                     year: data.inflowData?.earnedThisYear || 0,
                   }}
                   expenseData={{
                     today: data.spendingData?.spentToday || 0,
+                    lastWeek: data.spendingData?.spentLastWeek || 0,
                     month: data.spendingData?.spentThisMonth || 0,
+                    lastMonth: data.spendingData?.spentLastMonth || 0,
+                    last3Months: data.spendingData?.spentLast3Months || 0,
                     year: data.spendingData?.spentThisYear || 0,
                   }}
                 />
