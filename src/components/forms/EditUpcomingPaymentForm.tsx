@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { updateUpcomingPayment } from "@/actions/upcoming";
 import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
+import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -43,9 +44,10 @@ const formSchema = z.object({
 interface EditUpcomingPaymentFormProps {
   payment: any;
   wallets: any[];
+  baseCurrency?: string;
 }
 
-export function EditUpcomingPaymentForm({ payment, wallets }: EditUpcomingPaymentFormProps) {
+export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: EditUpcomingPaymentFormProps) {
   const [open, setOpen] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -58,6 +60,11 @@ export function EditUpcomingPaymentForm({ payment, wallets }: EditUpcomingPaymen
       walletId: payment.walletId?._id || "none",
     },
   });
+
+  const selectedWalletId = form.watch("walletId");
+  const selectedWallet = wallets?.find((w) => w._id === selectedWalletId);
+  const currentCurrency = selectedWallet?.currency || payment.currency || payment.walletId?.currency || baseCurrency || "LKR";
+  const currencySymbol = (CURRENCY_SYMBOLS[currentCurrency] || currentCurrency).trim();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setSubmitMessage(null);
@@ -124,7 +131,7 @@ export function EditUpcomingPaymentForm({ payment, wallets }: EditUpcomingPaymen
                   <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
                   <FormControl>
                     <div className="flex items-center mt-1">
-                      <span className="text-2xl font-black mr-1 opacity-80 text-blue-600">Rs</span>
+                      <span className="text-2xl font-black mr-1 opacity-80 text-blue-600">{currencySymbol}</span>
                       <input 
                         type="number" 
                         step="0.01" 

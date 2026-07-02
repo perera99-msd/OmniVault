@@ -8,6 +8,7 @@ import { formatCurrency, convertCurrency } from "@/lib/utils/currency";
 
 import { TransactionRowActions } from "./TransactionRowActions";
 import { TransactionFAB } from "@/components/ui/TransactionFAB";
+import { TransactionsFilterBar } from "@/components/transactions/TransactionsFilterBar";
 
 export default async function TransactionsPage({
   searchParams,
@@ -64,7 +65,7 @@ export default async function TransactionsPage({
     }
   };
 
-  const baseCurrency = "LKR";
+  const baseCurrency = (user as any)?.baseCurrency || "LKR";
   const totalIncome = transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + convertCurrency(t.amount, t.currency || t.sourceWalletId?.currency || "LKR", baseCurrency), 0);
   const totalExpense = transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + convertCurrency(t.amount, t.currency || t.sourceWalletId?.currency || "LKR", baseCurrency), 0);
   const netFlow = totalIncome - totalExpense;
@@ -142,34 +143,9 @@ export default async function TransactionsPage({
             </div>
           </motion.header>
 
-          {/* Filters (SaaS Pill Design) */}
-          <motion.section variants={itemVariants} className="w-full overflow-x-auto hide-scrollbar pb-2">
-            <div className="flex items-center gap-2 p-1.5 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 rounded-2xl w-max shadow-sm">
-              {filterOptions.map((opt) => {
-                const isActive = currentFilter === opt.id;
-                return (
-                  <Link 
-                    key={opt.id}
-                    href={`/transactions?filter=${opt.id}`}
-                    className={cn(
-                      "px-5 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 whitespace-nowrap relative",
-                      isActive 
-                        ? "text-white shadow-md" 
-                        : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                    )}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeFilter"
-                        className="absolute inset-0 bg-emerald-500 dark:bg-emerald-600 rounded-xl"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                    <span className="relative z-10">{opt.label}</span>
-                  </Link>
-                )
-              })}
-            </div>
+          {/* Responsive Filters */}
+          <motion.section variants={itemVariants} className="w-full pb-2">
+            <TransactionsFilterBar currentFilter={currentFilter} />
           </motion.section>
 
           {/* Transactions List */}

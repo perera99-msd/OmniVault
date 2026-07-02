@@ -19,10 +19,19 @@ export async function createUpcomingPayment(data: {
     const user = await User.findOne({ firebaseUid: data.firebaseUid }).lean();
     if (!user) throw new Error("User not found");
 
+    let currency = (user as any).baseCurrency || "LKR";
+    if (data.walletId) {
+      const wallet = await Wallet.findById(data.walletId).lean();
+      if (wallet && (wallet as any).currency) {
+        currency = (wallet as any).currency;
+      }
+    }
+
     const payment = new UpcomingPayment({
-      userId: user._id,
+      userId: (user as any)._id,
       name: data.name,
       amount: data.amount,
+      currency,
       dueDate: data.dueDate,
       walletId: data.walletId || null,
     });
@@ -43,16 +52,17 @@ export async function getUpcomingPayments(firebaseUid: string) {
     const user = await User.findOne({ firebaseUid }).lean();
     if (!user) throw new Error("User not found");
 
-    const payments = await UpcomingPayment.find({ userId: user._id })
+    const payments = await UpcomingPayment.find({ userId: (user as any)._id })
       .populate("walletId", "name currency")
       .sort({ dueDate: 1 })
       .lean();
 
-    // Convert ObjectIds to strings
+    // Convert ObjectIds to strings and ensure currency fallback
     const serializedPayments = payments.map((p: any) => ({
       ...p,
       _id: p._id.toString(),
       userId: p.userId.toString(),
+      currency: p.currency || (p.walletId && p.walletId.currency) || (user as any).baseCurrency || "LKR",
       walletId: p.walletId ? {
         _id: p.walletId._id.toString(),
         name: p.walletId.name,
@@ -140,6 +150,13 @@ export async function updateUpcomingPayment(
     payment.amount = data.amount;
     payment.dueDate = data.dueDate;
     payment.walletId = data.walletId || null;
+
+    if (data.walletId) {
+      const wallet = await Wallet.findById(data.walletId).lean();
+      if (wallet && (wallet as any).currency) {
+        payment.currency = (wallet as any).currency;
+      }
+    }
 
     await payment.save();
     revalidatePath("/upcoming");

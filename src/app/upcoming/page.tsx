@@ -8,6 +8,7 @@ import { PaymentQuickActions } from "@/components/upcoming/PaymentQuickActions";
 import { CalendarClock, CheckCircle, Trash2, Wallet, DollarSign, Clock, CalendarHeart } from "lucide-react";
 import { format, isPast, isToday, isTomorrow, differenceInDays } from "date-fns";
 import * as motion from "framer-motion/client";
+import { formatCurrency } from "@/lib/utils/currency";
 
 export default async function UpcomingPaymentsPage() {
   const cookieStore = await cookies();
@@ -31,7 +32,8 @@ export default async function UpcomingPaymentsPage() {
   }
 
   const payments = paymentsRes.data || [];
-  const { wallets } = dashboardRes.data;
+  const { wallets, user } = dashboardRes.data;
+  const baseCurrency = (user as any)?.baseCurrency || "LKR";
 
   const unpaidPayments = payments.filter((p: any) => !p.isPaid);
   const paidPayments = payments.filter((p: any) => p.isPaid);
@@ -95,7 +97,7 @@ export default async function UpcomingPaymentsPage() {
                 Track and manage your scheduled bills and subscriptions.
               </p>
             </div>
-            <CreateUpcomingPaymentForm firebaseUid={firebaseUid} wallets={wallets} />
+            <CreateUpcomingPaymentForm firebaseUid={firebaseUid} wallets={wallets} baseCurrency={baseCurrency} />
           </motion.header>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -134,8 +136,7 @@ export default async function UpcomingPaymentsPage() {
                           </div>
                           <div className="text-right">
                             <p className={`font-bold text-2xl tabular-nums tracking-tight ${isOverdue ? "text-rose-600 dark:text-rose-400" : "text-zinc-900 dark:text-white"}`}>
-                              <span className="text-sm mr-1 opacity-50">USD</span>
-                              {payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              {formatCurrency(payment.amount, payment.currency || payment.walletId?.currency || baseCurrency)}
                             </p>
                           </div>
                         </div>
@@ -147,7 +148,7 @@ export default async function UpcomingPaymentsPage() {
                         )}
 
                         <div className="flex justify-end gap-3 mt-4 border-t border-zinc-100 dark:border-zinc-800/60 pt-5">
-                          <EditUpcomingPaymentForm payment={payment} wallets={wallets} />
+                          <EditUpcomingPaymentForm payment={payment} wallets={wallets} baseCurrency={baseCurrency} />
                           <PaymentQuickActions paymentId={payment._id.toString()} paymentName={payment.name} />
                         </div>
                       </div>
@@ -182,7 +183,7 @@ export default async function UpcomingPaymentsPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-sm text-zinc-400 dark:text-zinc-500 tabular-nums">
-                          USD {payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {formatCurrency(payment.amount, payment.currency || payment.walletId?.currency || baseCurrency)}
                         </p>
                       </div>
                     </div>

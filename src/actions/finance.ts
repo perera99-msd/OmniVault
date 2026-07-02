@@ -138,12 +138,33 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
 
     // Spending Aggregation (Today, This Month, This Year) in baseCurrency
     const now = new Date();
+    const nowTime = now.getTime();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
 
-    const spendingData = { spentThisYear: 0, spentThisMonth: 0, spentToday: 0 };
-    const inflowData = { earnedThisYear: 0, earnedThisMonth: 0, earnedToday: 0 };
+    // Additional timeframe intervals
+    const startOfLastWeek = nowTime - (7 * 24 * 60 * 60 * 1000);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).getTime();
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999).getTime();
+    const startOfLast3Months = nowTime - (90 * 24 * 60 * 60 * 1000);
+
+    const spendingData = {
+      spentThisYear: 0,
+      spentThisMonth: 0,
+      spentToday: 0,
+      spentLastWeek: 0,
+      spentLastMonth: 0,
+      spentLast3Months: 0,
+    };
+    const inflowData = {
+      earnedThisYear: 0,
+      earnedThisMonth: 0,
+      earnedToday: 0,
+      earnedLastWeek: 0,
+      earnedLastMonth: 0,
+      earnedLast3Months: 0,
+    };
 
     // Net Worth History variables
     const last6MonthsStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).getTime();
@@ -154,17 +175,21 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
       const txCurrency = tx.currency || "LKR"; // Fallback for old data
       const convertedAmount = convertCurrency(tx.amount, txCurrency, baseCurrency);
 
-      // Income/Expense Aggregations
-      if (txDate >= startOfYear) {
-        if (tx.type === "EXPENSE") {
-          spendingData.spentThisYear += convertedAmount;
-          if (txDate >= startOfMonth) spendingData.spentThisMonth += convertedAmount;
-          if (txDate >= startOfToday) spendingData.spentToday += convertedAmount;
-        } else if (tx.type === "INCOME") {
-          inflowData.earnedThisYear += convertedAmount;
-          if (txDate >= startOfMonth) inflowData.earnedThisMonth += convertedAmount;
-          if (txDate >= startOfToday) inflowData.earnedToday += convertedAmount;
-        }
+      // Income/Expense Aggregations across all requested timeframes
+      if (tx.type === "EXPENSE") {
+        if (txDate >= startOfYear) spendingData.spentThisYear += convertedAmount;
+        if (txDate >= startOfMonth) spendingData.spentThisMonth += convertedAmount;
+        if (txDate >= startOfToday) spendingData.spentToday += convertedAmount;
+        if (txDate >= startOfLastWeek) spendingData.spentLastWeek += convertedAmount;
+        if (txDate >= startOfLastMonth && txDate <= endOfLastMonth) spendingData.spentLastMonth += convertedAmount;
+        if (txDate >= startOfLast3Months) spendingData.spentLast3Months += convertedAmount;
+      } else if (tx.type === "INCOME") {
+        if (txDate >= startOfYear) inflowData.earnedThisYear += convertedAmount;
+        if (txDate >= startOfMonth) inflowData.earnedThisMonth += convertedAmount;
+        if (txDate >= startOfToday) inflowData.earnedToday += convertedAmount;
+        if (txDate >= startOfLastWeek) inflowData.earnedLastWeek += convertedAmount;
+        if (txDate >= startOfLastMonth && txDate <= endOfLastMonth) inflowData.earnedLastMonth += convertedAmount;
+        if (txDate >= startOfLast3Months) inflowData.earnedLast3Months += convertedAmount;
       }
 
       // Monthly Cashflow for Net Worth Chart
@@ -249,6 +274,11 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
 
+    const mappedUpcomingPayments = upcomingPayments.map((p: any) => ({
+      ...p,
+      currency: p.currency || (p.walletId && p.walletId.currency) || baseCurrency || "LKR"
+    }));
+
     return {
       success: true,
       data: {
@@ -256,7 +286,7 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
         wallets: JSON.parse(JSON.stringify(sortedWallets)),
         categories: JSON.parse(JSON.stringify(categories)),
         recentTransactions: JSON.parse(JSON.stringify(recentTransactions)),
-        upcomingPayments: JSON.parse(JSON.stringify(upcomingPayments)),
+        upcomingPayments: JSON.parse(JSON.stringify(mappedUpcomingPayments)),
         spendingData: JSON.parse(JSON.stringify(spendingData)),
         inflowData: JSON.parse(JSON.stringify(inflowData)),
         netWorthHistory: JSON.parse(JSON.stringify(netWorthHistory))
@@ -326,47 +356,56 @@ export async function getTransactionsHistory(firebaseUid: string, filter: string
     const currentYear = now.getFullYear();
     let startDate, endDate;
 
-    switch (filter) {
-      case 'TODAY':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-        break;
-      case 'THIS_WEEK': {
-        const firstDayOfWeek = new Date(now);
-        firstDayOfWeek.setDate(now.getDate() - now.getDay());
-        firstDayOfWeek.setHours(0, 0, 0, 0);
-        const lastDayOfWeek = new Date(firstDayOfWeek);
-        lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
-        lastDayOfWeek.setHours(23, 59, 59, 999);
-        startDate = firstDayOfWeek;
-        endDate = lastDayOfWeek;
-        break;
+    if (filter.startsWith('MONTH:') || /^\d{4}-\d{2}$/.test(filter)) {
+      const cleanFilter = filter.replace('MONTH:', '');
+      const [yearStr, monthStr] = cleanFilter.split('-');
+      const targetYear = parseInt(yearStr, 10);
+      const targetMonthIndex = parseInt(monthStr, 10) - 1;
+      startDate = new Date(targetYear, targetMonthIndex, 1);
+      endDate = new Date(targetYear, targetMonthIndex + 1, 0, 23, 59, 59, 999);
+    } else {
+      switch (filter) {
+        case 'TODAY':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+          break;
+        case 'THIS_WEEK': {
+          const firstDayOfWeek = new Date(now);
+          firstDayOfWeek.setDate(now.getDate() - now.getDay());
+          firstDayOfWeek.setHours(0, 0, 0, 0);
+          const lastDayOfWeek = new Date(firstDayOfWeek);
+          lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+          lastDayOfWeek.setHours(23, 59, 59, 999);
+          startDate = firstDayOfWeek;
+          endDate = lastDayOfWeek;
+          break;
+        }
+        case 'THIS_MONTH':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+          break;
+        case 'Q1':
+          startDate = new Date(currentYear, 0, 1);
+          endDate = new Date(currentYear, 2, 31, 23, 59, 59, 999);
+          break;
+        case 'Q2':
+          startDate = new Date(currentYear, 3, 1);
+          endDate = new Date(currentYear, 5, 30, 23, 59, 59, 999);
+          break;
+        case 'Q3':
+          startDate = new Date(currentYear, 6, 1);
+          endDate = new Date(currentYear, 8, 30, 23, 59, 59, 999);
+          break;
+        case 'Q4':
+          startDate = new Date(currentYear, 9, 1);
+          endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+          break;
+        case 'FULL_YEAR':
+        default:
+          startDate = new Date(currentYear, 0, 1);
+          endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
+          break;
       }
-      case 'THIS_MONTH':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        break;
-      case 'Q1':
-        startDate = new Date(currentYear, 0, 1);
-        endDate = new Date(currentYear, 2, 31, 23, 59, 59, 999);
-        break;
-      case 'Q2':
-        startDate = new Date(currentYear, 3, 1);
-        endDate = new Date(currentYear, 5, 30, 23, 59, 59, 999);
-        break;
-      case 'Q3':
-        startDate = new Date(currentYear, 6, 1);
-        endDate = new Date(currentYear, 8, 30, 23, 59, 59, 999);
-        break;
-      case 'Q4':
-        startDate = new Date(currentYear, 9, 1);
-        endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
-        break;
-      case 'FULL_YEAR':
-      default:
-        startDate = new Date(currentYear, 0, 1);
-        endDate = new Date(currentYear, 11, 31, 23, 59, 59, 999);
-        break;
     }
 
     const [transactions, wallets, categories] = await Promise.all([
@@ -507,7 +546,7 @@ export async function updateTransaction(transactionId: string, newData: {
 
 // --- CATEGORIES PAGE ACTIONS ---
 
-export async function getCategoriesPageData(firebaseUid: string, baseCurrency: string = "LKR") {
+export async function getCategoriesPageData(firebaseUid: string, baseCurrency: string = "LKR", filter?: string) {
   await dbConnect();
   try {
     const user = await User.findOne({ firebaseUid });
@@ -521,17 +560,32 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
     const txStatsMap: Record<string, {
       dayAmount: number; dayCount: number;
       monthAmount: number; monthCount: number;
+      lastMonthAmount: number; lastMonthCount: number;
       yearAmount: number; yearCount: number;
       allAmount: number; allCount: number;
+      customAmount: number; customCount: number;
     }> = {};
 
-    const uncategorizedIncomeStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0 };
-    const uncategorizedExpenseStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0 };
+    const uncategorizedIncomeStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, lastMonthAmount: 0, lastMonthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0, customAmount: 0, customCount: 0 };
+    const uncategorizedExpenseStats = { dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, lastMonthAmount: 0, lastMonthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0, customAmount: 0, customCount: 0 };
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    let customStart: Date | null = null;
+    let customEnd: Date | null = null;
+    if (filter && (filter.startsWith("MONTH:") || /^\d{4}-\d{2}$/.test(filter))) {
+      const cleanFilter = filter.replace("MONTH:", "");
+      const [yStr, mStr] = cleanFilter.split("-");
+      const targetYear = parseInt(yStr, 10);
+      const targetMonthIndex = parseInt(mStr, 10) - 1;
+      customStart = new Date(targetYear, targetMonthIndex, 1);
+      customEnd = new Date(targetYear, targetMonthIndex + 1, 0, 23, 59, 59, 999);
+    }
 
     for (const tx of transactions as any[]) {
       const currency = tx.currency || tx.sourceWalletId?.currency || "LKR";
@@ -544,6 +598,8 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
         stats.allCount += 1;
         if (txDate >= startOfYear) { stats.yearAmount += convertedAmount; stats.yearCount += 1; }
         if (txDate >= startOfMonth) { stats.monthAmount += convertedAmount; stats.monthCount += 1; }
+        if (txDate >= startOfLastMonth && txDate <= endOfLastMonth) { stats.lastMonthAmount += convertedAmount; stats.lastMonthCount += 1; }
+        if (customStart && customEnd && txDate >= customStart && txDate <= customEnd) { stats.customAmount += convertedAmount; stats.customCount += 1; }
         if (txDate >= today) { stats.dayAmount += convertedAmount; stats.dayCount += 1; }
         continue;
       }
@@ -553,8 +609,10 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
         txStatsMap[catId] = {
           dayAmount: 0, dayCount: 0,
           monthAmount: 0, monthCount: 0,
+          lastMonthAmount: 0, lastMonthCount: 0,
           yearAmount: 0, yearCount: 0,
-          allAmount: 0, allCount: 0
+          allAmount: 0, allCount: 0,
+          customAmount: 0, customCount: 0
         };
       }
       
@@ -569,6 +627,14 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
         txStatsMap[catId].monthAmount += convertedAmount;
         txStatsMap[catId].monthCount += 1;
       }
+      if (txDate >= startOfLastMonth && txDate <= endOfLastMonth) {
+        txStatsMap[catId].lastMonthAmount += convertedAmount;
+        txStatsMap[catId].lastMonthCount += 1;
+      }
+      if (customStart && customEnd && txDate >= customStart && txDate <= customEnd) {
+        txStatsMap[catId].customAmount += convertedAmount;
+        txStatsMap[catId].customCount += 1;
+      }
       if (txDate >= today) {
         txStatsMap[catId].dayAmount += convertedAmount;
         txStatsMap[catId].dayCount += 1;
@@ -577,7 +643,7 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
 
     const categoriesWithStats = categories.map(cat => {
       const stats = txStatsMap[cat._id.toString()] || {
-        dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0
+        dayAmount: 0, dayCount: 0, monthAmount: 0, monthCount: 0, lastMonthAmount: 0, lastMonthCount: 0, yearAmount: 0, yearCount: 0, allAmount: 0, allCount: 0, customAmount: 0, customCount: 0
       };
       return { ...cat, ...stats };
     });
