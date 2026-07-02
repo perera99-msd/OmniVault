@@ -21,7 +21,7 @@ export default async function LoansPage() {
   const baseCurrency = "LKR";
 
   // Stats (Only Active)
-  const activeLoans = loans.filter((l: any) => l.status === "PENDING");
+  const activeLoans = loans.filter((l: any) => l.status !== "SETTLED");
   const totalLent = activeLoans.filter((l: any) => l.type === "GIVEN").reduce((acc: number, l: any) => acc + convertCurrency(l.amount, l.currency || "LKR", baseCurrency), 0);
   const totalBorrowed = activeLoans.filter((l: any) => l.type === "RECEIVED").reduce((acc: number, l: any) => acc + convertCurrency(l.amount, l.currency || "LKR", baseCurrency), 0);
 

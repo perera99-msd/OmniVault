@@ -73,6 +73,32 @@ export async function settleLoan(loanId: string) {
   }
 }
 
+export async function recordPartialLoanPayment(loanId: string, paidAmount: number) {
+  try {
+    const user = await getAuthenticatedUser();
+    const loan = await Loan.findOne({ _id: loanId, userId: user._id });
+    if (!loan) throw new Error("Loan not found or unauthorized");
+
+    if (paidAmount <= 0) throw new Error("Payment amount must be greater than zero");
+
+    const newAmount = loan.amount - paidAmount;
+    if (newAmount <= 0) {
+      loan.amount = 0;
+      loan.status = 'SETTLED';
+    } else {
+      loan.amount = newAmount;
+      loan.status = 'PARTIAL';
+    }
+
+    await loan.save();
+    revalidatePath("/loans");
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function extendLoanDate(loanId: string, newDate: Date) {
   try {
     const user = await getAuthenticatedUser();

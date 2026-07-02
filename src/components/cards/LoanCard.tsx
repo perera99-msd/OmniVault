@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { settleLoan, deleteLoan } from "@/actions/loans";
-import { ArrowUpRight, ArrowDownRight, CalendarClock, CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+import { settleLoan, deleteLoan, recordPartialLoanPayment } from "@/actions/loans";
+import { ArrowUpRight, ArrowDownRight, CalendarClock, CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown, AlertTriangle, Coins } from "lucide-react";
 import { EditLoanForm } from "@/components/forms/EditLoanForm";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -26,6 +26,8 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
   const [loading, setLoading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
+  const [settleMode, setSettleMode] = useState<"FULL" | "PARTIAL">("FULL");
+  const [partialAmount, setPartialAmount] = useState("");
   const isGiven = loan.type === "GIVEN"; // Lent (Asset) -> Emerald
   const isSettled = loan.status === "SETTLED";
 
@@ -159,29 +161,113 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
               <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 rounded-[2rem]">
                 <DialogHeader>
                   <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-500" /> Settle Loan
+                    <CheckCircle className="w-5 h-5 text-emerald-500" /> Settle Loan Options
                   </DialogTitle>
                 </DialogHeader>
-                <div className="py-4">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                    Are you sure you want to mark this loan as fully settled? This will update your records and mark the contract as complete.
-                  </p>
-                </div>
-                <DialogFooter>
-                  <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
-                  <Button 
-                    onClick={async () => {
-                      setLoading(true);
-                      await settleLoan(loan._id);
-                      setLoading(false);
-                      setSettleOpen(false);
-                    }} 
-                    disabled={loading} 
-                    className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[100px]"
+
+                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl my-2 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setSettleMode("FULL")}
+                    className={`flex-1 py-2 rounded-lg transition-all ${settleMode === "FULL" ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
                   >
-                    {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Yes, Settle"}
-                  </Button>
-                </DialogFooter>
+                    Full Immediate Settlement
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettleMode("PARTIAL")}
+                    className={`flex-1 py-2 rounded-lg transition-all ${settleMode === "PARTIAL" ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                  >
+                    Part by Part Payment
+                  </button>
+                </div>
+
+                {settleMode === "FULL" ? (
+                  <>
+                    <div className="py-2">
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                        Are you sure you want to mark this loan as fully settled right now? This will update your records and move the contract to Settled History.
+                      </p>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                      <Button 
+                        onClick={async () => {
+                          setLoading(true);
+                          await settleLoan(loan._id);
+                          setLoading(false);
+                          setSettleOpen(false);
+                        }} 
+                        disabled={loading} 
+                        className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[120px]"
+                      >
+                        {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Yes, Settle Full"}
+                      </Button>
+                    </DialogFooter>
+                  </>
+                ) : (
+                  <>
+                    <div className="py-2 space-y-3">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                        Enter the amount paid or received today. The outstanding loan balance will be reduced accordingly.
+                      </p>
+                      <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200/50 dark:border-white/5 space-y-1">
+                        <div className="flex justify-between text-xs text-zinc-500">
+                          <span>Current Balance:</span>
+                          <span className="font-bold text-zinc-900 dark:text-white">{formatCurrency(loan.amount, loan.currency || "LKR")}</span>
+                        </div>
+                        {parseFloat(partialAmount) > 0 && (
+                          <>
+                            <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
+                              <span>Paying Now:</span>
+                              <span className="font-bold">- {formatCurrency(parseFloat(partialAmount), loan.currency || "LKR")}</span>
+                            </div>
+                            <div className="flex justify-between text-xs pt-1 border-t border-zinc-200 dark:border-white/10 font-black">
+                              <span>New Balance:</span>
+                              <span className="text-zinc-900 dark:text-white">
+                                {formatCurrency(Math.max(0, loan.amount - parseFloat(partialAmount)), loan.currency || "LKR")}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                          Amount Paid ({loan.currency || "LKR"})
+                        </label>
+                        <div className="relative">
+                          <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="e.g. 10000"
+                            value={partialAmount}
+                            onChange={(e) => setPartialAmount(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                      <Button 
+                        onClick={async () => {
+                          const amt = parseFloat(partialAmount);
+                          if (!amt || amt <= 0) return;
+                          setLoading(true);
+                          await recordPartialLoanPayment(loan._id, amt);
+                          setLoading(false);
+                          setPartialAmount("");
+                          setSettleOpen(false);
+                        }} 
+                        disabled={loading || !parseFloat(partialAmount) || parseFloat(partialAmount) <= 0} 
+                        className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[140px]"
+                      >
+                        {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Record Partial Pay"}
+                      </Button>
+                    </DialogFooter>
+                  </>
+                )}
               </DialogContent>
             </Dialog>
 
