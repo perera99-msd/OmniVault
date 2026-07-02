@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export function LoanTabs({ loans }: { loans: any[] }) {
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "HISTORY">("ACTIVE");
 
-  const activeLoans = loans.filter(l => l.status === "PENDING");
+  const activeLoans = loans.filter(l => l.status !== "SETTLED");
   const historyLoans = loans.filter(l => l.status === "SETTLED");
 
   const displayLoans = activeTab === "ACTIVE" ? activeLoans : historyLoans;
