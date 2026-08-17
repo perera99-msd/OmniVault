@@ -5,6 +5,8 @@ import { Gem } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { AssetsClient } from "@/components/assets/AssetsClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AssetsPage(props: { searchParams: Promise<{ base?: string }> | { base?: string } }) {
   const searchParams = await (props.searchParams instanceof Promise ? props.searchParams : Promise.resolve(props.searchParams));
   const baseCurrency = searchParams?.base || "LKR";

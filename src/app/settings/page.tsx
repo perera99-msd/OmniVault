@@ -6,6 +6,8 @@ import { LogoutButton } from "@/components/settings/LogoutButton";
 import { ProfileSettingsClient } from "@/components/settings/ProfileSettingsClient";
 import { SecuritySettingsClient } from "@/components/settings/SecuritySettingsClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   let user;
   try {

@@ -8,6 +8,8 @@ import { format, isPast, isToday, isTomorrow, differenceInDays } from "date-fns"
 import * as motion from "framer-motion/client";
 import { formatCurrency } from "@/lib/utils/currency";
 
+export const dynamic = "force-dynamic";
+
 export default async function UpcomingPaymentsPage() {
   const [paymentsRes, dashboardRes] = await Promise.all([
     getUpcomingPayments(),

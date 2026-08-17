@@ -6,6 +6,8 @@ import { Plus, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { formatCurrency, convertCurrency } from "@/lib/utils/currency";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoansPage() {
   const res = await getLoansPageData();
   if (!res.success || !res.data) return null;

@@ -8,6 +8,8 @@ import { TransactionRowActions } from "./TransactionRowActions";
 import { TransactionFAB } from "@/components/ui/TransactionFAB";
 import { TransactionsFilterBar } from "@/components/transactions/TransactionsFilterBar";
 
+export const dynamic = "force-dynamic";
+
 export default async function TransactionsPage({
   searchParams,
 }: {
