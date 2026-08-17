@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { getCategoriesPageData } from "@/actions/finance";
 import { BaseCurrencySelector } from "@/components/dashboard/BaseCurrencySelector";
 import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
@@ -7,16 +6,11 @@ import * as motion from "framer-motion/client";
 import { CategoriesClient } from "@/components/categories/CategoriesClient";
 
 export default async function CategoriesPage(props: { searchParams: Promise<{ base?: string; filter?: string }> | { base?: string; filter?: string } }) {
-  const cookieStore = await cookies();
-  const firebaseUid = cookieStore.get("firebaseUid")?.value;
-
-  if (!firebaseUid) return null;
-
   const searchParams = await (props.searchParams instanceof Promise ? props.searchParams : Promise.resolve(props.searchParams));
   const baseCurrency = searchParams?.base || "LKR";
   const currentFilter = searchParams?.filter || "Month";
 
-  const res = await getCategoriesPageData(firebaseUid, baseCurrency, currentFilter);
+  const res = await getCategoriesPageData(undefined, baseCurrency, currentFilter);
   if (!res.success || !res.data) return null;
 
   const categoriesData = res.data;
@@ -32,15 +26,15 @@ export default async function CategoriesPage(props: { searchParams: Promise<{ ba
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } }
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f8fafc] dark:bg-[#09090b] transition-colors duration-500 pb-32 md:pb-12 overflow-hidden selection:bg-emerald-500/30">
+    <div className="relative min-h-screen w-full bg-[#FDFBF7] dark:bg-[#121412] transition-colors duration-500 pb-32 md:pb-12 overflow-hidden selection:bg-[#987B5E]/30">
       
       {/* Background Ambient Glows */}
-      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-blue-400/10 dark:bg-blue-900/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#987B5E]/10 dark:bg-[#987B5E]/5 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-[#213F33]/10 dark:bg-[#385A4D]/10 blur-[150px] rounded-full pointer-events-none" />
 
       <div className="relative p-4 sm:p-6 lg:p-8 max-w-[1440px] mx-auto z-10">
         <motion.div 
@@ -57,15 +51,15 @@ export default async function CategoriesPage(props: { searchParams: Promise<{ ba
             </div>
             
             <div className="space-y-2 sm:space-y-3">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200/50 dark:border-zinc-800/50 mb-2">
-                <PieChart className="w-3.5 h-3.5 text-purple-500" />
-                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Insights</span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#181B18] shadow-sm border border-[#E8E2D8] dark:border-white/10 mb-1">
+                <PieChart className="w-3.5 h-3.5 text-[#987B5E]" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#6C5B4C] dark:text-[#9A9EA4]">Capital Allocation</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-900 dark:text-white leading-none">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] leading-none font-heading">
                 Categories
               </h1>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm md:text-base font-bold tracking-wide max-w-md">
-                Monitor and manage how your funds are distributed across different areas of your life.
+              <p className="text-[#6C5B4C] dark:text-[#9A9EA4] text-sm md:text-base font-bold tracking-wide max-w-md">
+                Analyze and structure how your income and expenses flow across key sectors.
               </p>
             </div>
 

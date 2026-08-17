@@ -40,10 +40,9 @@ export function TransactionMonthPicker({
   const now = new Date();
   const currentYearNow = now.getFullYear();
 
-  // Parse active custom month if selected
   const isCustomMonth = currentFilter.startsWith("MONTH:") || /^\d{4}-\d{2}$/.test(currentFilter);
   let activeYear = currentYearNow;
-  let activeMonthIndex = -1; // 0-11
+  let activeMonthIndex = -1;
 
   if (isCustomMonth) {
     const clean = currentFilter.replace("MONTH:", "");
@@ -52,10 +51,8 @@ export function TransactionMonthPicker({
     activeMonthIndex = (parseInt(mStr, 10) || 1) - 1;
   }
 
-  // State for navigating years inside picker
   const [viewYear, setViewYear] = useState<number>(activeYear);
 
-  // When opening modal, synchronize viewYear to activeYear
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setViewYear(activeYear);
@@ -87,13 +84,13 @@ export function TransactionMonthPicker({
               className={cn(
                 "w-full sm:w-auto px-3.5 sm:px-5 py-2.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all duration-300 whitespace-nowrap flex items-center justify-center gap-2 border sm:border-transparent",
                 isCustomMonth
-                  ? "bg-emerald-500 dark:bg-emerald-600 text-white shadow-md hover:bg-emerald-600 border-emerald-400"
-                  : "bg-zinc-50 sm:bg-transparent dark:bg-zinc-800/60 sm:dark:bg-transparent text-zinc-600 sm:text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 sm:hover:bg-zinc-50 dark:hover:bg-zinc-800/80 border-zinc-200/50 sm:border-transparent dark:border-zinc-700/50"
+                  ? "btn-tria-primary text-[#FDFBF7] dark:text-[#EBE8E3] shadow-md border-transparent"
+                  : "bg-[#FAF8F3] sm:bg-transparent dark:bg-[#202420] sm:dark:bg-transparent text-[#6C5B4C] sm:text-[#6C5B4C] hover:text-[#1A1D1A] dark:hover:text-white hover:bg-white dark:hover:bg-[#202420] border-[#E8E2D8] sm:border-transparent dark:border-white/5"
               )}
             />
           }
         >
-          <Calendar className="w-3.5 h-3.5 shrink-0" />
+          <Calendar className="w-3.5 h-3.5 text-[#987B5E] shrink-0" />
           <span>
             {isCustomMonth && activeMonthIndex >= 0
               ? `${FULL_MONTH_NAMES[activeMonthIndex]} ${activeYear}`
@@ -106,50 +103,50 @@ export function TransactionMonthPicker({
             type="button"
             onClick={handleClear}
             title="Reset to This Month"
-            className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-50 dark:hover:bg-rose-500/20 text-zinc-400 hover:text-rose-500 flex items-center justify-center transition-colors shrink-0"
+            className="w-7 h-7 rounded-lg bg-[#FAF8F3] dark:bg-[#202420] hover:bg-rose-50 dark:hover:bg-rose-500/20 text-[#6C5B4C] hover:text-rose-500 flex items-center justify-center transition-colors shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-2xl p-6 rounded-[2rem]">
+      <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 shadow-2xl p-6 rounded-[2rem]">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2.5">
-            <Calendar className="w-6 h-6 text-emerald-500" /> Select Ledger Month
+          <DialogTitle className="text-2xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2.5 font-heading">
+            <Calendar className="w-6 h-6 text-[#987B5E]" /> Select Ledger Month
           </DialogTitle>
-          <DialogDescription className="text-zinc-500 font-medium text-xs sm:text-sm">
+          <DialogDescription className="text-[#6C5B4C] dark:text-[#9A9EA4] font-medium text-xs sm:text-sm">
             Select any month from past or current years to view ledger history.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-2">
           {/* Year Controls */}
-          <div className="bg-zinc-50 dark:bg-white/5 rounded-2xl p-3 border border-zinc-200/60 dark:border-white/5">
+          <div className="bg-white dark:bg-[#202420] rounded-2xl p-3 border border-[#E8E2D8] dark:border-white/10">
             <div className="flex items-center justify-between mb-2.5">
               <button
                 type="button"
                 onClick={() => setViewYear((y) => y - 1)}
-                className="w-9 h-9 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-sm"
+                className="w-9 h-9 rounded-xl bg-[#FAF8F3] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 flex items-center justify-center text-[#1A1D1A] dark:text-[#EBE8E3] hover:bg-white shadow-sm"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <div className="text-center">
-                <span className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
+                <span className="text-2xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] tracking-tight font-heading">
                   {viewYear}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setViewYear((y) => y + 1)}
-                className="w-9 h-9 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-sm"
+                className="w-9 h-9 rounded-xl bg-[#FAF8F3] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 flex items-center justify-center text-[#1A1D1A] dark:text-[#EBE8E3] hover:bg-white shadow-sm"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
             {/* Quick Year Jump Chips */}
-            <div className="flex items-center justify-center gap-1.5 flex-wrap pt-1 border-t border-zinc-200/50 dark:border-zinc-800/50">
+            <div className="flex items-center justify-center gap-1.5 flex-wrap pt-1 border-t border-[#E8E2D8] dark:border-white/5">
               {quickYears.map((y) => (
                 <button
                   key={y}
@@ -158,8 +155,8 @@ export function TransactionMonthPicker({
                   className={cn(
                     "px-2.5 py-1 rounded-lg text-xs font-bold transition-all",
                     viewYear === y
-                      ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-xs"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
+                      ? "btn-tria-primary font-black shadow-xs"
+                      : "text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A] dark:hover:text-white hover:bg-[#FAF8F3] dark:hover:bg-[#181B18]"
                   )}
                 >
                   {y}
@@ -182,15 +179,15 @@ export function TransactionMonthPicker({
                   className={cn(
                     "py-3.5 px-3 rounded-2xl font-bold text-sm transition-all duration-200 flex flex-col items-center justify-center relative border",
                     isSelected
-                      ? "bg-emerald-500 dark:bg-emerald-600 text-white border-emerald-400 shadow-md scale-[1.02]"
+                      ? "btn-tria-primary border-transparent shadow-md scale-[1.02] font-black"
                       : isCurrentCalendarMonth
-                        ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 hover:border-emerald-400"
-                        : "bg-zinc-50 dark:bg-[#18181b] text-zinc-700 dark:text-zinc-300 border-zinc-200/60 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700"
+                        ? "bg-[#213F33]/10 dark:bg-[#385A4D]/20 text-[#213F33] dark:text-[#EBE8E3] border-[#213F33]/30 dark:border-[#385A4D]/40 font-black"
+                        : "bg-white dark:bg-[#202420] text-[#1A1D1A] dark:text-[#EBE8E3] border-[#E8E2D8] dark:border-white/10 hover:bg-[#FAF8F3] dark:hover:bg-[#272D27]"
                   )}
                 >
                   <span>{mName}</span>
                   {isCurrentCalendarMonth && !isSelected && (
-                    <span className="text-[9px] font-black uppercase text-emerald-500 mt-0.5 tracking-wider">
+                    <span className="text-[9px] font-black uppercase text-[#987B5E] mt-0.5 tracking-wider">
                       Current
                     </span>
                   )}

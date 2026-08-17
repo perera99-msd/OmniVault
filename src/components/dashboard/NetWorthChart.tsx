@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, CartesianGrid } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 interface NetWorthChartProps {
   data: { month: string; value: number }[];
@@ -20,14 +20,14 @@ export function NetWorthChart({ data, currencySymbol = "$" }: NetWorthChartProps
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload;
       return (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 px-4 py-2.5 rounded-2xl shadow-xl flex flex-col items-center justify-center -mt-14">
+        <div className="bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 px-4 py-2.5 rounded-2xl shadow-xl flex flex-col items-center justify-center -mt-14">
           {dataPoint.dateLabel && (
-            <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wider uppercase mb-0.5">
+            <span className="text-[10px] font-bold text-[#987B5E] dark:text-[#D4B48A] tracking-wider uppercase mb-0.5">
               {dataPoint.dateLabel}
             </span>
           )}
-          <p className="text-sm font-black text-zinc-900 dark:text-white tracking-tight flex items-center">
-            <span className="text-zinc-500 mr-0.5">{currencySymbol}</span>
+          <p className="text-sm font-black text-[#1A1D1A] dark:text-[#EBE8E3] tracking-tight flex items-center">
+            <span className="text-[#987B5E] mr-0.5">{currencySymbol}</span>
             {payload[0].value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
@@ -45,41 +45,33 @@ export function NetWorthChart({ data, currencySymbol = "$" }: NetWorthChartProps
           style={{ outline: 'none' }}
         >
           <defs>
-            <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#71717a" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="#71717a" stopOpacity={0} />
+            <linearGradient id="colorTriaNetWorth" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#987B5E" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="#213F33" stopOpacity={0.0} />
             </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
           </defs>
           <XAxis 
             dataKey="month" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#a1a1aa', fontSize: 11, fontWeight: 700 }}
+            tick={{ fill: '#987B5E', fontSize: 11, fontWeight: 700 }}
             dy={10}
           />
           <Tooltip 
             content={<CustomTooltip />} 
-            cursor={{ stroke: '#a1a1aa', strokeWidth: 1.5, strokeDasharray: '4 4', opacity: 0.5 }}
+            cursor={{ stroke: '#987B5E', strokeWidth: 1.5, strokeDasharray: '4 4', opacity: 0.6 }}
             animationDuration={300}
             animationEasing="ease-out"
           />
           <Area
             type="monotone"
             dataKey="value"
-            stroke="currentColor"
-            className="text-zinc-800 dark:text-zinc-200"
-            strokeWidth={4}
-            fill="url(#colorValue)"
+            stroke="#987B5E"
+            strokeWidth={3.5}
+            fill="url(#colorTriaNetWorth)"
             animationDuration={1500}
             animationEasing="ease-in-out"
-            activeDot={{ r: 7, fill: "#ffffff", stroke: "currentColor", strokeWidth: 3, className: "text-zinc-800 dark:text-zinc-200 drop-shadow-md" }}
+            activeDot={{ r: 7, fill: "#FDFBF7", stroke: "#987B5E", strokeWidth: 3.5 }}
           />
         </AreaChart>
       </ResponsiveContainer>

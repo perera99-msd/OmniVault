@@ -19,10 +19,8 @@ import {
   DollarSign,
   Loader2,
   History,
-  AlertTriangle,
   Info,
   Check,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -56,24 +54,24 @@ const CATEGORY_ICONS: Record<string, any> = {
 
 const CATEGORY_STYLES: Record<string, { badge: string; icon: string }> = {
   GOLD: {
-    badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-    icon: "text-amber-500",
+    badge: "bg-[#987B5E]/10 text-[#987B5E] dark:text-[#D4B48A] border-[#987B5E]/20",
+    icon: "text-[#987B5E]",
   },
   REAL_ESTATE: {
-    badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-    icon: "text-emerald-500",
+    badge: "bg-[#213F33]/10 text-[#213F33] dark:text-[#4E6C5F] border-[#213F33]/20",
+    icon: "text-[#213F33] dark:text-[#4E6C5F]",
   },
   BUSINESS: {
-    badge: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    icon: "text-blue-500",
+    badge: "bg-[#6C5B4C]/10 text-[#6C5B4C] dark:text-[#C5A880] border-[#6C5B4C]/20",
+    icon: "text-[#6C5B4C]",
   },
   VEHICLE: {
-    badge: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-    icon: "text-purple-500",
+    badge: "bg-[#4E6C5F]/10 text-[#4E6C5F] dark:text-[#EBE8E3] border-[#4E6C5F]/20",
+    icon: "text-[#4E6C5F]",
   },
   OTHER: {
-    badge: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20",
-    icon: "text-pink-500",
+    badge: "bg-[#53585F]/10 text-[#53585F] dark:text-[#9A9EA4] border-[#53585F]/20",
+    icon: "text-[#53585F]",
   },
 };
 
@@ -82,13 +80,11 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
   const [installmentModalOpen, setInstallmentModalOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
-  // Payment modal state
   const [paymentAmount, setPaymentAmount] = useState("");
   const [customInterestPortion, setCustomInterestPortion] = useState<string | null>(null);
   const [customPrincipalPortion, setCustomPrincipalPortion] = useState<string | null>(null);
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
-  // Edit payment log state
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editAmt, setEditAmt] = useState("");
   const [editInt, setEditInt] = useState("");
@@ -105,7 +101,6 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
   const diff = currentVal - initialVal;
   const pctChange = initialVal > 0 ? ((diff / initialVal) * 100).toFixed(1) : "0";
 
-  // Mortgage calculations
   const isMortgaged = asset.isMortgaged && asset.mortgageDetails;
   const origPrincipal = asset.mortgageDetails?.mortgageAmount || 0;
   const currentPrincipal = asset.mortgageDetails?.currentPrincipal !== undefined
@@ -116,14 +111,11 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
   const rawRate = asset.mortgageDetails?.interestRate ?? asset.mortgageDetails?.interestRateMonthly ?? 0;
   const monthlyRate = rateType === "YEARLY" ? rawRate / 12 : rawRate;
 
-  // Suggested next month interest
   const suggestedNextMonthInterest = currentPrincipal * (monthlyRate / 100);
 
-  // Reference date: last payment date OR start date
   const refDateStr = asset.mortgageDetails?.lastPaymentDate || asset.mortgageDetails?.startDate;
   const refDate = refDateStr ? new Date(refDateStr) : new Date();
 
-  // Next interest calculation date is exactly 1 month after reference date
   const nextCalcDate = new Date(refDate);
   nextCalcDate.setMonth(nextCalcDate.getMonth() + 1);
 
@@ -140,7 +132,6 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
   const totalPrincipalPaid = asset.mortgageDetails?.totalPrincipalPaid || 0;
   const payments = asset.mortgageDetails?.payments || [];
 
-  // Live calculation for modal preview
   const typedPayAmt = parseFloat(paymentAmount) || 0;
   const autoInterest = Math.min(typedPayAmt, targetInterest);
   const autoPrincipal = Math.max(0, typedPayAmt - autoInterest);
@@ -202,9 +193,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
   };
 
   return (
-    <div className="group relative bg-white dark:bg-[#121214] rounded-[2rem] border border-zinc-200/80 dark:border-white/10 p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden">
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-500" />
-
+    <div className="group relative bg-white dark:bg-[#181B18] rounded-[2rem] border border-[#E8E2D8] dark:border-white/10 p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden">
       <div>
         {/* Header: Category Badge & Actions */}
         <div className="flex items-center justify-between gap-3 mb-4">
@@ -214,8 +203,8 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
               {asset.category.replace("_", " ")}
             </span>
             {isMortgaged && (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center gap-1">
-                <ShieldAlert className="w-3 h-3 text-amber-500" />
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-[#987B5E]/10 text-[#987B5E] dark:text-[#D4B48A] border border-[#987B5E]/20 flex items-center gap-1">
+                <ShieldAlert className="w-3 h-3 text-[#987B5E]" />
                 Mortgaged
               </span>
             )}
@@ -224,7 +213,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
           <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onEdit(asset)}
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+              className="p-2 rounded-xl text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A] dark:hover:text-white hover:bg-[#FAF8F3] dark:hover:bg-[#202420] transition-all"
               title="Edit Asset"
             >
               <Pencil className="w-4 h-4" />
@@ -232,7 +221,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="p-2 rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+              className="p-2 rounded-xl text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
               title="Delete Asset"
             >
               <Trash2 className="w-4 h-4" />
@@ -241,13 +230,13 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
         </div>
 
         {/* Title & Location */}
-        <h3 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white mb-1.5 line-clamp-1">
+        <h3 className="text-xl font-bold tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] mb-1.5 line-clamp-1 font-heading">
           {asset.name}
         </h3>
 
         {(asset.location || isMortgaged) && (
-          <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-4">
-            <MapPin className={cn("w-3.5 h-3.5 shrink-0", isMortgaged ? "text-amber-500" : "text-zinc-400")} />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#6C5B4C] dark:text-[#9A9EA4] mb-4">
+            <MapPin className={cn("w-3.5 h-3.5 shrink-0", isMortgaged ? "text-[#987B5E]" : "text-[#9A9EA4]")} />
             <span className="truncate">
               {isMortgaged
                 ? `Mortgaged at: ${asset.mortgageDetails.provider || "Pawn Broker / Lender"}`
@@ -257,17 +246,17 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
         )}
 
         {/* Valuation Box */}
-        <div className="bg-zinc-50 dark:bg-zinc-800/40 rounded-2xl p-4 border border-zinc-200/60 dark:border-white/5 space-y-2 mb-4">
+        <div className="bg-[#FAF8F3] dark:bg-[#202420] rounded-2xl p-4 border border-[#E8E2D8] dark:border-white/5 space-y-2 mb-4">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-zinc-500 dark:text-zinc-400">Current Market Value</span>
-            <span className="font-black text-base text-zinc-900 dark:text-white">
+            <span className="font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Current Market Value</span>
+            <span className="font-black text-base text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">
               {formatCurrency(currentVal, assetCurrency)}
             </span>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] pt-2 border-t border-zinc-200/50 dark:border-white/5">
-            <span className="font-medium text-zinc-400">Acquired / Initial Value:</span>
-            <span className="font-bold text-zinc-600 dark:text-zinc-300">
+          <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[#E8E2D8] dark:border-white/5">
+            <span className="font-medium text-[#6C5B4C] dark:text-[#9A9EA4]">Acquired Value:</span>
+            <span className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
               {formatCurrency(initialVal, assetCurrency)}
             </span>
           </div>
@@ -275,11 +264,11 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
           {initialVal > 0 && (
             <div className="flex items-center justify-end gap-1 text-[11px] font-black">
               {diff >= 0 ? (
-                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                <span className="text-[#213F33] dark:text-[#4E6C5F] flex items-center gap-0.5 font-heading">
                   <TrendingUp className="w-3 h-3" /> +{formatCurrency(diff, assetCurrency)} (+{pctChange}%)
                 </span>
               ) : (
-                <span className="text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
+                <span className="text-rose-600 dark:text-rose-400 flex items-center gap-0.5 font-heading">
                   <TrendingDown className="w-3 h-3" /> -{formatCurrency(Math.abs(diff), assetCurrency)} ({pctChange}%)
                 </span>
               )}
@@ -289,65 +278,65 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
 
         {/* Mortgage & Redemption Box */}
         {isMortgaged && (
-          <div className="bg-amber-50/70 dark:bg-amber-500/5 border border-amber-500/30 rounded-2xl p-4 space-y-3 mb-4">
+          <div className="bg-white dark:bg-[#202420] border border-[#987B5E]/30 rounded-2xl p-4 space-y-3 mb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                <ShieldAlert className="w-4 h-4 text-[#987B5E] shrink-0" />
+                <span className="text-xs font-black uppercase tracking-wider text-[#987B5E]">
                   {asset.mortgageDetails.provider || "Mortgage Active"}
                 </span>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md border border-amber-500/20">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-[#987B5E]/10 text-[#987B5E] dark:text-[#D4B48A] px-2 py-0.5 rounded-md border border-[#987B5E]/20">
                 {rawRate}% / {rateType === "YEARLY" ? "Year" : "Month"}
               </span>
             </div>
 
-            <div className={cn("flex items-center justify-between p-2 rounded-xl text-[11px] font-bold border", isOverdue ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400" : "bg-amber-500/10 border-amber-500/20 text-amber-900 dark:text-amber-200")}>
+            <div className={cn("flex items-center justify-between p-2 rounded-xl text-[11px] font-bold border", isOverdue ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400" : "bg-[#FAF8F3] dark:bg-[#181B18] border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3]")}>
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-[#987B5E] shrink-0" />
                 <span>Next Interest Day: <strong>{nextCalcDate.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</strong></span>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">
+              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded text-[#987B5E]">
                 {isOverdue ? `${overdueDays}D Overdue!` : daysRemaining === 0 ? "Due Today!" : `In ${daysRemaining} Days`}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs pt-1">
               <div>
-                <p className="text-[10px] uppercase font-bold text-amber-600/70 dark:text-amber-400/70">Current Principal</p>
-                <p className="font-black text-amber-950 dark:text-amber-200 text-sm">
+                <p className="text-[10px] uppercase font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Current Principal</p>
+                <p className="font-black text-[#1A1D1A] dark:text-[#EBE8E3] text-sm font-heading">
                   {formatCurrency(currentPrincipal, assetCurrency)}
                 </p>
                 {currentPrincipal < origPrincipal && (
-                  <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-[9px] font-bold text-[#213F33] dark:text-[#4E6C5F]">
                     Orig: {formatCurrency(origPrincipal, assetCurrency)}
                   </p>
                 )}
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-amber-600/70 dark:text-amber-400/70">Next Month Interest</p>
-                <p className="font-black text-amber-950 dark:text-amber-200 text-sm">
+                <p className="text-[10px] uppercase font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Next Month Interest</p>
+                <p className="font-black text-[#987B5E] dark:text-[#D4B48A] text-sm font-heading">
                   {formatCurrency(suggestedNextMonthInterest, assetCurrency)}
                 </p>
-                <p className="text-[9px] font-bold text-amber-600/80">
+                <p className="text-[9px] font-bold text-[#6C5B4C]">
                   ({monthlyRate.toFixed(2)}% of balance)
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-amber-600/70 dark:text-amber-400/70">Total Interest Paid</p>
-                <p className="font-black text-amber-900 dark:text-amber-200">
+                <p className="text-[10px] uppercase font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Total Interest Paid</p>
+                <p className="font-black text-[#987B5E] dark:text-[#D4B48A] font-heading">
                   {formatCurrency(totalInterestPaid, assetCurrency)}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-amber-600/70 dark:text-amber-400/70">Principal Cleared</p>
-                <p className="font-black text-emerald-600 dark:text-emerald-400">
+                <p className="text-[10px] uppercase font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Principal Cleared</p>
+                <p className="font-black text-[#213F33] dark:text-[#4E6C5F] font-heading">
                   {formatCurrency(totalPrincipalPaid, assetCurrency)}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2.5 border-t border-amber-500/20 flex items-center justify-between gap-2">
+            <div className="pt-2.5 border-t border-[#E8E2D8] dark:border-white/10 flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 {payments.length > 0 && (
                   <Dialog open={historyModalOpen} onOpenChange={setHistoryModalOpen}>
@@ -355,17 +344,17 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                       render={
                         <button
                           type="button"
-                          className="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-[11px] rounded-xl transition-all flex items-center gap-1"
+                          className="px-2.5 py-1.5 bg-[#FAF8F3] hover:bg-white dark:bg-[#181B18] dark:hover:bg-[#272D27] text-[#1A1D1A] dark:text-[#EBE8E3] font-bold text-[11px] rounded-xl transition-all flex items-center gap-1 border border-[#E8E2D8] dark:border-white/10"
                         />
                       }
                     >
-                      <History className="w-3.5 h-3.5" /> {payments.length} Payments
+                      <History className="w-3.5 h-3.5 text-[#987B5E]" /> {payments.length} Payments
                     </DialogTrigger>
 
-                    <DialogContent className="sm:max-w-xl bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
+                    <DialogContent className="sm:max-w-xl bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
                       <DialogHeader>
-                        <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-                          <History className="w-5 h-5 text-amber-500" /> Active Mortgage Timeline Log
+                        <DialogTitle className="text-xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+                          <History className="w-5 h-5 text-[#987B5E]" /> Active Mortgage Timeline Log
                         </DialogTitle>
                       </DialogHeader>
 
@@ -373,47 +362,47 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                         {payments.map((p: any, idx: number) => {
                           const isEdit = editingIndex === idx;
                           return (
-                            <div key={idx} className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-white/5 space-y-2">
+                            <div key={idx} className="p-3.5 rounded-2xl bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/5 space-y-2">
                               {isEdit ? (
                                 <div className="space-y-3 text-xs">
                                   <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-0.5">Date</label>
+                                      <label className="block text-[10px] uppercase font-bold text-[#6C5B4C] mb-0.5">Date</label>
                                       <input
                                         type="date"
                                         value={editDate}
                                         onChange={(e) => setEditDate(e.target.value)}
-                                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 font-bold text-xs"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 font-bold text-xs"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-[10px] uppercase font-bold text-zinc-400 mb-0.5">Total Paid</label>
+                                      <label className="block text-[10px] uppercase font-bold text-[#6C5B4C] mb-0.5">Total Paid</label>
                                       <input
                                         type="number"
                                         step="any"
                                         value={editAmt}
                                         onChange={(e) => setEditAmt(e.target.value)}
-                                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 font-bold text-xs"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 font-bold text-xs"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-[10px] uppercase font-bold text-amber-500 mb-0.5">Interest Portion</label>
+                                      <label className="block text-[10px] uppercase font-bold text-[#987B5E] mb-0.5">Interest Portion</label>
                                       <input
                                         type="number"
                                         step="any"
                                         value={editInt}
                                         onChange={(e) => setEditInt(e.target.value)}
-                                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-amber-400/30 font-bold text-xs"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#987B5E]/30 font-bold text-xs"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-[10px] uppercase font-bold text-emerald-500 mb-0.5">Principal Portion</label>
+                                      <label className="block text-[10px] uppercase font-bold text-[#213F33] dark:text-[#4E6C5F] mb-0.5">Principal Portion</label>
                                       <input
                                         type="number"
                                         step="any"
                                         value={editPrinc}
                                         onChange={(e) => setEditPrinc(e.target.value)}
-                                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-emerald-400/30 font-bold text-xs"
+                                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#213F33]/30 font-bold text-xs"
                                       />
                                     </div>
                                   </div>
@@ -421,7 +410,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                     <button
                                       type="button"
                                       onClick={() => setEditingIndex(null)}
-                                      className="px-3 py-1 rounded-lg text-xs font-bold text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                      className="px-3 py-1 rounded-lg text-xs font-bold text-[#6C5B4C]"
                                     >
                                       Cancel
                                     </button>
@@ -429,7 +418,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                       type="button"
                                       disabled={isUpdatingLog}
                                       onClick={() => handleSaveLogEdit(idx)}
-                                      className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-500 text-white flex items-center gap-1 shadow-sm"
+                                      className="px-3 py-1 rounded-lg text-xs font-bold btn-tria-primary text-white flex items-center gap-1 shadow-sm"
                                     >
                                       {isUpdatingLog ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
                                     </button>
@@ -438,18 +427,18 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                               ) : (
                                 <>
                                   <div className="flex items-center justify-between text-xs font-bold">
-                                    <span className="text-zinc-500 dark:text-zinc-400">
+                                    <span className="text-[#6C5B4C] dark:text-[#9A9EA4]">
                                       {new Date(p.date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                      <span className="text-zinc-900 dark:text-white font-black text-sm">
+                                      <span className="text-[#1A1D1A] dark:text-[#EBE8E3] font-black text-sm font-heading">
                                         Paid {formatCurrency(p.amount, assetCurrency)}
                                       </span>
-                                      <div className="flex items-center gap-1 border-l border-zinc-200 dark:border-white/10 pl-2">
+                                      <div className="flex items-center gap-1 border-l border-[#E8E2D8] dark:border-white/10 pl-2">
                                         <button
                                           type="button"
                                           onClick={() => startEditLog(p, idx)}
-                                          className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all"
+                                          className="p-1 text-[#6C5B4C] hover:text-[#1A1D1A] dark:hover:text-white transition-all"
                                           title="Edit Payment Log"
                                         >
                                           <Pencil className="w-3.5 h-3.5" />
@@ -458,7 +447,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                           type="button"
                                           disabled={isUpdatingLog}
                                           onClick={() => handleDeleteLog(idx)}
-                                          className="p-1 text-zinc-400 hover:text-rose-500 transition-all"
+                                          className="p-1 text-[#6C5B4C] hover:text-rose-500 transition-all"
                                           title="Delete Payment Log"
                                         >
                                           <Trash2 className="w-3.5 h-3.5" />
@@ -466,18 +455,18 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                       </div>
                                     </div>
                                   </div>
-                                  <div className="grid grid-cols-3 gap-2 text-[11px] pt-1.5 border-t border-zinc-200/50 dark:border-white/5 font-medium">
+                                  <div className="grid grid-cols-3 gap-2 text-[11px] pt-1.5 border-t border-[#E8E2D8] dark:border-white/5 font-medium">
                                     <div>
-                                      <span className="text-zinc-400">Interest Settled:</span>
-                                      <p className="font-bold text-amber-600 dark:text-amber-400">{formatCurrency(p.interestPortion, assetCurrency)}</p>
+                                      <span className="text-[#6C5B4C] dark:text-[#9A9EA4]">Interest Settled:</span>
+                                      <p className="font-bold text-[#987B5E] dark:text-[#D4B48A]">{formatCurrency(p.interestPortion, assetCurrency)}</p>
                                     </div>
                                     <div>
-                                      <span className="text-zinc-400">Principal Reduced:</span>
-                                      <p className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(p.principalPortion, assetCurrency)}</p>
+                                      <span className="text-[#6C5B4C] dark:text-[#9A9EA4]">Principal Reduced:</span>
+                                      <p className="font-bold text-[#213F33] dark:text-[#4E6C5F]">{formatCurrency(p.principalPortion, assetCurrency)}</p>
                                     </div>
                                     <div>
-                                      <span className="text-zinc-400">New Balance:</span>
-                                      <p className="font-bold text-zinc-900 dark:text-white">{formatCurrency(p.remainingPrincipal, assetCurrency)}</p>
+                                      <span className="text-[#6C5B4C] dark:text-[#9A9EA4]">New Balance:</span>
+                                      <p className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">{formatCurrency(p.remainingPrincipal, assetCurrency)}</p>
                                     </div>
                                   </div>
                                 </>
@@ -501,34 +490,34 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                         setCustomInterestPortion(null);
                         setCustomPrincipalPortion(null);
                       }}
-                      className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto"
+                      className="px-3.5 py-1.5 btn-tria-primary font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto"
                     />
                   }
                 >
                   <Plus className="w-3.5 h-3.5" /> Record Payment
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-xl bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
+                <DialogContent className="sm:max-w-xl bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
                   <DialogHeader>
-                    <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-                      <DollarSign className="w-6 h-6 text-amber-500" /> Mortgage Payment & Interest Split
+                    <DialogTitle className="text-xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+                      <DollarSign className="w-6 h-6 text-[#987B5E]" /> Mortgage Payment & Interest Split
                     </DialogTitle>
                   </DialogHeader>
 
                   <form onSubmit={handlePayInstallment} className="space-y-4 mt-2">
-                    <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-500/20 text-xs space-y-1">
-                      <div className="flex justify-between font-bold text-amber-900 dark:text-amber-200">
+                    <div className="p-3.5 rounded-2xl bg-white dark:bg-[#202420] border border-[#987B5E]/30 text-xs space-y-1">
+                      <div className="flex justify-between font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
                         <span>Current Outstanding Principal:</span>
-                        <span className="font-black">{formatCurrency(currentPrincipal, assetCurrency)}</span>
+                        <span className="font-black font-heading">{formatCurrency(currentPrincipal, assetCurrency)}</span>
                       </div>
-                      <div className="flex justify-between font-bold text-amber-800 dark:text-amber-300">
+                      <div className="flex justify-between font-bold text-[#987B5E]">
                         <span>Suggested Next Month Interest ({monthlyRate.toFixed(2)}%):</span>
-                        <span className="font-black">{formatCurrency(suggestedNextMonthInterest, assetCurrency)}</span>
+                        <span className="font-black font-heading">{formatCurrency(suggestedNextMonthInterest, assetCurrency)}</span>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">
+                      <label className="block text-[10px] font-black uppercase tracking-wider text-[#6C5B4C] dark:text-[#9A9EA4] mb-1.5">
                         Total Payment Amount ({assetCurrency}) *
                       </label>
                       <input
@@ -542,15 +531,15 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                           setCustomInterestPortion(null);
                           setCustomPrincipalPortion(null);
                         }}
-                        className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white font-bold text-base focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] font-bold text-base focus:outline-none focus:border-[#987B5E]"
                       />
                     </div>
 
                     {typedPayAmt > 0 && (
-                      <div className="bg-zinc-50 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200 dark:border-white/10 space-y-3">
+                      <div className="bg-white dark:bg-[#202420] p-4 rounded-2xl border border-[#E8E2D8] dark:border-white/10 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                            <Info className="w-3.5 h-3.5 text-blue-500" /> Automatic Payment Allocation
+                          <span className="text-xs font-black uppercase tracking-wider text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-1.5 font-heading">
+                            <Info className="w-3.5 h-3.5 text-[#987B5E]" /> Automatic Payment Allocation
                           </span>
                           <button
                             type="button"
@@ -558,7 +547,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                               setCustomInterestPortion(String(autoInterest));
                               setCustomPrincipalPortion(String(autoPrincipal));
                             }}
-                            className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                            className="text-[11px] font-bold text-[#987B5E] hover:underline"
                           >
                             Customize Split
                           </button>
@@ -566,7 +555,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
 
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400 mb-1">
+                            <label className="block text-[10px] font-bold uppercase text-[#987B5E] mb-1">
                               Settles Accrued Interest
                             </label>
                             {customInterestPortion !== null ? (
@@ -580,17 +569,17 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                   const numVal = parseFloat(val) || 0;
                                   setCustomPrincipalPortion(String(Math.max(0, typedPayAmt - numVal)));
                                 }}
-                                className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-500/30 font-bold text-xs"
+                                className="w-full px-3 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#987B5E]/30 font-bold text-xs text-[#1A1D1A] dark:text-[#EBE8E3]"
                               />
                             ) : (
-                              <p className="font-black text-amber-900 dark:text-amber-200 text-sm bg-amber-500/10 px-3 py-2 rounded-xl">
+                              <p className="font-black text-[#987B5E] text-sm bg-[#FAF8F3] dark:bg-[#181B18] px-3 py-2 rounded-xl font-heading">
                                 {formatCurrency(autoInterest, assetCurrency)}
                               </p>
                             )}
                           </div>
 
                           <div>
-                            <label className="block text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-1">
+                            <label className="block text-[10px] font-bold uppercase text-[#213F33] dark:text-[#4E6C5F] mb-1">
                               Reduces Loan Principal
                             </label>
                             {customPrincipalPortion !== null ? (
@@ -604,22 +593,22 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                                   const numVal = parseFloat(val) || 0;
                                   setCustomInterestPortion(String(Math.max(0, typedPayAmt - numVal)));
                                 }}
-                                className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-emerald-300 dark:border-emerald-500/30 font-bold text-xs"
+                                className="w-full px-3 py-1.5 rounded-lg bg-[#FAF8F3] dark:bg-[#181B18] border border-[#213F33]/30 font-bold text-xs text-[#1A1D1A] dark:text-[#EBE8E3]"
                               />
                             ) : (
-                              <p className="font-black text-emerald-900 dark:text-emerald-200 text-sm bg-emerald-500/10 px-3 py-2 rounded-xl">
+                              <p className="font-black text-[#213F33] dark:text-[#4E6C5F] text-sm bg-[#FAF8F3] dark:bg-[#181B18] px-3 py-2 rounded-xl font-heading">
                                 {formatCurrency(autoPrincipal, assetCurrency)}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs space-y-1">
-                          <p className="font-bold text-blue-900 dark:text-blue-200 flex items-center justify-between">
+                        <div className="p-3 rounded-xl bg-[#FAF8F3] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 text-xs space-y-1">
+                          <p className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center justify-between">
                             <span>Projected Outstanding Balance:</span>
-                            <span className="font-black">{formatCurrency(projectedNewPrincipal, assetCurrency)}</span>
+                            <span className="font-black font-heading">{formatCurrency(projectedNewPrincipal, assetCurrency)}</span>
                           </p>
-                          <p className="text-[11px] text-blue-700 dark:text-blue-300 font-medium flex items-center justify-between">
+                          <p className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-medium flex items-center justify-between">
                             <span>Next Month Interest ({monthlyRate.toFixed(2)}%):</span>
                             <span className="font-bold">{formatCurrency(projectedNextMonthInterest, assetCurrency)}</span>
                           </p>
@@ -631,14 +620,14 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
                       <button
                         type="button"
                         onClick={() => setInstallmentModalOpen(false)}
-                        className="px-4 py-2.5 rounded-xl font-bold text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+                        className="px-4 py-2.5 rounded-xl font-bold text-xs text-[#6C5B4C] hover:bg-[#FAF8F3] dark:hover:bg-[#202420] transition-all"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmittingPayment || typedPayAmt <= 0}
-                        className="px-5 py-2.5 rounded-xl font-black text-xs bg-amber-500 hover:bg-amber-600 text-white shadow-md transition-all flex items-center gap-2"
+                        className="px-5 py-2.5 rounded-xl font-black text-xs btn-tria-primary shadow-md transition-all flex items-center gap-2"
                       >
                         {isSubmittingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         Confirm Payment
@@ -652,7 +641,7 @@ export function AssetCard({ asset, currencySymbol, onEdit }: AssetCardProps) {
         )}
 
         {asset.description && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium line-clamp-2 mt-2">
+          <p className="text-xs text-[#6C5B4C] dark:text-[#9A9EA4] font-medium line-clamp-2 mt-2">
             {asset.description}
           </p>
         )}

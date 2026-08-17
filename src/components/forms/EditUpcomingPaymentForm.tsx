@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Edit2 } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -93,17 +93,17 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
-        <button className="p-2 text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition-colors w-11 h-11 flex items-center justify-center border border-transparent hover:border-blue-200 dark:hover:border-blue-500/20" />
+        <button className="p-2 text-[#6C5B4C] hover:text-[#987B5E] hover:bg-[#FAF8F3] dark:hover:bg-[#202420] rounded-xl transition-colors w-11 h-11 flex items-center justify-center border border-transparent hover:border-[#E8E2D8] dark:hover:border-white/10" />
       }>
         <Edit2 className="w-4 h-4" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+      <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
         <DialogHeader className="mb-6">
-          <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-            <Edit2 className="w-5 h-5 text-blue-500" /> Edit Payment
+          <DialogTitle className="text-2xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+            <Edit2 className="w-5 h-5 text-[#987B5E]" /> Edit Payment
           </DialogTitle>
-          <DialogDescription className="text-zinc-500 font-medium">
-            Update the details of your upcoming payment.
+          <DialogDescription className="text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
+            Update the details of your scheduled payment.
           </DialogDescription>
         </DialogHeader>
 
@@ -114,9 +114,9 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Payment Name</FormLabel>
+                  <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Payment Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Netflix Subscription" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-blue-500/50" {...field} />
+                    <Input placeholder="e.g. Netflix Subscription" className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-medium px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus-visible:ring-[#987B5E]/50 focus:border-[#987B5E]" {...field} />
                   </FormControl>
                   <FormMessage className="ml-1" />
                 </FormItem>
@@ -127,15 +127,15 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
               control={form.control}
               name="amount"
               render={({ field }) => (
-                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-4 sm:p-5 border border-transparent focus-within:border-blue-500/30 transition-colors shadow-sm">
-                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
+                <FormItem className="bg-white dark:bg-[#202420] rounded-3xl p-4 sm:p-5 border border-[#E8E2D8] dark:border-white/10 focus-within:border-[#987B5E] transition-colors shadow-sm">
+                  <FormLabel className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold uppercase tracking-wider ml-1">Amount</FormLabel>
                   <FormControl>
                     <div className="flex items-center mt-1">
-                      <span className="text-2xl font-black mr-1 opacity-80 text-blue-600">{currencySymbol}</span>
+                      <span className="text-2xl font-black mr-1 opacity-80 text-[#987B5E]">{currencySymbol}</span>
                       <input 
                         type="number" 
                         step="0.01" 
-                        className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full p-0" 
+                        className="bg-transparent border-none text-3xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] focus:outline-none w-full p-0 font-heading" 
                         {...field} 
                       />
                     </div>
@@ -151,9 +151,9 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Due Date</FormLabel>
+                    <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Due Date</FormLabel>
                     <FormControl>
-                      <Input type="date" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-blue-500/50" {...field} />
+                      <Input type="date" className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-medium px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus-visible:ring-[#987B5E]/50 focus:border-[#987B5E]" {...field} />
                     </FormControl>
                     <FormMessage className="ml-1" />
                   </FormItem>
@@ -165,17 +165,17 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
                 name="walletId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Pay From (Optional)</FormLabel>
+                    <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Pay From (Optional)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-blue-500/50">
+                        <SelectTrigger className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-bold px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus:ring-[#987B5E]/50 focus:border-[#987B5E]">
                           <SelectValue placeholder="Select a vault" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
-                        <SelectItem value="none" className="font-bold">Don't specify</SelectItem>
+                      <SelectContent className="bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-xl shadow-xl">
+                        <SelectItem value="none" className="font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Don't specify</SelectItem>
                         {wallets.map((wallet) => (
-                          <SelectItem key={wallet._id} value={wallet._id} className="font-bold">
+                          <SelectItem key={wallet._id} value={wallet._id} className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
                             {wallet.name}
                           </SelectItem>
                         ))}
@@ -188,7 +188,7 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
             </div>
 
             {submitMessage && (
-              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"}`}>
+              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-[#213F33]/10 text-[#213F33] dark:text-[#4E6C5F]" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"}`}>
                 {submitMessage.text}
               </div>
             )}
@@ -197,7 +197,7 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
+                className="w-full btn-tria-primary text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
               >
                 {form.formState.isSubmitting ? <PremiumSpinner /> : "Save Changes"}
               </Button>

@@ -8,8 +8,10 @@ interface AppState {
   setBiometricEnabled: (enabled: boolean) => void;
   biometricCredentialId: string | null;
   setBiometricCredentialId: (id: string | null) => void;
-  isAppLocked: boolean; // Not persisted across sessions, controlled by WebAuthn
+  isAppLocked: boolean;
   setAppLocked: (locked: boolean) => void;
+  userAvatar: string;
+  setUserAvatar: (avatar: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -23,14 +25,17 @@ export const useAppStore = create<AppState>()(
       setBiometricCredentialId: (id) => set({ biometricCredentialId: id }),
       isAppLocked: false,
       setAppLocked: (locked) => set({ isAppLocked: locked }),
+      userAvatar: "sophia",
+      setUserAvatar: (avatar) => set({ userAvatar: avatar }),
     }),
     {
-      name: "omnivault-storage",
+      name: "tria-vault-storage",
       partialize: (state) => ({ 
         selectedWalletId: state.selectedWalletId, 
         biometricEnabled: state.biometricEnabled,
         biometricCredentialId: state.biometricCredentialId,
-      }), // Only persist these fields
+        userAvatar: state.userAvatar,
+      }),
     }
   )
 );

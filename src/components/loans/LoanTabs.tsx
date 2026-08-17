@@ -12,7 +12,6 @@ export function LoanTabs({ loans }: { loans: any[] }) {
 
   const displayLoans = activeTab === "ACTIVE" ? activeLoans : historyLoans;
 
-  // Framer Motion Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -23,40 +22,40 @@ export function LoanTabs({ loans }: { loans: any[] }) {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } }
   };
 
   return (
     <div className="space-y-8">
       {/* Tabs */}
-      <div className="flex gap-8 border-b border-zinc-200 dark:border-zinc-800 pb-px">
+      <div className="flex gap-8 border-b border-[#E8E2D8] dark:border-white/5 pb-px">
         <button
           onClick={() => setActiveTab("ACTIVE")}
-          className={`pb-4 text-sm font-bold transition-all relative ${activeTab === "ACTIVE"
-              ? "text-zinc-900 dark:text-white"
-              : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+          className={`pb-4 text-sm font-black tracking-tight transition-all relative font-heading ${activeTab === "ACTIVE"
+              ? "text-[#1A1D1A] dark:text-[#EBE8E3]"
+              : "text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A] dark:hover:text-white"
             }`}
         >
           Active Contracts
           {activeTab === "ACTIVE" && (
             <motion.span 
               layoutId="loanTabIndicator"
-              className="absolute bottom-0 left-0 w-full h-1 bg-emerald-500 rounded-t-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
+              className="absolute bottom-0 left-0 w-full h-1 bg-[#987B5E] rounded-t-full shadow-[0_0_10px_rgba(152,123,94,0.5)]" 
             />
           )}
         </button>
         <button
           onClick={() => setActiveTab("HISTORY")}
-          className={`pb-4 text-sm font-bold transition-all relative ${activeTab === "HISTORY"
-              ? "text-zinc-900 dark:text-white"
-              : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+          className={`pb-4 text-sm font-black tracking-tight transition-all relative font-heading ${activeTab === "HISTORY"
+              ? "text-[#1A1D1A] dark:text-[#EBE8E3]"
+              : "text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A] dark:hover:text-white"
             }`}
         >
           Settled History
           {activeTab === "HISTORY" && (
             <motion.span 
               layoutId="loanTabIndicator"
-              className="absolute bottom-0 left-0 w-full h-1 bg-zinc-900 dark:bg-white rounded-t-full shadow-[0_0_10px_rgba(255,255,255,0.2)]" 
+              className="absolute bottom-0 left-0 w-full h-1 bg-[#213F33] dark:bg-[#4E6C5F] rounded-t-full shadow-[0_0_10px_rgba(33,63,51,0.5)]" 
             />
           )}
         </button>
@@ -72,8 +71,8 @@ export function LoanTabs({ loans }: { loans: any[] }) {
           transition={{ duration: 0.2 }}
         >
           {displayLoans.length === 0 ? (
-            <div className="text-center py-24 bg-white/50 dark:bg-[#121214]/50 border border-zinc-200 dark:border-white/5 rounded-[2rem] shadow-sm">
-              <p className="text-zinc-400 font-bold text-sm">No loan contracts found in this category.</p>
+            <div className="text-center py-24 bg-white/50 dark:bg-[#181B18]/50 border border-[#E8E2D8] dark:border-white/5 rounded-[2.5rem] shadow-sm">
+              <p className="text-[#6C5B4C] dark:text-[#9A9EA4] font-bold text-sm">No loan contracts found in this category.</p>
             </div>
           ) : (
             <motion.div 

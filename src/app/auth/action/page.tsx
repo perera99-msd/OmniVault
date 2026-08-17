@@ -4,9 +4,10 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { TriaLogo } from "@/components/ui/TriaLogo";
+import { LogoText } from "@/components/ui/LogoText";
 
 function AuthActionContent() {
   const searchParams = useSearchParams();
@@ -30,7 +31,7 @@ function AuthActionContent() {
           setEmail(email);
           setVerifying(false);
         })
-        .catch((err) => {
+        .catch(() => {
           setError("Invalid or expired password reset link.");
           setVerifying(false);
         });
@@ -71,9 +72,8 @@ function AuthActionContent() {
   if (verifying) {
     return (
       <div className="flex flex-col items-center gap-6 relative z-10">
-        <div className="w-20 h-20 relative drop-shadow-xl animate-pulse">
-          <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" priority />
-          <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" priority />
+        <div className="w-20 h-20 relative flex items-center justify-center animate-pulse">
+          <TriaLogo size={64} />
         </div>
       </div>
     );
@@ -86,50 +86,50 @@ function AuthActionContent() {
         animate={{ opacity: 1, scale: 1 }}
         className="flex flex-col items-center text-center w-full max-w-sm"
       >
-        <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
-          <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+        <div className="w-16 h-16 bg-[#213F33]/10 dark:bg-[#385A4D]/20 rounded-full flex items-center justify-center mb-6 text-[#213F33] dark:text-[#4E6C5F]">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">Password Updated</h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">Your password has been successfully reset. Redirecting to login...</p>
+        <h2 className="text-2xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] mb-2 font-heading">Password Updated</h2>
+        <p className="text-sm text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">Your vault password has been successfully reset. Redirecting to login...</p>
       </motion.div>
     );
   }
 
   return (
     <div className="w-full max-w-sm flex flex-col items-center">
-      <div className="w-16 h-16 relative drop-shadow-xl mb-8">
-        <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" priority />
-        <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" priority />
+      <div className="flex items-center gap-3 mb-8">
+        <TriaLogo size={36} />
+        <LogoText className="text-2xl" />
       </div>
 
       <div className="text-center w-full mb-8">
-        <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-2 tracking-tight">Reset Password</h2>
-        <p className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium px-4">
-          Create a new password for <span className="text-emerald-600 dark:text-emerald-400 font-bold">{email}</span>
+        <h2 className="text-2xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] mb-2 tracking-tight font-heading">Reset Password</h2>
+        <p className="text-[13px] text-[#6C5B4C] dark:text-[#9A9EA4] font-medium px-4">
+          Create a new password for <span className="text-[#987B5E] dark:text-[#D4B48A] font-bold">{email}</span>
         </p>
       </div>
 
       <form onSubmit={handleResetPassword} className="w-full space-y-5">
         <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">New Password</label>
+          <label className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest ml-1">New Password</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
-            className="w-full h-12 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium tracking-widest"
+            className="w-full h-12 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] rounded-xl px-4 focus:outline-none focus:border-[#987B5E] transition-all font-medium tracking-widest"
             placeholder="••••••••"
           />
         </div>
         
         <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">Confirm Password</label>
+          <label className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest ml-1">Confirm Password</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="w-full h-12 bg-white dark:bg-[#121214] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium tracking-widest"
+            className="w-full h-12 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] rounded-xl px-4 focus:outline-none focus:border-[#987B5E] transition-all font-medium tracking-widest"
             placeholder="••••••••"
           />
         </div>
@@ -151,7 +151,7 @@ function AuthActionContent() {
         <button
           type="submit"
           disabled={loading || !!error.includes("Invalid")}
-          className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:hover:scale-100 mt-2"
+          className="w-full h-12 btn-tria-primary font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md disabled:opacity-50 mt-2"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -168,14 +168,13 @@ function AuthActionContent() {
 
 export default function AuthActionPage() {
   return (
-    <div className="min-h-[100svh] w-full flex items-center justify-center p-4 relative overflow-hidden bg-zinc-50 dark:bg-[#09090b] transition-colors duration-500">
-      {/* Ambient Glows */}
-      <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen hidden sm:block transition-all duration-700" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-orange-500/10 dark:bg-orange-500/10 blur-[140px] pointer-events-none mix-blend-multiply dark:mix-blend-screen hidden sm:block transition-all duration-700" />
+    <div className="min-h-[100svh] w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#FDFBF7] dark:bg-[#121412] transition-colors duration-500">
+      <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-[#987B5E]/10 dark:bg-[#987B5E]/5 blur-[140px] pointer-events-none hidden sm:block transition-all duration-700" />
+      <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#213F33]/10 dark:bg-[#385A4D]/10 blur-[150px] pointer-events-none hidden sm:block transition-all duration-700" />
 
-      <div className="w-full max-w-md bg-white dark:bg-[#18181b] p-8 sm:p-12 rounded-[2.5rem] shadow-2xl shadow-zinc-200/50 dark:shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-zinc-100 dark:border-white/5 relative z-10 flex flex-col items-center">
+      <div className="w-full max-w-md bg-[#FDFBF7] dark:bg-[#181B18] p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border border-[#E8E2D8] dark:border-white/10 relative z-10 flex flex-col items-center">
         <Suspense fallback={
-          <div className="w-10 h-10 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-2 border-[#987B5E]/30 border-t-[#987B5E] rounded-full animate-spin" />
         }>
           <AuthActionContent />
         </Suspense>

@@ -4,27 +4,21 @@ import dbConnect from "@/lib/db/index";
 import { User } from "@/models/User";
 import { Loan } from "@/models/Loan";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { getAuthenticatedUser } from "@/lib/auth/session";
 
-async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-  const firebaseUid = cookieStore.get("firebaseUid")?.value;
-  if (!firebaseUid) throw new Error("Unauthorized: No session found");
-  
-  await dbConnect();
-  const user = await User.findOne({ firebaseUid }).lean();
-  if (!user) throw new Error("Unauthorized: User not found");
-  
-  return user;
-}
-
-export async function getLoansPageData(firebaseUid: string) {
+export async function getLoansPageData(firebaseUidInput?: string) {
   await dbConnect();
   try {
-    const user = await User.findOne({ firebaseUid }).lean();
+    let user;
+    if (firebaseUidInput) {
+      user = await User.findOne({ firebaseUid: firebaseUidInput }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+
     if (!user) return { success: false, error: "User not found" };
     
-    const loans = await Loan.find({ userId: user._id }).sort({ createdAt: -1 }).lean();
+    const loans = await Loan.find({ userId: (user as any)._id }).sort({ createdAt: -1 }).lean();
     
     return {
       success: true,

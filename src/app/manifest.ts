@@ -2,13 +2,16 @@ import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'OmniVault - Personal Finance PWA',
-    short_name: 'OmniVault',
-    description: 'Your wealth. Every source. One vault.',
+    name: 'Tria — Wealth, Income, Expenses',
+    short_name: 'Tria',
+    description: 'The next generation of asset tracking and personal wealth intelligence.',
     start_url: '/',
+    scope: '/',
     display: 'standalone',
-    background_color: '#09090b',
-    theme_color: '#09090b',
+    orientation: 'portrait-primary',
+    prefer_related_applications: false,
+    background_color: '#121412',
+    theme_color: '#121412',
     icons: [
       {
         src: '/icon-192x192.png',

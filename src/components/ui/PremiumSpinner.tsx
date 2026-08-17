@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 interface PremiumSpinnerProps {
   size?: "sm" | "md" | "lg";
   className?: string;
-  color?: "emerald" | "white" | "zinc";
+  color?: "emerald" | "tria" | "gold" | "white" | "zinc";
 }
 
-export function PremiumSpinner({ size = "md", className, color = "emerald" }: PremiumSpinnerProps) {
+export function PremiumSpinner({ size = "md", className, color = "tria" }: PremiumSpinnerProps) {
   const sizeClasses = {
     sm: "w-4 h-4 border-[1.5px]",
     md: "w-6 h-6 border-2",
@@ -23,11 +23,23 @@ export function PremiumSpinner({ size = "md", className, color = "emerald" }: Pr
   };
 
   const colorClasses = {
+    tria: {
+      border: "border-[#E8E2D8] dark:border-white/10",
+      top: "border-t-[#987B5E]",
+      bottom: "border-b-[#213F33]",
+      dot: "bg-[#987B5E]",
+    },
+    gold: {
+      border: "border-[#E8E2D8] dark:border-white/10",
+      top: "border-t-[#987B5E]",
+      bottom: "border-b-[#D4B48A]",
+      dot: "bg-[#987B5E]",
+    },
     emerald: {
-      border: "border-zinc-200 dark:border-zinc-800",
-      top: "border-t-emerald-500",
-      bottom: "border-b-emerald-400",
-      dot: "bg-emerald-500",
+      border: "border-[#E8E2D8] dark:border-white/10",
+      top: "border-t-[#213F33]",
+      bottom: "border-b-[#4E6C5F]",
+      dot: "bg-[#213F33]",
     },
     white: {
       border: "border-white/20",
@@ -36,14 +48,14 @@ export function PremiumSpinner({ size = "md", className, color = "emerald" }: Pr
       dot: "bg-white",
     },
     zinc: {
-      border: "border-zinc-200 dark:border-zinc-800",
-      top: "border-t-zinc-900 dark:border-t-white",
-      bottom: "border-b-zinc-500 dark:border-b-zinc-400",
-      dot: "bg-zinc-900 dark:bg-white",
+      border: "border-[#E8E2D8] dark:border-white/10",
+      top: "border-t-[#1A1D1A] dark:border-t-white",
+      bottom: "border-b-[#6C5B4C] dark:border-b-[#9A9EA4]",
+      dot: "bg-[#1A1D1A] dark:bg-white",
     },
   };
 
-  const c = colorClasses[color];
+  const c = colorClasses[color] || colorClasses.tria;
 
   return (
     <div className={cn("relative flex items-center justify-center", sizeClasses[size], className)}>
