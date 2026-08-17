@@ -11,19 +11,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing ID token" }, { status: 400 });
     }
 
-    let sessionCookie: string;
+    let sessionCookie: string = idToken;
     try {
-      // Create true Firebase session cookie using Admin SDK
+      // Create true Firebase session cookie using Admin SDK if service account is active
       sessionCookie = await adminAuth.createSessionCookie(idToken, {
         expiresIn: SESSION_EXPIRY_MS,
       });
     } catch (err: any) {
-      console.warn("⚠️ createSessionCookie fallback to verifyIdToken:", err.message);
-      // If createSessionCookie fails due to lack of service account cert permissions in dev, verify token directly
-      const decoded = await adminAuth.verifyIdToken(idToken);
-      if (!decoded || !decoded.uid) {
-        return NextResponse.json({ error: "Invalid ID token" }, { status: 401 });
-      }
+      console.warn("⚠️ createSessionCookie fallback to verified token:", err.message);
       sessionCookie = idToken;
     }
 

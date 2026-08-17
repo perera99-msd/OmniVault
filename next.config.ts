@@ -11,7 +11,9 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  serverExternalPackages: ["firebase-admin", "mongoose"],
   turbopack: {},
 };
 
 export default withPWA(nextConfig);
+
