@@ -1,8 +1,10 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, type Auth } from "firebase/auth";
 
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
-if (!apiKey && typeof window !== "undefined") {
+const isBrowser = typeof window !== "undefined";
+
+if (!apiKey && isBrowser) {
   console.warn("⚠️ [OmniVault] NEXT_PUBLIC_FIREBASE_API_KEY is missing. Check your .env.local file.");
 }
 
@@ -15,7 +17,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
+// Initialize Firebase only in browser to avoid build-time auth initialization failures.
+const app = isBrowser && apiKey ? (!getApps().length ? initializeApp(firebaseConfig) : getApp()) : null;
+export const auth: Auth = app ? getAuth(app) : (null as unknown as Auth);
 export default app;
