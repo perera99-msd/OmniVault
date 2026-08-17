@@ -11,8 +11,8 @@ import { Transaction } from "@/models/Transaction";
 import { UpcomingPayment } from "@/models/UpcomingPayment";
 
 export async function createUser(data: { firebaseUid: string; email: string; name: string }) {
-  await dbConnect();
   try {
+    await dbConnect();
     let user = await User.findOne({ firebaseUid: data.firebaseUid });
     if (!user) {
       user = await User.create(data);
@@ -103,8 +103,8 @@ export async function addTransaction(data: {
 }
 
 export async function getUserDashboardData(firebaseUid?: string, baseCurrency: string = "LKR") {
-  await dbConnect();
   try {
+    await dbConnect();
     let user;
     if (firebaseUid) {
       user = await User.findOne({ firebaseUid }).lean();
@@ -307,8 +307,8 @@ export async function getUserDashboardData(firebaseUid?: string, baseCurrency: s
 }
 
 export async function getWalletsPageData(firebaseUid?: string) {
-  await dbConnect();
   try {
+    await dbConnect();
     let user;
     if (firebaseUid) {
       user = await User.findOne({ firebaseUid }).lean();
@@ -361,8 +361,8 @@ export async function deleteWallet(walletId: string) {
 }
 
 export async function getTransactionsHistory(firebaseUid?: string, filter: string = 'THIS_MONTH') {
-  await dbConnect();
   try {
+    await dbConnect();
     let user;
     if (firebaseUid) {
       user = await User.findOne({ firebaseUid }).lean();
@@ -566,8 +566,8 @@ export async function updateTransaction(transactionId: string, newData: {
 // --- CATEGORIES PAGE ACTIONS ---
 
 export async function getCategoriesPageData(firebaseUid?: string, baseCurrency: string = "LKR", filter?: string) {
-  await dbConnect();
   try {
+    await dbConnect();
     let user;
     if (firebaseUid) {
       user = await User.findOne({ firebaseUid });

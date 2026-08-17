@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 import { getAuthenticatedUser } from "@/lib/auth/session";
 
 export async function getLoansPageData(firebaseUidInput?: string) {
-  await dbConnect();
   try {
+    await dbConnect();
     let user;
     if (firebaseUidInput) {
       user = await User.findOne({ firebaseUid: firebaseUidInput }).lean();
