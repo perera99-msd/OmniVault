@@ -6,9 +6,10 @@ import { UpcomingPayment } from "@/models/UpcomingPayment";
 import { Wallet } from "@/models/Wallet";
 import { Transaction } from "@/models/Transaction";
 import { revalidatePath } from "next/cache";
+import { getAuthenticatedUser } from "@/lib/auth/session";
 
 export async function createUpcomingPayment(data: {
-  firebaseUid: string;
+  firebaseUid?: string;
   name: string;
   amount: number;
   dueDate: Date;
@@ -16,12 +17,17 @@ export async function createUpcomingPayment(data: {
 }) {
   try {
     await dbConnect();
-    const user = await User.findOne({ firebaseUid: data.firebaseUid }).lean();
-    if (!user) throw new Error("User not found");
+    let user;
+    if (data.firebaseUid) {
+      user = await User.findOne({ firebaseUid: data.firebaseUid }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+    if (!user) throw new Error("User not found or unauthorized");
 
     let currency = (user as any).baseCurrency || "LKR";
     if (data.walletId) {
-      const wallet = await Wallet.findById(data.walletId).lean();
+      const wallet = await Wallet.findOne({ _id: data.walletId, userId: (user as any)._id }).lean();
       if (wallet && (wallet as any).currency) {
         currency = (wallet as any).currency;
       }
@@ -46,11 +52,16 @@ export async function createUpcomingPayment(data: {
   }
 }
 
-export async function getUpcomingPayments(firebaseUid: string) {
+export async function getUpcomingPayments(firebaseUidInput?: string) {
   try {
     await dbConnect();
-    const user = await User.findOne({ firebaseUid }).lean();
-    if (!user) throw new Error("User not found");
+    let user;
+    if (firebaseUidInput) {
+      user = await User.findOne({ firebaseUid: firebaseUidInput }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+    if (!user) throw new Error("User not found or unauthorized");
 
     const payments = await UpcomingPayment.find({ userId: (user as any)._id })
       .populate("walletId", "name currency")
@@ -80,19 +91,20 @@ export async function getUpcomingPayments(firebaseUid: string) {
 export async function markUpcomingPaymentAsPaid(paymentId: string, walletIdToDeduct?: string) {
   try {
     await dbConnect();
+    const user = await getAuthenticatedUser();
     
-    const payment = await UpcomingPayment.findById(paymentId);
-    if (!payment) throw new Error("Payment not found");
+    const payment = await UpcomingPayment.findOne({ _id: paymentId, userId: user._id });
+    if (!payment) throw new Error("Payment not found or unauthorized");
     if (payment.isPaid) throw new Error("Payment is already paid");
 
     const finalWalletId = walletIdToDeduct || payment.walletId;
 
     if (finalWalletId) {
-      const wallet = await Wallet.findById(finalWalletId);
+      const wallet = await Wallet.findOne({ _id: finalWalletId, userId: user._id });
       if (wallet) {
         // Create an Expense transaction automatically
         const tx = new Transaction({
-          userId: payment.userId,
+          userId: user._id,
           type: "EXPENSE",
           amount: payment.amount,
           date: new Date(),
@@ -122,7 +134,10 @@ export async function markUpcomingPaymentAsPaid(paymentId: string, walletIdToDed
 export async function deleteUpcomingPayment(paymentId: string) {
   try {
     await dbConnect();
-    await UpcomingPayment.findByIdAndDelete(paymentId);
+    const user = await getAuthenticatedUser();
+    const result = await UpcomingPayment.findOneAndDelete({ _id: paymentId, userId: user._id });
+    if (!result) throw new Error("Payment not found or unauthorized");
+
     revalidatePath("/upcoming");
     revalidatePath("/");
     return { success: true };
@@ -143,8 +158,9 @@ export async function updateUpcomingPayment(
 ) {
   try {
     await dbConnect();
-    const payment = await UpcomingPayment.findById(paymentId);
-    if (!payment) throw new Error("Payment not found");
+    const user = await getAuthenticatedUser();
+    const payment = await UpcomingPayment.findOne({ _id: paymentId, userId: user._id });
+    if (!payment) throw new Error("Payment not found or unauthorized");
 
     payment.name = data.name;
     payment.amount = data.amount;
@@ -152,7 +168,7 @@ export async function updateUpcomingPayment(
     payment.walletId = data.walletId || null;
 
     if (data.walletId) {
-      const wallet = await Wallet.findById(data.walletId).lean();
+      const wallet = await Wallet.findOne({ _id: data.walletId, userId: user._id }).lean();
       if (wallet && (wallet as any).currency) {
         payment.currency = (wallet as any).currency;
       }

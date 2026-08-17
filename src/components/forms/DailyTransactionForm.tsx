@@ -23,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
@@ -48,8 +47,6 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
   const [loading, setLoading] = useState(false);
 
   const defaultWalletId = selectedWalletId || (wallets.length > 0 ? wallets[0]._id : "");
-
-  // Default to today "YYYY-MM-DD"
   const todayStr = new Date().toISOString().split("T")[0];
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,7 +73,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
         name: values.newCategoryName,
         type: watchType,
         icon: "✨", 
-        color: "#009900" 
+        color: "#987B5E" 
       });
       if (catRes.success) {
         finalCategoryId = catRes.category._id;
@@ -88,7 +85,6 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
       }
     }
 
-    // Convert local YYYY-MM-DD back to a Date object, preserving current time
     const [year, month, day] = values.dateString.split("-").map(Number);
     const now = new Date();
     const finalDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds());
@@ -106,11 +102,11 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
         amount: 0,
         description: "",
       });
-      toast.success("Transaction successfully added!", {
+      toast.success("Transaction recorded in Tria vault!", {
         description: `Added to ${values.type.toLowerCase()}s.`
       });
     } else {
-      toast.error("Failed to add transaction", {
+      toast.error("Failed to record transaction", {
         description: res.error
       });
     }
@@ -119,7 +115,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
   return (
     <div className="w-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex flex-col">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 flex flex-col">
           
           {/* INCOME/EXPENSE TOGGLE */}
           <FormField
@@ -128,15 +124,15 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <div className="flex bg-zinc-50/80 dark:bg-zinc-800/50 p-1.5 rounded-2xl w-full mx-auto shadow-inner">
+                  <div className="flex bg-[#FAF8F3] dark:bg-[#202420] p-1.5 rounded-2xl w-full mx-auto border border-[#E8E2D8] dark:border-white/5">
                     <button
                       type="button"
                       onClick={() => field.onChange("EXPENSE")}
                       className={cn(
                         "flex-1 py-2.5 text-[13px] font-bold rounded-xl transition-all duration-300",
                         field.value === "EXPENSE" 
-                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-red-500 dark:text-red-400" 
-                          : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                          ? "bg-white dark:bg-[#272D27] shadow-sm text-rose-600 dark:text-rose-400 font-black" 
+                          : "text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A]"
                       )}
                     >
                       Expense
@@ -147,8 +143,8 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
                       className={cn(
                         "flex-1 py-2.5 text-[13px] font-bold rounded-xl transition-all duration-300",
                         field.value === "INCOME" 
-                          ? "bg-white dark:bg-[#1e1e1e] shadow-sm text-emerald-600 dark:text-emerald-400" 
-                          : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                          ? "bg-white dark:bg-[#272D27] shadow-sm text-[#213F33] dark:text-[#4E6C5F] font-black" 
+                          : "text-[#6C5B4C] dark:text-[#9A9EA4] hover:text-[#1A1D1A]"
                       )}
                     >
                       Income
@@ -164,16 +160,16 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
             control={form.control}
             name="amount"
             render={({ field }) => (
-              <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
-                <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
+              <FormItem className="bg-white dark:bg-[#202420] rounded-3xl p-5 border border-[#E8E2D8] dark:border-white/5 focus-within:border-[#987B5E] transition-colors shadow-sm">
+                <FormLabel className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold uppercase tracking-wider ml-1">Amount</FormLabel>
                 <FormControl>
                   <div className="flex items-center mt-1">
-                    <span className={cn("text-2xl font-black mr-1 opacity-80", watchType === "EXPENSE" ? "text-red-500" : "text-emerald-600")}>Rs</span>
+                    <span className={cn("text-2xl font-black mr-1 opacity-80", watchType === "EXPENSE" ? "text-rose-600" : "text-[#213F33] dark:text-[#4E6C5F]")}>Rs</span>
                     <input 
                       type="number" 
                       placeholder="0.00" 
                       step="0.01" 
-                      className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full placeholder:text-zinc-300 dark:placeholder:text-zinc-600 p-0"
+                      className="bg-transparent border-none text-3xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] focus:outline-none w-full placeholder:text-[#9A9EA4] p-0 font-heading"
                       {...field} 
                     />
                   </div>
@@ -189,8 +185,8 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
               control={form.control}
               name="categoryId"
               render={({ field }) => (
-                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
-                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Category</FormLabel>
+                <FormItem className="bg-white dark:bg-[#202420] rounded-3xl p-5 border border-[#E8E2D8] dark:border-white/5 focus-within:border-[#987B5E] transition-colors shadow-sm">
+                  <FormLabel className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold uppercase tracking-wider ml-1">Category</FormLabel>
                   <Select onValueChange={(val) => {
                     if (val === "NEW") {
                       setIsCreatingCategory(true);
@@ -201,14 +197,14 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
                     }
                   }} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="w-full bg-transparent border-none shadow-none p-0 h-auto focus:ring-0 text-lg font-bold text-zinc-900 dark:text-white mt-2 hover:bg-transparent data-[state=open]:bg-transparent">
+                      <SelectTrigger className="w-full bg-transparent border-none shadow-none p-0 h-auto focus:ring-0 text-base font-bold text-[#1A1D1A] dark:text-[#EBE8E3] mt-2 hover:bg-transparent data-[state=open]:bg-transparent">
                         <div className="flex items-center gap-3">
                           {field.value && field.value !== "NEW" ? (
-                            <div className="w-10 h-10 rounded-xl bg-[#fdf5e6] dark:bg-amber-500/10 flex items-center justify-center text-xl shadow-sm border border-amber-900/5">
+                            <div className="w-10 h-10 rounded-xl bg-[#FAF8F3] dark:bg-[#181B18] flex items-center justify-center text-xl shadow-sm border border-[#E8E2D8] dark:border-white/10">
                               {categories.find(c => c._id === field.value)?.icon || "✨"}
                             </div>
                           ) : (
-                            <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 shadow-sm">
+                            <div className="w-10 h-10 rounded-xl bg-[#FAF8F3] dark:bg-[#181B18] flex items-center justify-center text-[#987B5E] shadow-sm">
                               ?
                             </div>
                           )}
@@ -218,14 +214,14 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
                         </div>
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-xl">
-                      <SelectItem value="NEW" className="font-bold text-emerald-600 py-3">
+                    <SelectContent className="rounded-2xl border-[#E8E2D8] dark:border-white/10 bg-[#FDFBF7] dark:bg-[#181B18] shadow-xl">
+                      <SelectItem value="NEW" className="font-bold text-[#987B5E] dark:text-[#D4B48A] py-3">
                         + Create New Category
                       </SelectItem>
                       {categories
                         .filter((c) => c.type === watchType)
                         .map((c) => (
-                          <SelectItem key={c._id} value={c._id} className="py-3 cursor-pointer">
+                          <SelectItem key={c._id} value={c._id} className="py-3 cursor-pointer text-[#1A1D1A] dark:text-[#EBE8E3]">
                             <span className="mr-2 text-lg">{c.icon}</span> <span className="font-medium text-base">{c.name}</span>
                           </SelectItem>
                         ))}
@@ -242,9 +238,9 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
                 name="newCategoryName"
                 render={({ field }) => (
                   <FormItem className="px-2 animate-in slide-in-from-top-2">
-                    <FormLabel className="text-xs font-bold text-emerald-600">New Category Name</FormLabel>
+                    <FormLabel className="text-xs font-bold text-[#987B5E]">New Category Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Groceries" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b]" {...field} />
+                      <Input placeholder="e.g. Investments" className="h-12 rounded-2xl border-[#E8E2D8] dark:border-white/10 bg-white dark:bg-[#202420]" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -253,22 +249,22 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
             )}
           </div>
 
-          {/* PAYMENT TYPE (WALLETS) */}
+          {/* VAULT / PAYMENT TYPE */}
           <FormField
             control={form.control}
             name="sourceWalletId"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="text-[15px] text-zinc-900 dark:text-white font-bold ml-1">Payment Type</FormLabel>
+                <FormLabel className="text-[13px] text-[#1A1D1A] dark:text-[#EBE8E3] font-bold ml-1 uppercase tracking-wider">Vault Account</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-14 rounded-2xl bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white font-bold text-[15px] px-4 focus:ring-emerald-500/50 shadow-sm transition-colors">
-                      {field.value ? wallets.find(w => w._id === field.value)?.name : "Select a Wallet"}
+                    <SelectTrigger className="w-full h-14 rounded-2xl bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] font-bold text-[15px] px-4 focus:border-[#987B5E] shadow-sm transition-colors">
+                      {field.value ? wallets.find(w => w._id === field.value)?.name : "Select a Vault"}
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="rounded-2xl border-zinc-200 dark:border-zinc-800 shadow-xl">
+                  <SelectContent className="rounded-2xl border-[#E8E2D8] dark:border-white/10 bg-[#FDFBF7] dark:bg-[#181B18] shadow-xl">
                     {wallets.map((w) => (
-                      <SelectItem key={w._id} value={w._id} className="py-3 cursor-pointer font-bold">
+                      <SelectItem key={w._id} value={w._id} className="py-3 cursor-pointer font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
                         {w.name}
                       </SelectItem>
                     ))}
@@ -287,7 +283,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input type="date" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] text-sm font-medium" {...field} />
+                    <Input type="date" className="h-12 rounded-2xl border-[#E8E2D8] dark:border-white/10 bg-white dark:bg-[#202420] text-sm font-medium text-[#1A1D1A] dark:text-[#EBE8E3]" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -299,7 +295,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Note (Optional)" className="h-12 rounded-2xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] text-sm font-medium" {...field} />
+                    <Input placeholder="Note (Optional)" className="h-12 rounded-2xl border-[#E8E2D8] dark:border-white/10 bg-white dark:bg-[#202420] text-sm font-medium text-[#1A1D1A] dark:text-[#EBE8E3]" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -307,17 +303,17 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
             />
           </div>
 
-          {/* ACTION BUTTONS */}
+          {/* ACTION BUTTON */}
           <div className="pt-4 pb-2">
             <Button 
               type="submit" 
               disabled={loading || wallets.length === 0}
               className={cn(
-                "w-full h-14 rounded-2xl text-[16px] font-bold text-white shadow-sm transition-colors",
-                watchType === "EXPENSE" ? "bg-red-500 hover:bg-red-600" : "bg-[#abcfa8] hover:bg-[#95c590] text-zinc-900"
+                "w-full h-14 rounded-2xl text-[15px] font-bold shadow-md transition-all",
+                watchType === "EXPENSE" ? "bg-[#6C5B4C] hover:bg-[#56483C] text-white" : "btn-tria-primary"
               )}
             >
-              {loading ? <PremiumSpinner size="sm" color={watchType === "EXPENSE" ? "white" : "zinc"} /> : "Add Transaction"}
+              {loading ? <PremiumSpinner size="sm" color="white" /> : "Record in Tria"}
             </Button>
           </div>
 

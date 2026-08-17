@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { settleLoan, deleteLoan, recordPartialLoanPayment } from "@/actions/loans";
-import { ArrowUpRight, ArrowDownRight, CalendarClock, CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown, AlertTriangle, Coins } from "lucide-react";
+import { CheckCircle, Clock, Check, Trash2, TrendingUp, TrendingDown, AlertTriangle, Coins, CalendarClock } from "lucide-react";
 import { EditLoanForm } from "@/components/forms/EditLoanForm";
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -28,14 +27,12 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
   const [settleOpen, setSettleOpen] = useState(false);
   const [settleMode, setSettleMode] = useState<"FULL" | "PARTIAL">("FULL");
   const [partialAmount, setPartialAmount] = useState("");
-  const isGiven = loan.type === "GIVEN"; // Lent (Asset) -> Emerald
+  const isGiven = loan.type === "GIVEN";
   const isSettled = loan.status === "SETTLED";
 
   const getInitials = (name: string) => name.charAt(0).toUpperCase();
   const isOverdue = loan.dueDate && new Date(loan.dueDate) < new Date() && !isSettled;
 
-  // Calculate progress based on dates (mock progress if no start date, we'll assume 50% for visuals unless overdue)
-  // Real implementation would use createdAt and dueDate
   const progressPercent = isSettled ? 100 : (isOverdue ? 100 : 45); 
 
   const CardWrapper = variants ? motion.div : 'div';
@@ -43,38 +40,35 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
   return (
     <CardWrapper
       variants={variants}
-      className={`bg-white dark:bg-[#121214] border ${isOverdue ? 'border-rose-200 dark:border-rose-500/30' : 'border-zinc-100 dark:border-zinc-800/60'} rounded-[2rem] p-7 shadow-xl shadow-zinc-200/40 dark:shadow-none transition-all duration-500 hover:shadow-2xl flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1`}
+      className={`bg-white dark:bg-[#181B18] border ${isOverdue ? 'border-rose-200 dark:border-rose-500/30' : 'border-[#E8E2D8] dark:border-white/10'} rounded-[2rem] p-7 shadow-sm transition-all duration-500 hover:shadow-md flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1`}
     >
-      {/* Animated Glowing Progress Track */}
-      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-zinc-100 dark:bg-zinc-800">
+      {/* Animated Progress Track */}
+      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-[#FAF8F3] dark:bg-[#202420]">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className={`h-full ${isSettled ? 'bg-zinc-300 dark:bg-zinc-600' : (isOverdue ? 'bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.6)]' : (isGiven ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]'))}`}
+          className={`h-full ${isSettled ? 'bg-[#9EA2A8] dark:bg-[#6C7177]' : (isOverdue ? 'bg-rose-500' : (isGiven ? 'bg-[#213F33] dark:bg-[#4E6C5F]' : 'bg-[#987B5E]'))}`}
         />
       </div>
-
-      {/* Thematic Background Accent Glow */}
-      <div className={`absolute -top-10 -right-10 w-40 h-40 blur-[60px] rounded-full pointer-events-none opacity-0 transition-opacity duration-700 group-hover:opacity-30 ${isGiven ? 'bg-emerald-500' : 'bg-blue-500'}`} />
 
       {/* Header */}
       <div className="flex justify-between items-start mb-6 relative z-10">
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shadow-inner ${isGiven ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'}`}>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shadow-inner ${isGiven ? 'bg-[#213F33]/10 dark:bg-[#385A4D]/20 text-[#213F33] dark:text-[#4E6C5F]' : 'bg-[#987B5E]/10 text-[#987B5E] dark:text-[#D4B48A]'}`}>
             {getInitials(loan.personName)}
           </div>
           <div>
-            <h3 className="font-bold text-zinc-900 dark:text-white text-base tracking-tight">{loan.personName}</h3>
-            <p className="text-xs font-semibold text-zinc-500 flex items-center gap-1 mt-0.5">
-              {isGiven ? <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> : <TrendingDown className="w-3.5 h-3.5 text-blue-500" />}
-              {isGiven ? "You Lent Money" : "You Borrowed Money"}
+            <h3 className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3] text-base tracking-tight font-heading">{loan.personName}</h3>
+            <p className="text-xs font-semibold text-[#6C5B4C] dark:text-[#9A9EA4] flex items-center gap-1 mt-0.5">
+              {isGiven ? <TrendingUp className="w-3.5 h-3.5 text-[#213F33] dark:text-[#4E6C5F]" /> : <TrendingDown className="w-3.5 h-3.5 text-[#987B5E]" />}
+              {isGiven ? "Capital Lent Out" : "Personal Liability"}
             </p>
           </div>
         </div>
 
         {isSettled ? (
-          <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-500 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+          <span className="bg-[#FAF8F3] dark:bg-[#202420] text-[#6C5B4C] dark:text-[#9A9EA4] text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm border border-[#E8E2D8] dark:border-white/10">
             <CheckCircle className="w-3.5 h-3.5" /> Settled
           </span>
         ) : isOverdue ? (
@@ -82,7 +76,7 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
             Overdue
           </span>
         ) : (
-          <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+          <span className="bg-[#213F33]/10 dark:bg-[#385A4D]/20 text-[#213F33] dark:text-[#4E6C5F] border border-[#213F33]/20 dark:border-[#385A4D]/30 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
             Active
           </span>
         )}
@@ -90,11 +84,11 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
 
       {/* Body */}
       <div className="relative z-10 mb-8">
-        <p className={`text-4xl font-black tracking-tighter drop-shadow-sm tabular-nums ${isGiven ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-900 dark:text-white'}`}>
+        <p className={`text-4xl font-black tracking-tighter drop-shadow-sm tabular-nums font-heading ${isGiven ? 'text-[#213F33] dark:text-[#4E6C5F]' : 'text-[#1A1D1A] dark:text-[#EBE8E3]'}`}>
           {formatCurrency(loan.amount, loan.currency || "LKR")}
         </p>
         {loan.description && (
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-4 bg-zinc-50 dark:bg-zinc-900/50 p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800 line-clamp-2">
+          <p className="text-sm font-medium text-[#6C5B4C] dark:text-[#9A9EA4] mt-4 bg-[#FAF8F3] dark:bg-[#202420] p-3.5 rounded-xl border border-[#E8E2D8] dark:border-white/10 line-clamp-2">
             "{loan.description}"
           </p>
         )}
@@ -102,15 +96,15 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
 
       {/* Footer & Actions */}
       <div className="pt-5 flex justify-between items-center relative z-10">
-        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#6C5B4C] dark:text-[#9A9EA4]">
           {loan.dueDate ? (
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${isOverdue ? 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' : 'bg-zinc-50 border-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400'}`}>
-              <CalendarClock className="w-3.5 h-3.5" />
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${isOverdue ? 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400' : 'bg-[#FAF8F3] border-[#E8E2D8] text-[#6C5B4C] dark:bg-[#202420] dark:border-white/10 dark:text-[#9A9EA4]'}`}>
+              <CalendarClock className="w-3.5 h-3.5 text-[#987B5E]" />
               <span>Due: {new Date(loan.dueDate).toLocaleDateString()}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-400">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FAF8F3] border border-[#E8E2D8] text-[#6C5B4C] dark:bg-[#202420] dark:border-white/10 dark:text-[#9A9EA4]">
+              <Clock className="w-3.5 h-3.5 text-[#987B5E]" />
               <span>No Deadline</span>
             </div>
           )}
@@ -121,22 +115,22 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
             <EditLoanForm loan={loan} />
             
             <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-              <DialogTrigger className="w-11 h-11 flex items-center justify-center rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors disabled:opacity-50" title="Delete">
+              <DialogTrigger className="w-11 h-11 flex items-center justify-center rounded-xl text-[#6C5B4C] hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors disabled:opacity-50" title="Delete">
                 <Trash2 className="w-5 h-5" />
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 rounded-[2rem]">
+              <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 shadow-2xl p-6 rounded-[2rem]">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <DialogTitle className="text-xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
                     <AlertTriangle className="w-5 h-5 text-rose-500" /> Delete Loan Record
                   </DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                  <p className="text-sm text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
                     Are you sure you want to delete this loan record entirely? This action cannot be undone.
                   </p>
                 </div>
                 <DialogFooter>
-                  <Button onClick={() => setDeleteOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                  <Button onClick={() => setDeleteOpen(false)} variant="ghost" className="rounded-xl font-bold text-[#6C5B4C]">Cancel</Button>
                   <Button 
                     onClick={async () => {
                       setLoading(true);
@@ -154,29 +148,29 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
             </Dialog>
 
             <Dialog open={settleOpen} onOpenChange={setSettleOpen}>
-              <DialogTrigger className="flex items-center justify-center gap-1.5 text-xs font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-105 px-4 h-11 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95">
-                <Check className="w-3.5 h-3.5" />
+              <DialogTrigger className="flex items-center justify-center gap-1.5 text-xs font-bold btn-tria-primary hover:scale-105 px-4 h-11 rounded-xl transition-all shadow-md active:scale-95">
+                <Check className="w-3.5 h-3.5 text-[#D4B48A]" />
                 Settle
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border-zinc-100 dark:border-zinc-800/60 shadow-2xl p-6 rounded-[2rem]">
+              <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 shadow-2xl p-6 rounded-[2rem]">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-500" /> Settle Loan Options
+                  <DialogTitle className="text-xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+                    <CheckCircle className="w-5 h-5 text-[#213F33] dark:text-[#4E6C5F]" /> Settle Loan Options
                   </DialogTitle>
                 </DialogHeader>
 
-                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl my-2 text-xs font-bold">
+                <div className="flex p-1 bg-[#FAF8F3] dark:bg-[#202420] rounded-xl my-2 text-xs font-bold border border-[#E8E2D8] dark:border-white/5">
                   <button
                     type="button"
                     onClick={() => setSettleMode("FULL")}
-                    className={`flex-1 py-2 rounded-lg transition-all ${settleMode === "FULL" ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                    className={`flex-1 py-2 rounded-lg transition-all font-bold ${settleMode === "FULL" ? "bg-white dark:bg-[#181B18] text-[#1A1D1A] dark:text-[#EBE8E3] shadow-sm" : "text-[#6C5B4C] dark:text-[#9A9EA4]"}`}
                   >
                     Full Immediate Settlement
                   </button>
                   <button
                     type="button"
                     onClick={() => setSettleMode("PARTIAL")}
-                    className={`flex-1 py-2 rounded-lg transition-all ${settleMode === "PARTIAL" ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                    className={`flex-1 py-2 rounded-lg transition-all font-bold ${settleMode === "PARTIAL" ? "bg-white dark:bg-[#181B18] text-[#1A1D1A] dark:text-[#EBE8E3] shadow-sm" : "text-[#6C5B4C] dark:text-[#9A9EA4]"}`}
                   >
                     Part by Part Payment
                   </button>
@@ -185,12 +179,12 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
                 {settleMode === "FULL" ? (
                   <>
                     <div className="py-2">
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                      <p className="text-sm text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
                         Are you sure you want to mark this loan as fully settled right now? This will update your records and move the contract to Settled History.
                       </p>
                     </div>
                     <DialogFooter>
-                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-[#6C5B4C]">Cancel</Button>
                       <Button 
                         onClick={async () => {
                           setLoading(true);
@@ -199,7 +193,7 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
                           setSettleOpen(false);
                         }} 
                         disabled={loading} 
-                        className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[120px]"
+                        className="rounded-xl font-bold btn-tria-primary text-white min-w-[120px]"
                       >
                         {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Yes, Settle Full"}
                       </Button>
@@ -208,23 +202,23 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
                 ) : (
                   <>
                     <div className="py-2 space-y-3">
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                      <p className="text-xs text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
                         Enter the amount paid or received today. The outstanding loan balance will be reduced accordingly.
                       </p>
-                      <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200/50 dark:border-white/5 space-y-1">
-                        <div className="flex justify-between text-xs text-zinc-500">
+                      <div className="p-3 bg-white dark:bg-[#202420] rounded-xl border border-[#E8E2D8] dark:border-white/5 space-y-1">
+                        <div className="flex justify-between text-xs text-[#6C5B4C] dark:text-[#9A9EA4]">
                           <span>Current Balance:</span>
-                          <span className="font-bold text-zinc-900 dark:text-white">{formatCurrency(loan.amount, loan.currency || "LKR")}</span>
+                          <span className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">{formatCurrency(loan.amount, loan.currency || "LKR")}</span>
                         </div>
                         {parseFloat(partialAmount) > 0 && (
                           <>
-                            <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
+                            <div className="flex justify-between text-xs text-[#213F33] dark:text-[#4E6C5F]">
                               <span>Paying Now:</span>
-                              <span className="font-bold">- {formatCurrency(parseFloat(partialAmount), loan.currency || "LKR")}</span>
+                              <span className="font-bold font-heading">- {formatCurrency(parseFloat(partialAmount), loan.currency || "LKR")}</span>
                             </div>
-                            <div className="flex justify-between text-xs pt-1 border-t border-zinc-200 dark:border-white/10 font-black">
+                            <div className="flex justify-between text-xs pt-1 border-t border-[#E8E2D8] dark:border-white/10 font-black">
                               <span>New Balance:</span>
-                              <span className="text-zinc-900 dark:text-white">
+                              <span className="text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">
                                 {formatCurrency(Math.max(0, loan.amount - parseFloat(partialAmount)), loan.currency || "LKR")}
                               </span>
                             </div>
@@ -232,24 +226,24 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1">
+                        <label className="block text-xs font-bold text-[#6C5B4C] dark:text-[#9A9EA4] mb-1">
                           Amount Paid ({loan.currency || "LKR"})
                         </label>
                         <div className="relative">
-                          <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                          <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#987B5E]" />
                           <input
                             type="number"
                             step="any"
                             placeholder="e.g. 10000"
                             value={partialAmount}
                             onChange={(e) => setPartialAmount(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-sm font-bold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 text-sm font-bold text-[#1A1D1A] dark:text-[#EBE8E3] outline-none focus:border-[#987B5E]"
                           />
                         </div>
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</Button>
+                      <Button onClick={() => setSettleOpen(false)} variant="ghost" className="rounded-xl font-bold text-[#6C5B4C]">Cancel</Button>
                       <Button 
                         onClick={async () => {
                           const amt = parseFloat(partialAmount);
@@ -261,7 +255,7 @@ export function LoanCard({ loan, variants }: LoanCardProps) {
                           setSettleOpen(false);
                         }} 
                         disabled={loading || !parseFloat(partialAmount) || parseFloat(partialAmount) <= 0} 
-                        className="rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white min-w-[140px]"
+                        className="rounded-xl font-bold btn-tria-primary text-white min-w-[140px]"
                       >
                         {loading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Record Partial Pay"}
                       </Button>

@@ -8,18 +8,14 @@ import {
   PieChart,
   Filter,
   Sparkles,
-  ArrowUpRight,
-  TrendingUp,
   History,
   CheckCircle2,
-  Calendar,
   Pencil,
   Trash2,
   Check,
   Loader2,
   ChevronDown,
 } from "lucide-react";
-import * as motion from "framer-motion/client";
 import { motion as clientMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -127,13 +123,13 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
   return (
     <div className="space-y-8">
       {/* Top Asset Wealth Overview Card */}
-      <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-sm">
+      <div className="bg-white dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-sm">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left: KPIs */}
           <div className="lg:col-span-7 space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs border border-emerald-500/20">
-                <Sparkles className="w-3.5 h-3.5" /> Standalone Asset Wealth
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#987B5E]/10 text-[#987B5E] dark:text-[#D4B48A] font-bold text-xs border border-[#987B5E]/20">
+                <Sparkles className="w-3.5 h-3.5" /> Standalone Asset Holdings
               </div>
 
               {settledArchive.length > 0 && (
@@ -142,65 +138,65 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                     render={
                       <button
                         type="button"
-                        className="px-3.5 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold text-xs border border-zinc-300 dark:border-white/10 transition-all flex items-center gap-1.5 shadow-sm"
+                        className="px-3.5 py-1.5 rounded-full bg-[#FAF8F3] hover:bg-white dark:bg-[#202420] dark:hover:bg-[#272D27] text-[#1A1D1A] dark:text-[#EBE8E3] font-bold text-xs border border-[#E8E2D8] dark:border-white/10 transition-all flex items-center gap-1.5 shadow-sm"
                       />
                     }
                   >
-                    <History className="w-3.5 h-3.5 text-amber-500" /> Settled Mortgages Archive ({settledArchive.length})
+                    <History className="w-3.5 h-3.5 text-[#987B5E]" /> Settled Mortgages Archive ({settledArchive.length})
                   </DialogTrigger>
 
-                  <DialogContent className="sm:max-w-2xl bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/10 p-6 sm:p-8 rounded-[2rem] shadow-2xl">
+                  <DialogContent className="sm:max-w-2xl bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 p-6 sm:p-8 rounded-[2rem] shadow-2xl">
                     <DialogHeader>
-                      <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-500" /> Settled & Completed Mortgages Archive
+                      <DialogTitle className="text-xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+                        <CheckCircle2 className="w-6 h-6 text-[#213F33] dark:text-[#4E6C5F]" /> Settled Mortgages Archive
                       </DialogTitle>
                     </DialogHeader>
 
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                      Historical ledger of all loans you successfully recovered and paid off. You can review or edit past installments anytime.
+                    <p className="text-xs text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
+                      Historical ledger of all loans you successfully recovered and paid off.
                     </p>
 
                     <div className="space-y-4 mt-4 max-h-[65vh] overflow-y-auto custom-scrollbar pr-1">
                       {settledArchive.map((arc: any, aIdx: number) => {
                         const arcCurr = arc.assetCurrency || summary.baseCurrency;
                         return (
-                          <div key={arc._id || aIdx} className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-white/10 space-y-3">
+                          <div key={arc._id || aIdx} className="p-5 rounded-2xl bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 space-y-3">
                             <div className="flex items-center justify-between">
                               <div>
-                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-[#213F33]/10 text-[#213F33] dark:text-[#4E6C5F] border border-[#213F33]/20">
                                   {arc.assetCategory} • SETTLED
                                 </span>
-                                <h4 className="text-base font-bold text-zinc-900 dark:text-white mt-1">
+                                <h4 className="text-base font-bold text-[#1A1D1A] dark:text-[#EBE8E3] mt-1 font-heading">
                                   {arc.assetName}
                                 </h4>
-                                <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                                <p className="text-xs font-bold text-[#987B5E]">
                                   Provider: {arc.provider || "Pawn Broker"}
                                 </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-xs text-zinc-400 font-medium">Original Borrowed</p>
-                                <p className="text-base font-black text-zinc-900 dark:text-white">
+                                <p className="text-xs text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">Original Borrowed</p>
+                                <p className="text-base font-black text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">
                                   {formatCurrency(arc.mortgageAmount || 0, arcCurr)}
                                 </p>
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/50 dark:border-white/5 text-xs">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-[#FAF8F3] dark:bg-[#181B18] rounded-xl border border-[#E8E2D8] dark:border-white/5 text-xs">
                               <div>
-                                <span className="text-zinc-400 text-[10px] uppercase font-bold">Total Interest Paid</span>
-                                <p className="font-black text-amber-600 dark:text-amber-400">
+                                <span className="text-[#6C5B4C] dark:text-[#9A9EA4] text-[10px] uppercase font-bold">Total Interest Paid</span>
+                                <p className="font-black text-[#987B5E] dark:text-[#D4B48A]">
                                   {formatCurrency(arc.totalInterestPaid || 0, arcCurr)}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-zinc-400 text-[10px] uppercase font-bold">Total Principal Cleared</span>
-                                <p className="font-black text-emerald-600 dark:text-emerald-400">
+                                <span className="text-[#6C5B4C] dark:text-[#9A9EA4] text-[10px] uppercase font-bold">Total Principal Cleared</span>
+                                <p className="font-black text-[#213F33] dark:text-[#4E6C5F]">
                                   {formatCurrency(arc.totalPrincipalPaid || 0, arcCurr)}
                                 </p>
                               </div>
                               <div className="col-span-2 sm:col-span-1">
-                                <span className="text-zinc-400 text-[10px] uppercase font-bold">Settled On</span>
-                                <p className="font-bold text-zinc-700 dark:text-zinc-300">
+                                <span className="text-[#6C5B4C] dark:text-[#9A9EA4] text-[10px] uppercase font-bold">Settled On</span>
+                                <p className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
                                   {arc.settledDate
                                     ? new Date(arc.settledDate).toLocaleDateString()
                                     : arc.lastPaymentDate
@@ -210,10 +206,9 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                               </div>
                             </div>
 
-                            {/* Collapsible/List timeline */}
                             {arc.payments && arc.payments.length > 0 && (
-                              <div className="space-y-2 pt-2 border-t border-zinc-200/60 dark:border-white/5">
-                                <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                              <div className="space-y-2 pt-2 border-t border-[#E8E2D8] dark:border-white/5">
+                                <p className="text-[11px] font-bold text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider">
                                   Recovery Installment Log ({arc.payments.length})
                                 </p>
                                 <div className="space-y-2">
@@ -221,47 +216,47 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                                     const key = `${arc.assetId}-${arc.historyIndex}-${pIdx}`;
                                     const isEdit = editingArchiveKey === key;
                                     return (
-                                      <div key={pIdx} className="p-3 rounded-xl bg-white dark:bg-zinc-900/80 border border-zinc-200/50 dark:border-white/5 text-xs space-y-1.5">
+                                      <div key={pIdx} className="p-3 rounded-xl bg-white dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/5 text-xs space-y-1.5">
                                         {isEdit ? (
                                           <div className="space-y-2">
                                             <div className="grid grid-cols-2 gap-2">
                                               <div>
-                                                <label className="block text-[10px] font-bold text-zinc-400">Date</label>
+                                                <label className="block text-[10px] font-bold text-[#6C5B4C]">Date</label>
                                                 <input
                                                   type="date"
                                                   value={editDate}
                                                   onChange={(e) => setEditDate(e.target.value)}
-                                                  className="w-full px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border text-xs font-bold"
+                                                  className="w-full px-2 py-1 rounded bg-[#FAF8F3] dark:bg-[#202420] border text-xs font-bold"
                                                 />
                                               </div>
                                               <div>
-                                                <label className="block text-[10px] font-bold text-zinc-400">Paid Amount</label>
+                                                <label className="block text-[10px] font-bold text-[#6C5B4C]">Paid Amount</label>
                                                 <input
                                                   type="number"
                                                   step="any"
                                                   value={editAmt}
                                                   onChange={(e) => setEditAmt(e.target.value)}
-                                                  className="w-full px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border text-xs font-bold"
+                                                  className="w-full px-2 py-1 rounded bg-[#FAF8F3] dark:bg-[#202420] border text-xs font-bold"
                                                 />
                                               </div>
                                               <div>
-                                                <label className="block text-[10px] font-bold text-amber-500">Interest</label>
+                                                <label className="block text-[10px] font-bold text-[#987B5E]">Interest</label>
                                                 <input
                                                   type="number"
                                                   step="any"
                                                   value={editInt}
                                                   onChange={(e) => setEditInt(e.target.value)}
-                                                  className="w-full px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border text-xs font-bold"
+                                                  className="w-full px-2 py-1 rounded bg-[#FAF8F3] dark:bg-[#202420] border text-xs font-bold"
                                                 />
                                               </div>
                                               <div>
-                                                <label className="block text-[10px] font-bold text-emerald-500">Principal</label>
+                                                <label className="block text-[10px] font-bold text-[#213F33] dark:text-[#4E6C5F]">Principal</label>
                                                 <input
                                                   type="number"
                                                   step="any"
                                                   value={editPrinc}
                                                   onChange={(e) => setEditPrinc(e.target.value)}
-                                                  className="w-full px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border text-xs font-bold"
+                                                  className="w-full px-2 py-1 rounded bg-[#FAF8F3] dark:bg-[#202420] border text-xs font-bold"
                                                 />
                                               </div>
                                             </div>
@@ -269,7 +264,7 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                                               <button
                                                 type="button"
                                                 onClick={() => setEditingArchiveKey(null)}
-                                                className="px-2.5 py-1 text-xs text-zinc-400"
+                                                className="px-2.5 py-1 text-xs text-[#6C5B4C]"
                                               >
                                                 Cancel
                                               </button>
@@ -277,7 +272,7 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                                                 type="button"
                                                 disabled={isUpdatingArchiveLog}
                                                 onClick={() => handleSaveArchiveLogEdit(arc.assetId, arc.historyIndex, pIdx)}
-                                                className="px-3 py-1 bg-emerald-500 text-white font-bold rounded flex items-center gap-1"
+                                                className="px-3 py-1 btn-tria-primary text-white font-bold rounded flex items-center gap-1"
                                               >
                                                 {isUpdatingArchiveLog ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
                                               </button>
@@ -285,24 +280,24 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                                           </div>
                                         ) : (
                                           <div className="flex items-center justify-between font-bold">
-                                            <span className="text-zinc-500">
+                                            <span className="text-[#6C5B4C] dark:text-[#9A9EA4]">
                                               {new Date(p.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                                             </span>
                                             <div className="flex items-center gap-3">
-                                              <span className="text-zinc-900 dark:text-white">
+                                              <span className="text-[#1A1D1A] dark:text-[#EBE8E3]">
                                                 Paid {formatCurrency(p.amount, arcCurr)}
                                               </span>
-                                              <span className="text-amber-600 dark:text-amber-400 text-[11px]">
+                                              <span className="text-[#987B5E] text-[11px]">
                                                 (Int: {formatCurrency(p.interestPortion, arcCurr)})
                                               </span>
-                                              <span className="text-emerald-600 dark:text-emerald-400 text-[11px]">
+                                              <span className="text-[#213F33] dark:text-[#4E6C5F] text-[11px]">
                                                 (Princ: {formatCurrency(p.principalPortion, arcCurr)})
                                               </span>
-                                              <div className="flex items-center gap-1 pl-2 border-l border-zinc-200 dark:border-white/10">
+                                              <div className="flex items-center gap-1 pl-2 border-l border-[#E8E2D8] dark:border-white/10">
                                                 <button
                                                   type="button"
                                                   onClick={() => startEditArchiveLog(p, arc.assetId, arc.historyIndex, pIdx)}
-                                                  className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                                                  className="text-[#6C5B4C] hover:text-[#1A1D1A] dark:hover:text-white"
                                                 >
                                                   <Pencil className="w-3 h-3" />
                                                 </button>
@@ -310,7 +305,7 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                                                   type="button"
                                                   disabled={isUpdatingArchiveLog}
                                                   onClick={() => handleDeleteArchiveLog(arc.assetId, arc.historyIndex, pIdx)}
-                                                  className="text-zinc-400 hover:text-rose-500"
+                                                  className="text-[#6C5B4C] hover:text-rose-500"
                                                 >
                                                   <Trash2 className="w-3 h-3" />
                                                 </button>
@@ -334,40 +329,40 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
             </div>
 
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">
+              <p className="text-xs font-black uppercase tracking-widest text-[#6C5B4C] dark:text-[#9A9EA4] mb-1">
                 Total Available Asset Equity (Unmortgaged)
               </p>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-zinc-900 dark:text-white leading-none">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] leading-none font-heading">
                 {formatCurrency(summary.totalUnmortgagedWealth, summary.baseCurrency)}
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 font-medium">
+              <p className="text-xs text-[#6C5B4C] dark:text-[#9A9EA4] mt-2 font-medium">
                 Calculated purely from unencumbered items. Does not mix with overview or wallet net worth.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-100 dark:border-white/5">
-              <div className="bg-zinc-50 dark:bg-zinc-800/40 p-4 rounded-2xl border border-zinc-200/60 dark:border-white/5">
-                <div className="flex items-center gap-2 text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-1">
-                  <Gem className="w-3.5 h-3.5 text-blue-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#E8E2D8] dark:border-white/5">
+              <div className="bg-[#FAF8F3] dark:bg-[#202420] p-4 rounded-2xl border border-[#E8E2D8] dark:border-white/5">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#6C5B4C] dark:text-[#9A9EA4] mb-1">
+                  <Gem className="w-3.5 h-3.5 text-[#987B5E]" />
                   <span>Total Portfolio Value</span>
                 </div>
-                <p className="text-xl font-black text-zinc-900 dark:text-white">
+                <p className="text-xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">
                   {formatCurrency(summary.totalPortfolioValue, summary.baseCurrency)}
                 </p>
-                <p className="text-[10px] text-zinc-400 font-bold mt-0.5">
+                <p className="text-[10px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold mt-0.5">
                   Gross estimated market value
                 </p>
               </div>
 
-              <div className="bg-amber-50/60 dark:bg-amber-500/5 p-4 rounded-2xl border border-amber-500/20">
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 mb-1">
-                  <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+              <div className="bg-[#FAF8F3] dark:bg-[#202420] p-4 rounded-2xl border border-[#987B5E]/30">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#987B5E] mb-1">
+                  <ShieldAlert className="w-3.5 h-3.5 text-[#987B5E]" />
                   <span>Outstanding Principal Loans</span>
                 </div>
-                <p className="text-xl font-black text-amber-900 dark:text-amber-200">
+                <p className="text-xl font-black text-[#7A6652] dark:text-[#D4B48A] font-heading">
                   {formatCurrency(summary.totalMortgageLiabilities, summary.baseCurrency)}
                 </p>
-                <p className="text-[10px] text-amber-600/70 dark:text-amber-400/70 font-bold mt-0.5">
+                <p className="text-[10px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold mt-0.5">
                   Remaining principal owed on pawned items
                 </p>
               </div>
@@ -375,21 +370,21 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
           </div>
 
           {/* Right: Asset Donut Chart */}
-          <div className="lg:col-span-5 flex flex-col items-center bg-zinc-50/50 dark:bg-zinc-900/30 p-5 rounded-[2rem] border border-zinc-200/60 dark:border-white/5 h-full min-h-[340px] justify-between">
+          <div className="lg:col-span-5 flex flex-col items-center bg-[#FAF8F3] dark:bg-[#202420] p-5 rounded-[2rem] border border-[#E8E2D8] dark:border-white/5 h-full min-h-[340px] justify-between">
             <div className="w-full flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <PieChart className="w-3.5 h-3.5 text-emerald-500" /> Distribution
+              <span className="text-xs font-bold uppercase tracking-wider text-[#6C5B4C] dark:text-[#9A9EA4] flex items-center gap-1.5">
+                <PieChart className="w-3.5 h-3.5 text-[#987B5E]" /> Distribution
               </span>
 
-              <div className="flex bg-white dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200/60 dark:border-white/5 text-[10px] font-bold">
+              <div className="flex bg-white dark:bg-[#181B18] p-1 rounded-xl border border-[#E8E2D8] dark:border-white/10 text-[10px] font-bold">
                 <button
                   type="button"
                   onClick={() => setChartMode("UNMORTGAGED")}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg transition-all",
+                    "px-2.5 py-1 rounded-lg transition-all font-black",
                     chartMode === "UNMORTGAGED"
-                      ? "bg-emerald-500 text-white shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                      ? "btn-tria-primary text-[#FDFBF7] dark:text-[#EBE8E3] shadow-sm"
+                      : "text-[#6C5B4C] hover:text-[#1A1D1A] dark:text-[#9A9EA4] dark:hover:text-white"
                   )}
                 >
                   Unmortgaged
@@ -398,10 +393,10 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                   type="button"
                   onClick={() => setChartMode("TOTAL")}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg transition-all",
+                    "px-2.5 py-1 rounded-lg transition-all font-black",
                     chartMode === "TOTAL"
-                      ? "bg-emerald-500 text-white shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                      ? "btn-tria-primary text-[#FDFBF7] dark:text-[#EBE8E3] shadow-sm"
+                      : "text-[#6C5B4C] hover:text-[#1A1D1A] dark:text-[#9A9EA4] dark:hover:text-white"
                   )}
                 >
                   Total Portfolio
@@ -422,30 +417,30 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
 
       {/* Filter Bar & Action Button */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-        {/* MOBILE VIEW (< sm): Sleek Filter Dropdown Button + Action */}
+        {/* MOBILE VIEW (< sm) */}
         <div className="flex sm:hidden items-center gap-2">
           <Dialog open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
             <DialogTrigger
               render={
                 <button
                   type="button"
-                  className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold bg-white dark:bg-[#121214] text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-white/10 shadow-sm"
+                  className="flex-1 flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold bg-white dark:bg-[#181B18] text-[#1A1D1A] dark:text-[#EBE8E3] border border-[#E8E2D8] dark:border-white/10 shadow-sm"
                 />
               }
             >
               <div className="flex items-center gap-2 truncate">
-                <Filter className="w-4 h-4 text-emerald-500 shrink-0" />
+                <Filter className="w-4 h-4 text-[#987B5E] shrink-0" />
                 <span className="truncate">
-                  Filter: <strong className="text-emerald-600 dark:text-emerald-400">{FILTER_ITEMS.find(f => f.id === filterMode)?.label || "All Assets"}</strong>
+                  Filter: <strong className="text-[#213F33] dark:text-[#D4B48A]">{FILTER_ITEMS.find(f => f.id === filterMode)?.label || "All Assets"}</strong>
                 </span>
               </div>
-              <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0 ml-1" />
+              <ChevronDown className="w-4 h-4 text-[#9A9EA4] shrink-0 ml-1" />
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
+            <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 p-6 rounded-[2rem] shadow-2xl">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-                  <Filter className="w-5 h-5 text-emerald-500" /> Filter & Categorize Assets
+                <DialogTitle className="text-xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] flex items-center gap-2 font-heading">
+                  <Filter className="w-5 h-5 text-[#987B5E]" /> Filter & Categorize Assets
                 </DialogTitle>
               </DialogHeader>
 
@@ -462,12 +457,12 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                       className={cn(
                         "flex items-center justify-between p-3.5 rounded-2xl text-xs font-bold transition-all border",
                         isActive
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-black shadow-sm"
-                          : "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 border-zinc-200/50 dark:border-white/5 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                          ? "bg-[#213F33]/10 text-[#213F33] dark:text-[#EBE8E3] border-[#213F33]/30 dark:border-[#385A4D]/40 font-black shadow-sm"
+                          : "bg-[#FAF8F3] dark:bg-[#202420] text-[#6C5B4C] dark:text-[#9A9EA4] border-[#E8E2D8] dark:border-white/5 hover:bg-[#EFE9E0] dark:hover:bg-[#272D27]"
                       )}
                     >
                       <span>{item.label}</span>
-                      {isActive && <Check className="w-4 h-4 text-emerald-500" />}
+                      {isActive && <Check className="w-4 h-4 text-[#D4B48A]" />}
                     </button>
                   );
                 })}
@@ -478,8 +473,8 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
           <CreateAssetForm firebaseUid={user.firebaseUid} baseCurrency={summary.baseCurrency} />
         </div>
 
-        {/* DESKTOP & TABLET VIEW (>= sm): Horizontal Pill Bar */}
-        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto hide-scrollbar p-1.5 bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-2xl shadow-sm">
+        {/* DESKTOP & TABLET VIEW (>= sm) */}
+        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto hide-scrollbar p-1.5 bg-white dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-2xl shadow-sm">
           {FILTER_ITEMS.map((item) => {
             const isActive = filterMode === item.id;
             return (
@@ -489,14 +484,14 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
                 className={cn(
                   "px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 whitespace-nowrap relative",
                   isActive
-                    ? "text-white shadow-md"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                    ? "text-[#FDFBF7] dark:text-[#EBE8E3] shadow-md font-black"
+                    : "text-[#6C5B4C] hover:text-[#1A1D1A] dark:text-[#9A9EA4] dark:hover:text-white hover:bg-[#FAF8F3] dark:hover:bg-[#202420]"
                 )}
               >
                 {isActive && (
                   <clientMotion.div
                     layoutId="activeAssetFilter"
-                    className="absolute inset-0 bg-emerald-500 dark:bg-emerald-600 rounded-xl"
+                    className="absolute inset-0 bg-gradient-to-r from-[#2B493D] to-[#213F33] dark:from-[#4E6C5F] dark:to-[#385A4D] rounded-xl"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -513,12 +508,12 @@ export function AssetsClient({ assetsData, currencySymbol }: AssetsClientProps) 
 
       {/* Assets Grid */}
       {filteredAssets.length === 0 ? (
-        <div className="bg-white dark:bg-[#121214] border border-zinc-200/80 dark:border-white/10 rounded-[2.5rem] p-12 text-center flex flex-col items-center justify-center space-y-3">
-          <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400">
+        <div className="bg-white dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-[2.5rem] p-12 text-center flex flex-col items-center justify-center space-y-3">
+          <div className="w-16 h-16 rounded-full bg-[#FAF8F3] dark:bg-[#202420] flex items-center justify-center text-[#987B5E]">
             <Gem className="w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold text-zinc-900 dark:text-white">No assets found</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm font-medium">
+          <h3 className="text-xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">No assets found</h3>
+          <p className="text-sm text-[#6C5B4C] dark:text-[#9A9EA4] max-w-sm font-medium">
             No assets match the selected filter. Click "Add Asset" above to log physical or valuable items.
           </p>
         </div>

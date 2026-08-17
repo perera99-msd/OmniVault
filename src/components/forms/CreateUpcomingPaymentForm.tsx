@@ -41,7 +41,7 @@ const formSchema = z.object({
 });
 
 interface CreateUpcomingPaymentFormProps {
-  firebaseUid: string;
+  firebaseUid?: string;
   wallets: any[];
   baseCurrency?: string;
 }
@@ -93,14 +93,14 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-sm hover:shadow-md transition-all h-12 px-6" />}>
+      <DialogTrigger render={<Button className="btn-tria-primary font-bold rounded-2xl shadow-sm hover:shadow-md transition-all h-12 px-6" />}>
         <Plus className="w-5 h-5 mr-2" /> Add Upcoming Payment
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white dark:bg-[#121214] border border-zinc-200 dark:border-white/5 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
+      <DialogContent className="sm:max-w-md bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 shadow-2xl p-6 sm:p-8 rounded-[2rem]">
         <DialogHeader className="mb-6">
-          <DialogTitle className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Schedule Payment</DialogTitle>
-          <DialogDescription className="text-zinc-500 font-medium">
-            Keep track of your future bills and subscriptions.
+          <DialogTitle className="text-2xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] font-heading">Schedule Payment</DialogTitle>
+          <DialogDescription className="text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
+            Keep track of your future bills and obligations.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,9 +111,9 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Payment Name</FormLabel>
+                  <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Payment Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Netflix Subscription" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-emerald-500/50" {...field} />
+                    <Input placeholder="e.g. Real Estate Tax" className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-medium px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus-visible:ring-[#987B5E]/50 focus:border-[#987B5E]" {...field} />
                   </FormControl>
                   <FormMessage className="ml-1" />
                 </FormItem>
@@ -124,16 +124,16 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
               control={form.control}
               name="amount"
               render={({ field }) => (
-                <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-4 sm:p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm">
-                  <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Amount</FormLabel>
+                <FormItem className="bg-white dark:bg-[#202420] rounded-3xl p-4 sm:p-5 border border-[#E8E2D8] dark:border-white/10 focus-within:border-[#987B5E] transition-colors shadow-sm">
+                  <FormLabel className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold uppercase tracking-wider ml-1">Amount</FormLabel>
                   <FormControl>
                     <div className="flex items-center mt-1">
-                      <span className="text-2xl font-black mr-1 opacity-80 text-emerald-600">{currencySymbol}</span>
+                      <span className="text-2xl font-black mr-1 opacity-80 text-[#987B5E]">{currencySymbol}</span>
                       <input 
                         type="number" 
                         step="0.01" 
                         placeholder="0.00"
-                        className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full placeholder:text-zinc-300 dark:placeholder:text-zinc-600 p-0" 
+                        className="bg-transparent border-none text-3xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] focus:outline-none w-full placeholder:text-[#9A9EA4] p-0 font-heading" 
                         {...field} 
                       />
                     </div>
@@ -149,9 +149,9 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Due Date</FormLabel>
+                    <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Due Date</FormLabel>
                     <FormControl>
-                      <Input type="date" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-emerald-500/50" {...field} />
+                      <Input type="date" className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-medium px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus-visible:ring-[#987B5E]/50 focus:border-[#987B5E]" {...field} />
                     </FormControl>
                     <FormMessage className="ml-1" />
                   </FormItem>
@@ -163,17 +163,17 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
                 name="walletId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Pay From (Optional)</FormLabel>
+                    <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Pay From (Optional)</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-emerald-500/50">
+                        <SelectTrigger className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-bold px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus:ring-[#987B5E]/50 focus:border-[#987B5E]">
                           <SelectValue placeholder="Select a vault" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
-                        <SelectItem value="none" className="font-bold">Don't specify</SelectItem>
+                      <SelectContent className="bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-xl shadow-xl">
+                        <SelectItem value="none" className="font-bold text-[#6C5B4C] dark:text-[#9A9EA4]">Don't specify</SelectItem>
                         {wallets.map((wallet) => (
-                          <SelectItem key={wallet._id} value={wallet._id} className="font-bold">
+                          <SelectItem key={wallet._id} value={wallet._id} className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">
                             {wallet.name}
                           </SelectItem>
                         ))}
@@ -186,7 +186,7 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
             </div>
 
             {submitMessage && (
-              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"}`}>
+              <div className={`p-3 rounded-xl text-sm font-bold text-center ${submitMessage.type === "success" ? "bg-[#213F33]/10 text-[#213F33] dark:text-[#4E6C5F]" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"}`}>
                 {submitMessage.text}
               </div>
             )}
@@ -195,7 +195,7 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
+                className="w-full btn-tria-primary rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]"
               >
                 {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Payment"}
               </Button>

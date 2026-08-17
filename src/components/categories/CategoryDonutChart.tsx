@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 interface CategoryDonutChartProps {
   categories: any[];
@@ -9,28 +9,28 @@ interface CategoryDonutChartProps {
 }
 
 const COLORS = [
-  '#3b82f6', // blue
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#10b981', // emerald
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
-  '#6366f1', // indigo
-  '#f43f5e', // rose
+  '#213F33', // Heirloom Green
+  '#987B5E', // Aged Gold
+  '#6C5B4C', // Walnut Brown
+  '#4E6C5F', // Laurel
+  '#7A6652', // Saddle Brown
+  '#385A4D', // Forest Green
+  '#A28876', // Camel
+  '#53585F', // Stone Grey
+  '#384D47', // Cedar
+  '#9B826B', // Cocoa
 ];
 
 export function CategoryDonutChart({ categories, type, currencySymbol }: CategoryDonutChartProps) {
   const data = categories
     .filter(c => c.type === type && c.totalAmount > 0)
     .sort((a, b) => b.totalAmount - a.totalAmount)
-    .map(c => ({ name: c.name, totalAmount: c.totalAmount })); // Mapping for recharts Legend
+    .map(c => ({ name: c.name, totalAmount: c.totalAmount }));
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-zinc-400 dark:text-zinc-600 font-medium text-sm">
-        <PieChart className="w-8 h-8 mb-2 opacity-50" />
+      <div className="flex flex-col items-center justify-center h-full text-[#6C5B4C] dark:text-[#9A9EA4] font-medium text-sm">
+        <PieChart className="w-8 h-8 mb-2 opacity-50 text-[#987B5E]" />
         No data for {type.toLowerCase()}s
       </div>
     );
@@ -54,21 +54,21 @@ export function CategoryDonutChart({ categories, type, currencySymbol }: Categor
               stroke="none"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.name === "Uncategorized" ? "#71717a" : COLORS[index % COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={entry.name === "Uncategorized" ? "#9EA2A8" : COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip 
               formatter={(value: any) => [`${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Amount']}
-              contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
-              itemStyle={{ fontWeight: 'bold' }}
+              contentStyle={{ borderRadius: '1rem', border: '1px solid #E8E2D8', backgroundColor: '#FDFBF7', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+              itemStyle={{ fontWeight: 'bold', color: '#1A1D1A' }}
             />
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#6C5B4C] dark:text-[#9A9EA4]">
             Total
           </span>
-          <span className={`text-lg sm:text-xl font-black tabular-nums tracking-tight ${type === "INCOME" ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-900 dark:text-white'}`}>
+          <span className={`text-lg sm:text-xl font-black tabular-nums tracking-tight font-heading ${type === "INCOME" ? 'text-[#213F33] dark:text-[#4E6C5F]' : 'text-[#1A1D1A] dark:text-[#EBE8E3]'}`}>
             {currencySymbol}{total >= 1000 ? (total / 1000).toFixed(1) + 'k' : total.toFixed(0)}
           </span>
         </div>
@@ -81,13 +81,13 @@ export function CategoryDonutChart({ categories, type, currencySymbol }: Categor
             <div className="flex items-center gap-2.5">
               <div 
                 className="w-3 h-3 rounded-full shadow-sm shrink-0" 
-                style={{ backgroundColor: item.name === "Uncategorized" ? "#71717a" : COLORS[index % COLORS.length] }} 
+                style={{ backgroundColor: item.name === "Uncategorized" ? "#9EA2A8" : COLORS[index % COLORS.length] }} 
               />
-              <span className="text-sm font-bold text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors truncate max-w-[120px] sm:max-w-[180px]">
+              <span className="text-sm font-bold text-[#6C5B4C] dark:text-[#9A9EA4] group-hover:text-[#1A1D1A] dark:group-hover:text-white transition-colors truncate max-w-[120px] sm:max-w-[180px]">
                 {item.name}
               </span>
             </div>
-            <span className="text-sm font-black tabular-nums text-zinc-900 dark:text-white shrink-0">
+            <span className="text-sm font-black tabular-nums text-[#1A1D1A] dark:text-[#EBE8E3] shrink-0 font-heading">
               {currencySymbol}{item.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
           </div>

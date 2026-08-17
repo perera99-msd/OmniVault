@@ -18,6 +18,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Header } from "@/components/layout/Header";
 import { LogoText } from "@/components/ui/LogoText";
+import { TriaLogo } from "@/components/ui/TriaLogo";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -36,13 +37,67 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
   const [isProcessingAuth, setIsProcessingAuth] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+  const sanitizeAuthError = (err: any): string => {
+    const code = err?.code || "";
+    const msg = err?.message || "";
+
+    if (
+      code.includes("auth/user-not-found") ||
+      code.includes("auth/wrong-password") ||
+      code.includes("auth/invalid-credential") ||
+      code.includes("auth/invalid-login-credentials")
+    ) {
+      return "Invalid email or password.";
+    }
+    if (code.includes("auth/email-already-in-use")) {
+      return "An account with this email already exists.";
+    }
+    if (code.includes("auth/weak-password")) {
+      return "Password must be at least 6 characters.";
+    }
+    if (code.includes("auth/too-many-requests")) {
+      return "Too many attempts. Please try again in a few minutes.";
+    }
+    if (code.includes("auth/invalid-email")) {
+      return "Please enter a valid email address.";
+    }
+    if (code.includes("auth/popup-closed-by-user")) {
+      return "Google sign in was cancelled.";
+    }
+    return msg.replace("Firebase: ", "").replace(/\(auth\/.*\)\.?/, "").trim() || "Authentication failed. Please try again.";
+  };
+
+  const syncSessionCookie = async (currentUser: User | null) => {
+    try {
       if (currentUser) {
-        document.cookie = `firebaseUid=${currentUser.uid}; path=/; max-age=31536000; SameSite=Lax`;
+        const idToken = await currentUser.getIdToken();
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
       } else {
-        document.cookie = `firebaseUid=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        await fetch("/api/auth/session", { method: "DELETE" });
+      }
+    } catch (e) {
+      console.error("Session sync failed:", e);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      await syncSessionCookie(currentUser);
+      if (currentUser) {
+        try {
+          await createUser({
+            firebaseUid: currentUser.uid,
+            email: currentUser.email || "",
+            name: currentUser.displayName || (currentUser.email ? currentUser.email.split("@")[0] : "Tria Member"),
+          });
+        } catch (err) {
+          console.error("User profile sync error:", err);
+        }
       }
       setLoading(false);
     });
@@ -72,7 +127,12 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
       if (isLogin) {
         setIsProcessingAuth(true);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        document.cookie = `firebaseUid=${userCredential.user.uid}; path=/; max-age=31536000; SameSite=Lax`;
+        const idToken = await userCredential.user.getIdToken(true);
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
         await createUser({
           firebaseUid: userCredential.user.uid,
           email: userCredential.user.email || email,
@@ -88,6 +148,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
           name: name
         });
         await auth.signOut();
+        await fetch("/api/auth/session", { method: "DELETE" });
         setIsRegistering(false);
         setSuccessMessage("Account created successfully! Please sign in.");
         setIsLogin(true);
@@ -99,7 +160,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
       setIsRegistering(false);
       setIsProcessingAuth(false);
       setAuthLoading(false);
-      setError(err.message.replace("Firebase: ", ""));
+      setError(sanitizeAuthError(err));
     }
   };
 
@@ -110,7 +171,12 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
     try {
       setIsProcessingAuth(true);
       const userCredential = await signInWithPopup(auth, googleProvider);
-      document.cookie = `firebaseUid=${userCredential.user.uid}; path=/; max-age=31536000; SameSite=Lax`;
+      const idToken = await userCredential.user.getIdToken(true);
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
       await createUser({
         firebaseUid: userCredential.user.uid,
         email: userCredential.user.email || "",
@@ -120,19 +186,19 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
     } catch (err: any) {
       setIsProcessingAuth(false);
       setAuthLoading(false);
-      setError(err.message.replace("Firebase: ", ""));
+      setError(sanitizeAuthError(err));
     }
   };
 
   if (loading || isProcessingAuth) {
     return (
-      <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-zinc-50 dark:bg-[#050505] transition-colors duration-500 relative overflow-hidden">
-        {/* Massive Ambient Aura */}
+      <div suppressHydrationWarning className="min-h-[100svh] flex flex-col items-center justify-center bg-[#FDFBF7] dark:bg-[#121412] transition-colors duration-500 relative overflow-hidden">
+        {/* Ambient Aura */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] rounded-full bg-emerald-500/20 dark:bg-emerald-500/10 blur-[120px] pointer-events-none" 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[600px] max-h-[600px] rounded-full bg-[#987B5E]/15 dark:bg-[#987B5E]/10 blur-[140px] pointer-events-none" 
         />
         
         <motion.div
@@ -141,25 +207,24 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center gap-6 relative z-10"
         >
-          {/* Pulsing Logo Container */}
+          {/* Pulsing Trinity Logo */}
           <motion.div 
-            animate={{ scale: [1, 1.05, 1], filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"] }}
+            animate={{ scale: [1, 1.05, 1] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="w-24 h-24 sm:w-32 sm:h-32 relative drop-shadow-2xl"
+            className="w-24 h-24 sm:w-28 sm:h-28 relative drop-shadow-2xl flex items-center justify-center"
           >
-            <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" priority />
-            <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" priority />
+            <TriaLogo size={96} />
           </motion.div>
           
-          <LogoText className="text-3xl sm:text-4xl drop-shadow-md" />
+          <LogoText className="text-3xl sm:text-4xl drop-shadow-sm font-heading" />
           
           {/* Subtle loading bar */}
-          <div className="w-32 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full mt-4 overflow-hidden relative">
+          <div className="w-32 h-1 bg-[#E8E2D8] dark:bg-[#2C2F33] rounded-full mt-4 overflow-hidden relative">
             <motion.div 
               initial={{ x: "-100%" }}
               animate={{ x: "100%" }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-emerald-500 to-transparent rounded-full"
+              className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-[#987B5E] to-transparent rounded-full"
             />
           </div>
         </motion.div>
@@ -171,32 +236,32 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
     return (
       <div 
         suppressHydrationWarning
-        className="min-h-[100svh] w-full flex items-center justify-center p-0 sm:p-4 lg:p-6 relative overflow-hidden bg-[#f5f5f5] dark:bg-[#212121] transition-colors duration-500"
+        className="min-h-[100svh] w-full flex items-center justify-center p-0 sm:p-4 lg:p-6 relative overflow-hidden bg-[#FDFBF7] dark:bg-[#121412] transition-colors duration-500"
       >
         {/* Ambient Glows */}
-        <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-[#ccffcc]/30 dark:bg-[#003300]/40 blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen hidden sm:block transition-all duration-700" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#d7ccc8]/40 dark:bg-[#424242]/30 blur-[140px] pointer-events-none mix-blend-multiply dark:mix-blend-screen hidden sm:block transition-all duration-700" />
+        <div className="absolute top-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-[#987B5E]/10 dark:bg-[#987B5E]/5 blur-[140px] pointer-events-none hidden sm:block transition-all duration-700" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-[#213F33]/10 dark:bg-[#385A4D]/10 blur-[150px] pointer-events-none hidden sm:block transition-all duration-700" />
 
         {/* Master Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full h-[100svh] sm:h-auto sm:max-w-[1100px] sm:min-h-[600px] bg-[#ffffff] dark:bg-[#424242] rounded-none sm:rounded-[2.5rem] p-0 sm:p-3 shadow-none sm:shadow-[0_40px_100px_rgba(0,51,0,0.08)] dark:sm:shadow-[0_40px_100px_rgba(0,0,0,0.5)] relative z-10 border-none sm:border border-[#ffffff] dark:border-[#616161] flex flex-col md:flex-row overflow-hidden transition-colors duration-500"
+          className="w-full h-[100svh] sm:h-auto sm:max-w-[1100px] sm:min-h-[620px] bg-white dark:bg-[#181B18] rounded-none sm:rounded-[2.5rem] p-0 sm:p-3 shadow-none sm:shadow-[0_40px_100px_rgba(33,63,51,0.08)] dark:sm:shadow-[0_40px_100px_rgba(0,0,0,0.6)] relative z-10 border-none sm:border border-[#E8E2D8] dark:border-white/5 flex flex-col md:flex-row overflow-hidden transition-colors duration-500"
         >
-          {/* LEFT SIDE PANEL */}
-          <div className="flex w-full h-[180px] sm:h-[260px] md:h-auto md:w-[45%] lg:w-[45%] relative rounded-none sm:rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group bg-[#003300] shrink-0">
+          {/* LEFT SIDE PANEL: Luxury Wealth Visual */}
+          <div className="flex w-full h-[180px] sm:h-[260px] md:h-auto md:w-[45%] lg:w-[45%] relative rounded-none sm:rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group bg-[#121412] shrink-0">
             <img 
               src="/Backgrounds/Main%20Image.png" 
-              alt="Wealth Management AI" 
+              alt="Tria Wealth Intelligence" 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 z-0"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#003300]/95 via-[#003300]/40 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#121412]/95 via-[#121412]/40 to-transparent z-10" />
 
-            {/* Inner Content overlaying the image (Hidden entirely on mobile for space) */}
+            {/* Inner Content overlaying the image */}
             <div className="absolute inset-0 p-6 md:p-10 lg:p-12 flex-col justify-end md:justify-between z-20 hidden md:flex">
               <div className="hidden md:flex items-center justify-center w-12 h-12 relative bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
-                <Image src="/Logos/Light%20Logo.png" alt="Logo" fill className="object-contain p-1.5" />
+                <TriaLogo size={32} variant="dark" />
               </div>
               <div className="mb-4 md:mb-0">
                 <motion.div
@@ -204,29 +269,28 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <p className="hidden md:block text-[#ccffcc] text-[10px] lg:text-xs font-black tracking-[0.2em] uppercase mb-3 opacity-90 drop-shadow-md">
-                    Premium SaaS Platform
+                  <p className="hidden md:block text-[#D4B48A] text-[10px] lg:text-xs font-black tracking-[0.25em] uppercase mb-3 opacity-90 drop-shadow-md">
+                    Wealth • Income • Expenses
                   </p>
-                  <h1 className="text-[#ffffff] text-4xl lg:text-5xl font-black tracking-tighter leading-[1.05] drop-shadow-xl">
-                    Manage<br className="hidden md:block" /> your wealth.
+                  <h1 className="text-[#FDFBF7] text-4xl lg:text-5xl font-black tracking-tight leading-[1.08] drop-shadow-xl font-heading">
+                    Master<br className="hidden md:block" /> your capital.
                   </h1>
-                  <p className="hidden md:block text-[#f5f5f5]/80 mt-4 max-w-sm text-xs lg:text-sm font-medium leading-relaxed drop-shadow-md">
-                    Experience the next generation of asset tracking. Intelligent, secure, and beautifully designed for professionals.
+                  <p className="hidden md:block text-[#EBE8E3]/80 mt-4 max-w-sm text-xs lg:text-sm font-medium leading-relaxed drop-shadow-md">
+                    Intelligent wealth tracking crafted for modern professionals. Every asset, liability, and cash flow in one refined vault.
                   </p>
                 </motion.div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT SIDE PANEL: Form */}
-          <div className="w-full md:w-[55%] lg:w-[55%] bg-white dark:bg-[#121214] px-6 py-8 sm:px-10 sm:py-8 lg:px-16 lg:py-12 flex flex-col justify-start relative rounded-t-[2rem] sm:rounded-[1.5rem] md:rounded-[2rem] -mt-10 sm:-mt-8 md:mt-0 z-30 shadow-none flex-1 overflow-y-auto sm:overflow-visible transition-colors duration-500">
+          {/* RIGHT SIDE PANEL: Auth Form */}
+          <div className="w-full md:w-[55%] lg:w-[55%] bg-[#FDFBF7] dark:bg-[#181B18] px-6 py-8 sm:px-10 sm:py-8 lg:px-16 lg:py-12 flex flex-col justify-start relative rounded-t-[2rem] sm:rounded-[1.5rem] md:rounded-[2rem] -mt-10 sm:-mt-8 md:mt-0 z-30 shadow-none flex-1 overflow-y-auto sm:overflow-visible transition-colors duration-500">
             
-            {/* Top Bar: Clean Logo Only */}
+            {/* Top Bar: Clean Tria Logo */}
             <div className="flex justify-center md:justify-start items-center mb-8 sm:mb-10 sm:absolute sm:top-8 sm:left-10">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 relative drop-shadow-md">
-                  <Image src="/Logos/Light%20Logo.png" alt="OmniVault Logo" fill className="object-contain dark:hidden" />
-                  <Image src="/Logos/Dark%20Logo.png" alt="OmniVault Logo" fill className="object-contain hidden dark:block" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 relative bg-white dark:bg-[#1F231F] rounded-xl p-1.5 border border-[#E8E2D8] dark:border-white/10 shadow-sm flex items-center justify-center">
+                  <TriaLogo size={24} />
                 </div>
                 <LogoText className="text-2xl" />
               </div>
@@ -242,11 +306,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                 className="flex-1 flex flex-col"
               >
                 <div className="mb-6 text-center md:text-left">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-2">
-                    {isLogin ? "Welcome back" : "Create account"}
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1A1D1A] dark:text-[#EBE8E3] tracking-tight mb-2 font-heading">
+                    {isLogin ? "Welcome back" : "Create vault"}
                   </h2>
-                  <p className="text-[13px] sm:text-[14px] text-zinc-500 dark:text-zinc-400 font-medium">
-                    {isLogin ? "Enter your credentials to access your vault." : "Start managing your wealth today."}
+                  <p className="text-[13px] sm:text-[14px] text-[#6C5B4C] dark:text-[#9A9EA4] font-medium">
+                    {isLogin ? "Enter your credentials to access your vault." : "Begin managing your assets and liabilities today."}
                   </p>
                 </div>
 
@@ -260,14 +324,14 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         transition={{ duration: 0.2 }}
                       >
                         <div className="space-y-1.5">
-                          <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Full Name</label>
+                          <label className="text-[11px] font-bold text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest ml-1">Full Name</label>
                           <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="John Doe"
+                            placeholder="Arthur Pendelton"
                             required={!isLogin}
-                            className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                            className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] placeholder:text-[#9A9EA4] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#987B5E] focus:ring-1 focus:ring-[#987B5E]/50 transition-all"
                           />
                         </div>
                       </motion.div>
@@ -275,20 +339,20 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                   </AnimatePresence>
 
                   <div className="space-y-1.5">
-                    <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Email</label>
+                    <label className="text-[11px] font-bold text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest ml-1">Email</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="hello@omnivault.com"
+                      placeholder="vault@tria.finance"
                       required
-                      className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                      className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] placeholder:text-[#9A9EA4] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#987B5E] focus:ring-1 focus:ring-[#987B5E]/50 transition-all"
                     />
                   </div>
 
                   <div className="space-y-1.5 relative">
                     <div className="flex justify-between items-center ml-1">
-                      <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Password</label>
+                      <label className="text-[11px] font-bold text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest">Password</label>
                       {isLogin && (
                         <button 
                           type="button"
@@ -303,12 +367,12 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                               await sendPasswordResetEmail(auth, email);
                               setError("Password reset email sent! Please check your inbox.");
                             } catch (err: any) {
-                              setError(err.message.replace("Firebase: ", ""));
+                              setError(sanitizeAuthError(err));
                             } finally {
                               setAuthLoading(false);
                             }
                           }}
-                          className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline transition-all"
+                          className="text-[11px] text-[#987B5E] dark:text-[#D4B48A] font-bold hover:underline transition-all"
                         >
                           Forgot password?
                         </button>
@@ -320,7 +384,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all tracking-widest"
+                      className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] placeholder:text-[#9A9EA4] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#987B5E] focus:ring-1 focus:ring-[#987B5E]/50 transition-all tracking-widest"
                     />
                   </div>
 
@@ -333,14 +397,14 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         transition={{ duration: 0.2 }}
                       >
                         <div className="space-y-1.5">
-                          <label className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                          <label className="text-[11px] font-bold text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-widest ml-1">Confirm Password</label>
                           <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="••••••••"
                             required={!isLogin}
-                            className="w-full h-[48px] bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all tracking-widest"
+                            className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#E8E2D8] dark:border-white/10 text-[#1A1D1A] dark:text-[#EBE8E3] placeholder:text-[#9A9EA4] text-[14px] font-medium rounded-xl px-4 focus:outline-none focus:border-[#987B5E] focus:ring-1 focus:ring-[#987B5E]/50 transition-all tracking-widest"
                           />
                         </div>
                       </motion.div>
@@ -354,7 +418,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
-                        className="text-xs text-white bg-red-500/90 border border-red-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
+                        className="text-xs text-white bg-red-600/90 border border-red-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
                       >
                         {error}
                       </motion.p>
@@ -364,7 +428,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
-                        className="text-xs text-white bg-emerald-500/90 border border-emerald-500 rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
+                        className="text-xs text-[#FDFBF7] bg-[#213F33] border border-[#2B493D] rounded-xl px-3 py-2.5 font-medium text-center mt-2 shadow-sm"
                       >
                         {successMessage}
                       </motion.p>
@@ -376,13 +440,13 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     <button
                       type="submit"
                       disabled={authLoading}
-                      className="w-full h-[48px] bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-[14px] rounded-xl shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)] transition-all duration-300 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="w-full h-[48px] btn-tria-primary rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 group disabled:opacity-50"
                     >
                       {authLoading ? (
                         <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         <>
-                          {isLogin ? "Sign In" : "Create Account"} 
+                          {isLogin ? "Sign In to Tria" : "Create Account"} 
                           <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
@@ -391,9 +455,9 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
                   {/* Divider */}
                   <div className="flex items-center my-4">
-                    <div className="flex-1 border-t border-zinc-200 dark:border-white/10"></div>
-                    <span className="px-4 text-[10px] font-black tracking-widest uppercase text-zinc-400 dark:text-zinc-500">OR</span>
-                    <div className="flex-1 border-t border-zinc-200 dark:border-white/10"></div>
+                    <div className="flex-1 border-t border-[#E8E2D8] dark:border-white/10"></div>
+                    <span className="px-4 text-[10px] font-black tracking-widest uppercase text-[#6C5B4C]/60 dark:text-[#9A9EA4]/60">OR</span>
+                    <div className="flex-1 border-t border-[#E8E2D8] dark:border-white/10"></div>
                   </div>
 
                   {/* Google Sign In */}
@@ -401,7 +465,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     type="button"
                     onClick={handleGoogleSignIn}
                     disabled={authLoading}
-                    className="w-full h-[48px] bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-[#27272a] text-zinc-900 dark:text-white font-bold text-[14px] rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
+                    className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#E8E2D8] dark:border-white/10 hover:bg-[#FAF8F3] dark:hover:bg-[#252B25] text-[#1A1D1A] dark:text-[#EBE8E3] font-bold text-[14px] rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-sm"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -421,7 +485,7 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
                     >
                       <button
                         type="button"
-                        className="w-full h-[48px] bg-white dark:bg-[#18181b] border border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-bold text-[14px] rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-sm"
+                        className="w-full h-[48px] bg-white dark:bg-[#1F231F] border border-[#987B5E]/40 hover:border-[#987B5E] text-[#987B5E] dark:text-[#D4B48A] font-bold text-[14px] rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-sm"
                       >
                         <Fingerprint className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                         Biometric Login
@@ -432,11 +496,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
 
                 {/* Toggle Login/Register Link */}
                 <div className="mt-8 text-center">
-                  <p className="text-[13px] text-zinc-500 dark:text-zinc-400 font-bold">
-                    {isLogin ? "New to OmniVault? " : "Already have an account? "}
+                  <p className="text-[13px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold">
+                    {isLogin ? "New to Tria? " : "Already have a vault? "}
                     <button 
                       onClick={() => { setIsLogin(!isLogin); setError(""); setSuccessMessage(""); }}
-                      className="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors hover:underline"
+                      className="text-[#987B5E] dark:text-[#D4B48A] font-black hover:underline transition-colors ml-1"
                     >
                       {isLogin ? "Create an account" : "Sign in"}
                     </button>
@@ -446,11 +510,11 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Bottom Footer Links */}
-            <div className="mt-auto pt-6 flex justify-center text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
+            <div className="mt-auto pt-6 flex justify-center text-[10px] text-[#6C5B4C]/60 dark:text-[#9A9EA4]/60 font-bold uppercase tracking-widest">
               <div className="flex gap-5">
-                <span>© {new Date().getFullYear()} OmniVault</span>
-                <a href="#" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">Contact</a>
-                <a href="#" className="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">Privacy</a>
+                <span>© {new Date().getFullYear()} Tria Finance</span>
+                <a href="#" className="hover:text-[#1A1D1A] dark:hover:text-white transition-colors">Security</a>
+                <a href="#" className="hover:text-[#1A1D1A] dark:hover:text-white transition-colors">Privacy</a>
               </div>
             </div>
           </div>
@@ -460,10 +524,10 @@ export function AuthOverlay({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-[100svh] bg-white dark:bg-[#09090b] w-full transition-colors duration-500">
+    <div className="flex min-h-[100svh] bg-[#FDFBF7] dark:bg-[#121412] w-full transition-colors duration-500">
       <Sidebar />
       <div className="flex-1 flex flex-col md:ml-[260px] pb-24 md:pb-0 min-w-0">
-        <Header userName={user.displayName || "OmniVault User"} />
+        <Header userName={user.displayName || "Tria Member"} />
         <main className="flex-1 overflow-x-hidden relative">
           {children}
         </main>

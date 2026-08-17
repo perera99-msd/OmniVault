@@ -60,22 +60,19 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
   return (
     <motion.div 
       variants={cardVariants}
-      className="relative flex flex-col h-full bg-white/70 dark:bg-[#121214]/70 backdrop-blur-3xl border border-zinc-200/50 dark:border-white/5 rounded-3xl p-5 xl:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-none overflow-hidden group hover:border-zinc-300/50 dark:hover:border-white/10 transition-colors duration-500"
+      className="relative flex flex-col h-full bg-white/80 dark:bg-[#181B18]/80 backdrop-blur-3xl border border-[#E8E2D8] dark:border-white/10 rounded-3xl p-5 xl:p-8 shadow-sm overflow-hidden group hover:border-[#987B5E]/30 transition-colors duration-500"
     >
-      {/* Soft Background Glow Blob */}
-      <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700 ${isIncome ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-
       {/* Header */}
       <div className="flex items-start justify-between mb-4 xl:mb-8 relative z-10">
         <div className="flex items-center gap-2 xl:gap-3">
-          <div className={`w-9 h-9 xl:w-11 xl:h-11 rounded-[12px] xl:rounded-[14px] flex items-center justify-center shadow-inner ${isIncome ? 'bg-emerald-50 dark:bg-emerald-500/10' : 'bg-rose-50 dark:bg-rose-500/10'}`}>
-            {isIncome ? <TrendingUp className="w-4 h-4 xl:w-5 xl:h-5 text-emerald-500 dark:text-emerald-400" /> : <TrendingDown className="w-4 h-4 xl:w-5 xl:h-5 text-rose-500 dark:text-rose-400" />}
+          <div className={`w-9 h-9 xl:w-11 xl:h-11 rounded-[12px] xl:rounded-[14px] flex items-center justify-center shadow-inner ${isIncome ? 'bg-[#213F33]/10 text-[#213F33] dark:text-[#4E6C5F]' : 'bg-[#987B5E]/10 text-[#7A6652] dark:text-[#D4B48A]'}`}>
+            {isIncome ? <TrendingUp className="w-4 h-4 xl:w-5 xl:h-5" /> : <TrendingDown className="w-4 h-4 xl:w-5 xl:h-5" />}
           </div>
-          <h3 className="text-base xl:text-[1.1rem] font-bold text-zinc-900 dark:text-white tracking-tight">{label}</h3>
+          <h3 className="text-base xl:text-[1.1rem] font-black text-[#1A1D1A] dark:text-[#EBE8E3] tracking-tight font-heading">{label}</h3>
         </div>
 
         {/* Floating Minimal Pill Toggle */}
-        <div className="flex bg-zinc-100 dark:bg-[#18181b] p-1 rounded-xl shadow-inner border border-zinc-200/50 dark:border-white/5">
+        <div className="flex bg-[#FAF8F3] dark:bg-[#202420] p-1 rounded-xl shadow-inner border border-[#E8E2D8] dark:border-white/5">
           {(["Day", "Month", "Year"] as const).map((p) => (
             <button
               key={p}
@@ -85,11 +82,11 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
               {period === p && (
                 <motion.div
                   layoutId={`pill-indicator-${label}`}
-                  className="absolute inset-0 bg-white dark:bg-[#27272a] rounded-lg shadow-sm"
+                  className="absolute inset-0 bg-white dark:bg-[#181B18] rounded-lg shadow-sm border border-[#E8E2D8] dark:border-white/10"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
-              <span className={`relative z-10 ${period === p ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+              <span className={`relative z-10 ${period === p ? 'text-[#1A1D1A] dark:text-[#EBE8E3] font-black' : 'text-[#6C5B4C] dark:text-[#9A9EA4]'}`}>
                 {p}
               </span>
             </button>
@@ -99,7 +96,7 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
 
       {/* Amount Display with Animated Numbers */}
       <div className="mb-4 xl:mb-6 relative z-10 flex items-center">
-        <span className="text-lg xl:text-xl text-zinc-400 dark:text-zinc-500 font-medium mr-2 self-start mt-1.5">{currencySymbol}</span>
+        <span className="text-lg xl:text-xl text-[#987B5E] font-medium mr-2 self-start mt-1.5">{currencySymbol}</span>
         <AnimatePresence mode="popLayout">
           <motion.p 
             key={period}
@@ -107,7 +104,7 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
             initial="initial"
             animate="animate"
             exit="exit"
-            className="text-3xl xl:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white"
+            className="text-3xl xl:text-4xl font-black tracking-tight text-[#1A1D1A] dark:text-[#EBE8E3] font-heading"
           >
             {displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </motion.p>
@@ -116,20 +113,20 @@ export function TimeFilledCard({ label, variant, data, currencySymbol = "$" }: T
 
       {/* Premium Progress Track */}
       <div className="mt-auto space-y-2 relative z-10">
-        <div className="flex justify-between items-center text-[11px] font-bold tracking-widest uppercase">
-          <span className="text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
-            <Clock className="w-3 h-3" />
+        <div className="flex justify-between items-center text-[10px] font-black tracking-widest uppercase text-[#6C5B4C] dark:text-[#9A9EA4]">
+          <span className="flex items-center gap-1.5">
+            <Clock className="w-3 h-3 text-[#987B5E]" />
             {period} Cycle
           </span>
-          <span className="text-zinc-900 dark:text-zinc-300 font-bold">{timeProgress.toFixed(1)}%</span>
+          <span className="text-[#1A1D1A] dark:text-[#EBE8E3] font-black">{timeProgress.toFixed(1)}%</span>
         </div>
         
-        <div className="relative h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+        <div className="relative h-1.5 w-full bg-[#FAF8F3] dark:bg-[#202420] rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${timeProgress}%` }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className={`absolute top-0 left-0 h-full rounded-full ${isIncome ? 'bg-emerald-500' : 'bg-rose-500'}`}
+            className={`absolute top-0 left-0 h-full rounded-full ${isIncome ? 'bg-[#213F33] dark:bg-[#4E6C5F]' : 'bg-[#987B5E]'}`}
           />
         </div>
       </div>

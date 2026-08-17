@@ -5,11 +5,18 @@ import dbConnect from "@/lib/db";
 import { User } from "@/models/User";
 import { Asset } from "@/models/Asset";
 import { convertCurrency } from "@/lib/utils/currency";
+import { getAuthenticatedUser } from "@/lib/auth/session";
 
-export async function getAssetsPageData(firebaseUid: string, baseCurrencyInput?: string) {
+export async function getAssetsPageData(firebaseUidInput?: string, baseCurrencyInput?: string) {
   try {
     await dbConnect();
-    const user = await User.findOne({ firebaseUid });
+    let user;
+    if (firebaseUidInput) {
+      user = await User.findOne({ firebaseUid: firebaseUidInput });
+    } else {
+      user = await getAuthenticatedUser();
+    }
+
     if (!user) throw new Error("User not found");
 
     const baseCurrency = baseCurrencyInput || (user as any).baseCurrency || "LKR";
@@ -137,7 +144,7 @@ export async function getAssetsPageData(firebaseUid: string, baseCurrencyInput?:
 }
 
 export async function createAsset(data: {
-  firebaseUid: string;
+  firebaseUid?: string;
   name: string;
   category: string;
   initialValue: number;
@@ -157,8 +164,14 @@ export async function createAsset(data: {
 }) {
   try {
     await dbConnect();
-    const user = await User.findOne({ firebaseUid: data.firebaseUid });
-    if (!user) throw new Error("User not found");
+    let user;
+    if (data.firebaseUid) {
+      user = await User.findOne({ firebaseUid: data.firebaseUid });
+    } else {
+      user = await getAuthenticatedUser();
+    }
+
+    if (!user) throw new Error("User not found or unauthorized");
 
     const stDate = data.mortgageDetails?.startDate
       ? new Date(data.mortgageDetails.startDate)
@@ -227,8 +240,9 @@ export async function updateAsset(
 ) {
   try {
     await dbConnect();
-    const asset = await Asset.findById(assetId);
-    if (!asset) throw new Error("Asset not found");
+    const user = await getAuthenticatedUser();
+    const asset = await Asset.findOne({ _id: assetId, userId: user._id });
+    if (!asset) throw new Error("Asset not found or unauthorized");
 
     asset.name = data.name;
     asset.category = data.category as any;
@@ -290,7 +304,9 @@ export async function updateAsset(
 export async function deleteAsset(assetId: string) {
   try {
     await dbConnect();
-    await Asset.findByIdAndDelete(assetId);
+    const user = await getAuthenticatedUser();
+    const result = await Asset.findOneAndDelete({ _id: assetId, userId: user._id });
+    if (!result) throw new Error("Asset not found or unauthorized");
     revalidatePath("/assets");
     return { success: true };
   } catch (error: any) {
@@ -310,9 +326,10 @@ export async function recordMortgagePayment(
 ) {
   try {
     await dbConnect();
-    const asset = await Asset.findById(assetId);
+    const user = await getAuthenticatedUser();
+    const asset = await Asset.findOne({ _id: assetId, userId: user._id });
     if (!asset || !asset.isMortgaged || !asset.mortgageDetails) {
-      throw new Error("Mortgaged asset not found");
+      throw new Error("Mortgaged asset not found or unauthorized");
     }
 
     const currentPrinc = asset.mortgageDetails.currentPrincipal !== undefined
@@ -372,8 +389,9 @@ export async function editMortgagePayment(
 ) {
   try {
     await dbConnect();
-    const asset = await Asset.findById(assetId);
-    if (!asset) throw new Error("Asset not found");
+    const user = await getAuthenticatedUser();
+    const asset = await Asset.findOne({ _id: assetId, userId: user._id });
+    if (!asset) throw new Error("Asset not found or unauthorized");
 
     let target: any = null;
     if (isHistory && historyIndex !== undefined && asset.mortgageHistory && asset.mortgageHistory[historyIndex]) {
@@ -443,8 +461,9 @@ export async function deleteMortgagePayment(
 ) {
   try {
     await dbConnect();
-    const asset = await Asset.findById(assetId);
-    if (!asset) throw new Error("Asset not found");
+    const user = await getAuthenticatedUser();
+    const asset = await Asset.findOne({ _id: assetId, userId: user._id });
+    if (!asset) throw new Error("Asset not found or unauthorized");
 
     let target: any = null;
     if (isHistory && historyIndex !== undefined && asset.mortgageHistory && asset.mortgageHistory[historyIndex]) {

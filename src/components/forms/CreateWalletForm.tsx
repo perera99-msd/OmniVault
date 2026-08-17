@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -47,6 +48,9 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
       balance: 0,
     },
   });
+
+  const selectedCurrency = form.watch("currency") || "LKR";
+  const currencySymbol = (CURRENCY_SYMBOLS[selectedCurrency] || selectedCurrency).trim();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -75,9 +79,9 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Vault Name</FormLabel>
+              <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Vault Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Chase Checking" className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-medium px-4 text-zinc-900 dark:text-white focus-visible:ring-emerald-500/50" {...field} />
+                <Input placeholder="e.g. Chase Checking" className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-medium px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus-visible:ring-[#987B5E]/50 focus:border-[#987B5E]" {...field} />
               </FormControl>
               <FormMessage className="ml-1" />
             </FormItem>
@@ -90,17 +94,17 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
             name="type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Type</FormLabel>
+                <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Type</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-emerald-500/50">
+                    <SelectTrigger className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-bold px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus:ring-[#987B5E]/50 focus:border-[#987B5E]">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
-                    <SelectItem value="Bank" className="font-bold">Bank Account</SelectItem>
-                    <SelectItem value="Cash" className="font-bold">Physical Cash</SelectItem>
-                    <SelectItem value="Digital" className="font-bold">Digital Wallet</SelectItem>
+                  <SelectContent className="bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-xl shadow-xl">
+                    <SelectItem value="Bank" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">Bank Account</SelectItem>
+                    <SelectItem value="Cash" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">Physical Cash</SelectItem>
+                    <SelectItem value="Digital" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">Digital Wallet</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage className="ml-1" />
@@ -113,17 +117,17 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
             name="currency"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Currency</FormLabel>
+                <FormLabel className="text-[10px] font-black text-[#6C5B4C] dark:text-[#9A9EA4] uppercase tracking-wider ml-1">Currency</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger className="h-14 bg-zinc-50 dark:bg-[#18181b] border border-zinc-200 dark:border-zinc-800 rounded-2xl font-bold px-4 text-zinc-900 dark:text-white focus:ring-emerald-500/50">
+                    <SelectTrigger className="h-14 bg-white dark:bg-[#202420] border border-[#E8E2D8] dark:border-white/10 rounded-2xl font-bold px-4 text-[#1A1D1A] dark:text-[#EBE8E3] focus:ring-[#987B5E]/50 focus:border-[#987B5E]">
                       <SelectValue placeholder="Currency" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-white dark:bg-[#161917] border border-zinc-200 dark:border-white/10 rounded-xl shadow-xl">
-                    <SelectItem value="LKR" className="font-bold">LKR</SelectItem>
-                    <SelectItem value="USD" className="font-bold">USD</SelectItem>
-                    <SelectItem value="EUR" className="font-bold">EUR</SelectItem>
+                  <SelectContent className="bg-[#FDFBF7] dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/10 rounded-xl shadow-xl">
+                    <SelectItem value="LKR" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">LKR</SelectItem>
+                    <SelectItem value="USD" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">USD</SelectItem>
+                    <SelectItem value="EUR" className="font-bold text-[#1A1D1A] dark:text-[#EBE8E3]">EUR</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage className="ml-1" />
@@ -136,16 +140,16 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
           control={form.control}
           name="balance"
           render={({ field }) => (
-            <FormItem className="bg-zinc-50 dark:bg-white/5 rounded-3xl p-4 sm:p-5 border border-transparent focus-within:border-emerald-500/30 transition-colors shadow-sm mt-2">
-              <FormLabel className="text-[13px] text-zinc-500 dark:text-zinc-400 font-medium ml-1">Starting Balance</FormLabel>
+            <FormItem className="bg-white dark:bg-[#202420] rounded-3xl p-4 sm:p-5 border border-[#E8E2D8] dark:border-white/10 focus-within:border-[#987B5E] transition-colors shadow-sm mt-2">
+              <FormLabel className="text-[11px] text-[#6C5B4C] dark:text-[#9A9EA4] font-bold uppercase tracking-wider ml-1">Starting Balance</FormLabel>
               <FormControl>
                 <div className="flex items-center mt-1">
-                  <span className="text-2xl font-black mr-1 opacity-80 text-emerald-600">Rs</span>
+                  <span className="text-2xl font-black mr-1 opacity-80 text-[#987B5E]">{currencySymbol}</span>
                   <input 
                     type="number" 
                     step="0.01" 
                     placeholder="0.00"
-                    className="bg-transparent border-none text-3xl font-black text-zinc-900 dark:text-white focus:outline-none w-full placeholder:text-zinc-300 dark:placeholder:text-zinc-600 p-0" 
+                    className="bg-transparent border-none text-3xl font-black text-[#1A1D1A] dark:text-[#EBE8E3] focus:outline-none w-full placeholder:text-[#9A9EA4] p-0 font-heading" 
                     {...field} 
                   />
                 </div>
@@ -158,10 +162,10 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
         <div className="pt-4">
           <Button 
             type="submit" 
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]" 
+            className="w-full btn-tria-primary rounded-2xl h-14 shadow-sm font-bold transition-all text-[16px]" 
             disabled={loading}
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Wallet"}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Vault"}
           </Button>
         </div>
       </form>

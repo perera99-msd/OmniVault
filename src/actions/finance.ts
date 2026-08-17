@@ -16,6 +16,19 @@ export async function createUser(data: { firebaseUid: string; email: string; nam
     let user = await User.findOne({ firebaseUid: data.firebaseUid });
     if (!user) {
       user = await User.create(data);
+    } else {
+      let updated = false;
+      if (data.email && data.email !== "missing@email.com" && user.email !== data.email) {
+        user.email = data.email;
+        updated = true;
+      }
+      if (data.name && data.name !== "OmniVault User" && data.name !== "User" && (!user.name || user.name === "OmniVault User" || user.name === "User")) {
+        user.name = data.name;
+        updated = true;
+      }
+      if (updated) {
+        await user.save();
+      }
     }
     return { success: true, user: JSON.parse(JSON.stringify(user)) };
   } catch (error: any) {
@@ -23,17 +36,7 @@ export async function createUser(data: { firebaseUid: string; email: string; nam
   }
 }
 
-async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-  const firebaseUid = cookieStore.get("firebaseUid")?.value;
-  if (!firebaseUid) throw new Error("Unauthorized: No session found");
-  
-  await dbConnect();
-  const user = await User.findOne({ firebaseUid }).lean();
-  if (!user) throw new Error("Unauthorized: User not found");
-  
-  return user;
-}
+import { getAuthenticatedUser, getAuthenticatedUid } from "@/lib/auth/session";
 
 export async function createWallet(data: { name: string; type: "Cash" | "Bank" | "Digital"; balance?: number }) {
   try {
@@ -99,11 +102,17 @@ export async function addTransaction(data: {
   }
 }
 
-export async function getUserDashboardData(firebaseUid: string, baseCurrency: string = "LKR") {
+export async function getUserDashboardData(firebaseUid?: string, baseCurrency: string = "LKR") {
   await dbConnect();
   try {
-    let user = await User.findOne({ firebaseUid }).lean();
-    if (!user) {
+    let user;
+    if (firebaseUid) {
+      user = await User.findOne({ firebaseUid }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+
+    if (!user && firebaseUid) {
       // Auto-provision if missing (for older Firebase test accounts)
       const newUser = await User.create({ firebaseUid, email: "missing@email.com", name: "OmniVault User" });
       user = await User.findById(newUser._id).lean();
@@ -297,13 +306,18 @@ export async function getUserDashboardData(firebaseUid: string, baseCurrency: st
   }
 }
 
-export async function getWalletsPageData(firebaseUid: string) {
+export async function getWalletsPageData(firebaseUid?: string) {
   await dbConnect();
   try {
-    const user = await User.findOne({ firebaseUid }).lean();
-    if (!user) return { success: false, error: "User not found" };
+    let user;
+    if (firebaseUid) {
+      user = await User.findOne({ firebaseUid }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+    if (!user) return { success: false, error: "User not found or unauthorized" };
     
-    const wallets = await Wallet.find({ userId: user._id }).sort({ createdAt: -1 }).lean();
+    const wallets = await Wallet.find({ userId: (user as any)._id }).sort({ createdAt: -1 }).lean();
     
     return {
       success: true,
@@ -327,7 +341,7 @@ export async function updateWalletName(walletId: string, newName: string) {
     if (!wallet) throw new Error("Wallet not found or unauthorized");
     
     revalidatePath("/", "layout");
-    return { success: true };
+    return { success: true, wallet: JSON.parse(JSON.stringify(wallet)) };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -346,11 +360,16 @@ export async function deleteWallet(walletId: string) {
   }
 }
 
-export async function getTransactionsHistory(firebaseUid: string, filter: string = 'THIS_MONTH') {
+export async function getTransactionsHistory(firebaseUid?: string, filter: string = 'THIS_MONTH') {
   await dbConnect();
   try {
-    const user = await User.findOne({ firebaseUid }).lean();
-    if (!user) return { success: false, error: "User not found" };
+    let user;
+    if (firebaseUid) {
+      user = await User.findOne({ firebaseUid }).lean();
+    } else {
+      user = await getAuthenticatedUser();
+    }
+    if (!user) return { success: false, error: "User not found or unauthorized" };
 
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -546,11 +565,16 @@ export async function updateTransaction(transactionId: string, newData: {
 
 // --- CATEGORIES PAGE ACTIONS ---
 
-export async function getCategoriesPageData(firebaseUid: string, baseCurrency: string = "LKR", filter?: string) {
+export async function getCategoriesPageData(firebaseUid?: string, baseCurrency: string = "LKR", filter?: string) {
   await dbConnect();
   try {
-    const user = await User.findOne({ firebaseUid });
-    if (!user) throw new Error("User not found");
+    let user;
+    if (firebaseUid) {
+      user = await User.findOne({ firebaseUid });
+    } else {
+      user = await getAuthenticatedUser();
+    }
+    if (!user) throw new Error("User not found or unauthorized");
 
     const { convertCurrency } = require("@/lib/utils/currency");
 
@@ -677,14 +701,8 @@ export async function getCategoriesPageData(firebaseUid: string, baseCurrency: s
 }
 
 export async function updateCategory(categoryId: string, newName: string, newIcon?: string) {
-  await dbConnect();
-  const cookieStore = await cookies();
-  const firebaseUid = cookieStore.get("firebaseUid")?.value;
-  if (!firebaseUid) return { success: false, error: "Unauthorized" };
-
   try {
-    const user = await User.findOne({ firebaseUid });
-    if (!user) throw new Error("User not found");
+    const user = await getAuthenticatedUser();
 
     const updateData: any = { name: newName };
     if (newIcon) updateData.icon = newIcon;
@@ -705,14 +723,8 @@ export async function updateCategory(categoryId: string, newName: string, newIco
 }
 
 export async function deleteCategory(categoryId: string) {
-  await dbConnect();
-  const cookieStore = await cookies();
-  const firebaseUid = cookieStore.get("firebaseUid")?.value;
-  if (!firebaseUid) return { success: false, error: "Unauthorized" };
-
   try {
-    const user = await User.findOne({ firebaseUid });
-    if (!user) throw new Error("User not found");
+    const user = await getAuthenticatedUser();
 
     const category = await Category.findOneAndDelete({ _id: categoryId, userId: user._id });
     if (!category) throw new Error("Category not found");

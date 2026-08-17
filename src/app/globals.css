@@ -9,22 +9,34 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-heading: var(--font-outfit), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-outfit), var(--font-cinzel), serif;
   
-  /* Premium SaaS Accent - Emerald/Teal */
-  --color-brand-900: #064e3b;
-  --color-brand-700: #047857;
-  --color-brand-500: #10b981;
-  --color-brand-300: #6ee7b7;
-  --color-brand-100: #d1fae5;
+  /* Tria Luxury Heritage Light Tokens */
+  --color-tria-parchment: #FDFBF7;
+  --color-tria-inkwell: #1A1D1A;
+  --color-tria-heirloom: #213F33;
+  --color-tria-walnut: #6C5B4C;
+  --color-tria-laurel: #4E6C5F;
+  --color-tria-gold: #987B5E;
+  --color-tria-stone: #53585F;
+  --color-tria-linen: #E0E0DB;
+  --color-tria-camel: #A28876;
+  --color-tria-cedar: #384D47;
+  --color-tria-slate: #7B818A;
+  --color-tria-driftwood: #9EA2A8;
+  --color-tria-jade: #2B493D;
 
-  /* Premium SaaS Surface - Slate/Zinc */
-  --color-surface-950: #09090b; /* True deep dark */
-  --color-surface-900: #121214; /* Elevated dark */
-  --color-surface-800: #18181b; /* Card dark */
-  --color-surface-200: #e4e4e7; /* Border light */
-  --color-surface-100: #f4f4f5; /* Elevated light */
-  --color-surface-50:  #fafafa; /* True light background */
+  /* Tria Luxury Heritage Dark Tokens */
+  --color-tria-night: #121412;
+  --color-tria-parchment-light: #EBE8E3;
+  --color-tria-forest: #385A4D;
+  --color-tria-saddle: #7A6652;
+  --color-tria-fog: #9A9EA4;
+  --color-tria-steel: #2C2F33;
+  --color-tria-cocoa: #9B826B;
+  --color-tria-pine: #42564F;
+  --color-tria-silver: #C4C7CC;
+  --color-tria-mist: #6C7177;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -51,7 +63,6 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   
-  /* Modern tight border radii */
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
@@ -62,68 +73,74 @@
 }
 
 :root {
-  /* Light Theme */
-  --background: var(--color-surface-50);
-  --foreground: var(--color-surface-950);
-  --card: #ffffff;
-  --card-foreground: var(--color-surface-950);
-  --popover: #ffffff;
-  --popover-foreground: var(--color-surface-950);
-  --primary: var(--color-brand-700);
-  --primary-foreground: #ffffff;
-  --secondary: var(--color-surface-100);
-  --secondary-foreground: var(--color-surface-900);
-  --muted: var(--color-surface-100);
-  --muted-foreground: var(--color-surface-900);
-  --accent: var(--color-brand-100);
-  --accent-foreground: var(--color-brand-900);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: var(--color-surface-200);
-  --input: var(--color-surface-200);
-  --ring: var(--color-brand-500);
-  --radius: 0.75rem; /* Smoother base radius */
+  /* Tria Light Palette */
+  --background: #FDFBF7;
+  --foreground: #1A1D1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1D1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1D1A;
+  --primary: #213F33;
+  --primary-foreground: #FDFBF7;
+  --secondary: #FAF8F3;
+  --secondary-foreground: #1A1D1A;
+  --muted: #F3EFEA;
+  --muted-foreground: #6C5B4C;
+  --accent: #EFE9E0;
+  --accent-foreground: #213F33;
+  --destructive: #A83A3A;
+  --border: #E8E2D8;
+  --input: #E8E2D8;
+  --ring: #213F33;
+  --radius: 1rem;
   
-  --sidebar: var(--color-surface-50);
-  --sidebar-foreground: var(--color-surface-950);
-  --sidebar-primary: var(--color-brand-700);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--color-surface-100);
-  --sidebar-accent-foreground: var(--color-surface-950);
-  --sidebar-border: var(--color-surface-200);
-  --sidebar-ring: var(--color-brand-500);
+  --sidebar: #F9F6F0;
+  --sidebar-foreground: #1A1D1A;
+  --sidebar-primary: #213F33;
+  --sidebar-primary-foreground: #FDFBF7;
+  --sidebar-accent: #EFE9E0;
+  --sidebar-accent-foreground: #1A1D1A;
+  --sidebar-border: #E8E2D8;
+  --sidebar-ring: #987B5E;
 
-  --glow-brand: rgba(16, 185, 129, 0.4);
+  --tria-gold: #987B5E;
+  --tria-jade: #2B493D;
+  --glow-brand: rgba(33, 63, 51, 0.25);
 }
 
 .dark {
-  /* Premium Dark Theme */
-  --background: var(--color-surface-950);
-  --foreground: #ffffff;
-  --card: var(--color-surface-900);
-  --card-foreground: #ffffff;
-  --popover: var(--color-surface-900);
-  --popover-foreground: #ffffff;
-  --primary: var(--color-brand-500);
-  --primary-foreground: #ffffff;
-  --secondary: var(--color-surface-800);
-  --secondary-foreground: #ffffff;
-  --muted: var(--color-surface-800);
-  --muted-foreground: var(--color-surface-200);
-  --accent: var(--color-brand-900);
-  --accent-foreground: var(--color-brand-100);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: rgba(255,255,255,0.06);
-  --input: rgba(255,255,255,0.08);
-  --ring: var(--color-brand-500);
+  /* Tria Dark Palette */
+  --background: #121412;
+  --foreground: #EBE8E3;
+  --card: #181B18;
+  --card-foreground: #EBE8E3;
+  --popover: #181B18;
+  --popover-foreground: #EBE8E3;
+  --primary: #385A4D;
+  --primary-foreground: #EBE8E3;
+  --secondary: #1F231F;
+  --secondary-foreground: #EBE8E3;
+  --muted: #242924;
+  --muted-foreground: #9A9EA4;
+  --accent: #2C2F33;
+  --accent-foreground: #EBE8E3;
+  --destructive: #C44E4E;
+  --border: rgba(235, 232, 227, 0.08);
+  --input: rgba(235, 232, 227, 0.1);
+  --ring: #987B5E;
 
-  --sidebar: var(--color-surface-950);
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: var(--color-brand-500);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--color-surface-800);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255,255,255,0.06);
-  --sidebar-ring: var(--color-brand-500);
+  --sidebar: #121412;
+  --sidebar-foreground: #EBE8E3;
+  --sidebar-primary: #385A4D;
+  --sidebar-primary-foreground: #EBE8E3;
+  --sidebar-accent: #1C201C;
+  --sidebar-accent-foreground: #EBE8E3;
+  --sidebar-border: rgba(235, 232, 227, 0.06);
+  --sidebar-ring: #987B5E;
+
+  --tria-gold: #D4B48A;
+  --tria-jade: #385A4D;
+  --glow-brand: rgba(56, 90, 77, 0.35);
 }
 
 @layer base {
@@ -133,7 +150,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* PWA safe area padding */
     padding-bottom: env(safe-area-inset-bottom);
     padding-top: env(safe-area-inset-top);
   }
@@ -143,19 +159,62 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   OmniVault – Premium SaaS Utilities & Animations
+   Tria Finance – Luxury Heritage Utilities & Gradients
    ═══════════════════════════════════════════════════════ */
 
-/* Smooth hide scrollbar */
+/* Tria Signature Button Gradients */
+.btn-tria-primary {
+  background: linear-gradient(135deg, #2B493D 0%, #213F33 100%);
+  color: #FDFBF7;
+  box-shadow: 0 8px 24px -6px rgba(33, 63, 51, 0.45);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .btn-tria-primary {
+  background: linear-gradient(135deg, #4E6C5F 0%, #385A4D 100%);
+  color: #EBE8E3;
+  box-shadow: 0 8px 24px -6px rgba(56, 90, 77, 0.5);
+}
+.btn-tria-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.btn-tria-primary:active {
+  transform: scale(0.98);
+}
+
+/* Tria Gold Accent Button */
+.btn-tria-gold {
+  background: linear-gradient(135deg, #A8896B 0%, #987B5E 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px -6px rgba(152, 123, 94, 0.4);
+}
+
+/* Luxury Cards */
+.tria-card {
+  @apply bg-white dark:bg-[#181B18] border border-[#E8E2D8] dark:border-white/5 rounded-[2rem] shadow-sm transition-all duration-300;
+}
+
+.tria-card-gold {
+  @apply bg-white dark:bg-[#181B18] border border-[#987B5E]/30 dark:border-[#987B5E]/20 rounded-[2rem] shadow-sm;
+}
+
+/* Atmospheric Overlays */
+.bg-tria-overlay-light {
+  background: linear-gradient(180deg, #FFFDF9 0%, #FAF9F6 100%);
+}
+.bg-tria-overlay-dark {
+  background: linear-gradient(180deg, #101210 0%, #121412 100%);
+}
+
+/* Custom Scrollbars */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Custom premium scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -164,63 +223,14 @@
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-surface-200);
+  background: #E0E0DB;
   border-radius: 10px;
 }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-surface-800);
+  background: rgba(235, 232, 227, 0.12);
 }
 
-/* Glassmorphism Panels */
-.glass-panel {
-  @apply bg-white/70 dark:bg-[#09090b]/70 backdrop-blur-2xl border border-zinc-200/50 dark:border-white/5;
-}
-
-.glass-card {
-  @apply bg-white dark:bg-[#121214] border border-zinc-100 dark:border-white/5 shadow-xl shadow-zinc-200/40 dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)];
-}
-
-/* Sweeping vault background gradient */
-.bg-vault-gradient {
-  background-image:
-    linear-gradient(135deg, var(--color-brand-700) 0%, transparent 50%),
-    linear-gradient(to right, transparent, var(--color-surface-800) 80%),
-    radial-gradient(ellipse at center, transparent, #000000 70%),
-    linear-gradient(var(--color-surface-950), var(--color-surface-950));
-}
-
-.text-glowing-green {
-  color: #ffffff;
-  text-shadow: 0 0 12px var(--glow-brand);
-}
-
-.vault-card {
-  background: var(--color-surface-900);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.vault-input:focus {
-  border-color: var(--color-brand-500);
-  box-shadow: 0 0 0 2px var(--glow-brand);
-}
-
-.bg-google-gradient {
-  background-image: linear-gradient(to right, var(--color-surface-800), var(--color-surface-900));
-}
-
-/* PWA App behaviors */
 .prevent-select {
   -webkit-user-select: none;
   user-select: none;
-}
-
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.safe-top {
-  padding-top: env(safe-area-inset-top);
 }
