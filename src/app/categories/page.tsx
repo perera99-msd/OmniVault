@@ -5,6 +5,8 @@ import { PieChart } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { CategoriesClient } from "@/components/categories/CategoriesClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesPage(props: { searchParams: Promise<{ base?: string; filter?: string }> | { base?: string; filter?: string } }) {
   const searchParams = await (props.searchParams instanceof Promise ? props.searchParams : Promise.resolve(props.searchParams));
   const baseCurrency = searchParams?.base || "LKR";

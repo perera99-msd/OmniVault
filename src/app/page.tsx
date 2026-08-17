@@ -18,6 +18,8 @@ import Link from "next/link";
 import * as motion from "framer-motion/client";
 import { CURRENCY_SYMBOLS, formatCurrency } from "@/lib/utils/currency";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage(props: { searchParams: Promise<{ base?: string }> | { base?: string } }) {
   const searchParams = await (props.searchParams instanceof Promise ? props.searchParams : Promise.resolve(props.searchParams));
   const baseCurrency = searchParams?.base || "LKR";
