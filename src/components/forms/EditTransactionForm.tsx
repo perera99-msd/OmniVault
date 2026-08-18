@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import { updateTransaction, createCategory } from "@/actions/finance";
 import {
   Form,
@@ -43,6 +44,7 @@ interface EditTransactionFormProps {
 }
 
 export function EditTransactionForm({ transaction, wallets, categories, onSuccess }: EditTransactionFormProps) {
+  const router = useRouter();
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -107,6 +109,7 @@ export function EditTransactionForm({ transaction, wallets, categories, onSucces
     setLoading(false);
     if (res.success) {
       if (onSuccess) onSuccess();
+      router.refresh();
     } else {
       alert("Error: " + res.error);
     }

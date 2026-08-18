@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 import { updateUpcomingPayment } from "@/actions/upcoming";
 import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
@@ -48,6 +49,7 @@ interface EditUpcomingPaymentFormProps {
 }
 
 export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: EditUpcomingPaymentFormProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -78,6 +80,7 @@ export function EditUpcomingPaymentForm({ payment, wallets, baseCurrency }: Edit
 
       if (res.success) {
         setSubmitMessage({ type: "success", text: "Payment updated successfully!" });
+        router.refresh();
         setTimeout(() => {
           setOpen(false);
           setSubmitMessage(null);

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { addTransaction, createCategory } from "@/actions/finance";
 import { useAppStore } from "@/lib/store/useStore";
 import {
@@ -42,6 +43,7 @@ interface DailyTransactionFormProps {
 }
 
 export function DailyTransactionForm({ wallets, categories }: DailyTransactionFormProps) {
+  const router = useRouter();
   const selectedWalletId = useAppStore((state) => state.selectedWalletId);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -105,6 +107,7 @@ export function DailyTransactionForm({ wallets, categories }: DailyTransactionFo
       toast.success("Transaction recorded in Tria vault!", {
         description: `Added to ${values.type.toLowerCase()}s.`
       });
+      router.refresh();
     } else {
       toast.error("Failed to record transaction", {
         description: res.error

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { addTransaction } from "@/actions/finance";
 import {
   Form,
@@ -41,6 +42,7 @@ interface TransferFundsFormProps {
 }
 
 export function TransferFundsForm({ wallets }: TransferFundsFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const defaultWalletId = wallets.length > 0 ? wallets[0]._id : "";
@@ -93,6 +95,7 @@ export function TransferFundsForm({ wallets }: TransferFundsFormProps) {
       toast.success("Transfer Successful!", {
         description: `Funds have been moved securely between vaults.`
       });
+      router.refresh();
     } else {
       toast.error("Transfer failed", {
         description: res.error

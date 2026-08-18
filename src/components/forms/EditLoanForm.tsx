@@ -31,6 +31,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 import { updateLoan } from "@/actions/loans";
 import { PremiumSpinner } from "@/components/ui/PremiumSpinner";
 
@@ -48,6 +49,7 @@ interface EditLoanFormProps {
 }
 
 export function EditLoanForm({ loan }: EditLoanFormProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -79,6 +81,7 @@ export function EditLoanForm({ loan }: EditLoanFormProps) {
 
       if (res.success) {
         setSubmitMessage({ type: "success", text: "Loan updated successfully!" });
+        router.refresh();
         setTimeout(() => {
           setOpen(false);
           setSubmitMessage(null);

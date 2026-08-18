@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 import { createUpcomingPayment } from "@/actions/upcoming";
 import { CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
@@ -47,6 +48,7 @@ interface CreateUpcomingPaymentFormProps {
 }
 
 export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }: CreateUpcomingPaymentFormProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -78,6 +80,7 @@ export function CreateUpcomingPaymentForm({ firebaseUid, wallets, baseCurrency }
 
       if (res.success) {
         setSubmitMessage({ type: "success", text: "Payment scheduled successfully!" });
+        router.refresh();
         setTimeout(() => {
           form.reset();
           setOpen(false);

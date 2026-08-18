@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createLoan } from "@/actions/loans";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function CreateLoanForm({ onSuccess }: { onSuccess?: () => void }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState("GIVEN");
   const [hasDeadline, setHasDeadline] = useState(true);
@@ -27,6 +29,7 @@ export function CreateLoanForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(false);
     if (result?.success) {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      router.refresh();
       if (onSuccess) onSuccess();
     } else {
       alert("Failed to create loan: " + result?.error);

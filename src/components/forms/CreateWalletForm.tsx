@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import { createWallet } from "@/actions/finance";
 import {
   Form,
@@ -37,6 +38,7 @@ interface CreateWalletFormProps {
 }
 
 export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,6 +63,7 @@ export function CreateWalletForm({ onSuccess }: CreateWalletFormProps) {
     setLoading(false);
     if (res.success) {
       form.reset();
+      router.refresh();
       if (onSuccess) {
         onSuccess();
       } else {
