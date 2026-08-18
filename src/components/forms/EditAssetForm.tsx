@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldAlert, Sparkles, Loader2, Check } from "lucide-react";
 import { updateAsset } from "@/actions/assets";
 import {
@@ -28,6 +29,7 @@ export function EditAssetForm({
   onClose: () => void;
   currencySymbol?: string;
 }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -118,6 +120,7 @@ export function EditAssetForm({
     setLoading(false);
     if (res.success) {
       onClose();
+      router.refresh();
     } else {
       setError(res.error || "Failed to update asset");
     }

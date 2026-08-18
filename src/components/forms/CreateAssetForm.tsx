@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, ShieldAlert, Sparkles, Loader2, Check } from "lucide-react";
 import { createAsset } from "@/actions/assets";
 import {
@@ -20,6 +21,7 @@ const CATEGORIES = [
 ];
 
 export function CreateAssetForm({ firebaseUid, baseCurrency }: { firebaseUid: string; baseCurrency: string }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,7 @@ export function CreateAssetForm({ firebaseUid, baseCurrency }: { firebaseUid: st
     setLoading(false);
     if (res.success) {
       setOpen(false);
+      router.refresh();
       setName("");
       setInitialValue("");
       setCurrentValue("");

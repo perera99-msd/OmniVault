@@ -6,19 +6,55 @@ import { Fingerprint } from "lucide-react";
 import { useAppStore } from "@/lib/store/useStore";
 import { TriaLogo } from "@/components/ui/TriaLogo";
 
+/** Re-lock the vault when the app stays backgrounded longer than this. */
+const LOCK_AFTER_BACKGROUND_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Survives same-tab reloads, is wiped when the tab/app is killed.
+ * Used to tell a cold start (lock) apart from a reload (don't lock).
+ */
+const SESSION_MARKER = "tria_session_active";
+
 export function BiometricOverlay({ children }: { children: React.ReactNode }) {
   const { biometricEnabled, biometricCredentialId, isAppLocked, setAppLocked } = useAppStore();
   const [unlocking, setUnlocking] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (biometricEnabled && !hasInitialized) {
+  }, []);
+
+  // Native-like locking:
+  // - Fresh open (app was killed / no background running) -> require biometric.
+  // - Same-tab reload -> do NOT lock (sessionStorage marker survives reloads).
+  // - Returning from a short background -> do NOT lock.
+  // - Returning from a long background (> LOCK_AFTER_BACKGROUND_MS) -> re-lock.
+  useEffect(() => {
+    if (!biometricEnabled) return;
+
+    const isFreshOpen = !sessionStorage.getItem(SESSION_MARKER);
+    if (isFreshOpen) {
       setAppLocked(true);
-      setHasInitialized(true);
     }
-  }, [biometricEnabled, hasInitialized, setAppLocked]);
+    sessionStorage.setItem(SESSION_MARKER, "1");
+
+    let backgroundedAt: number | null = null;
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        backgroundedAt = Date.now();
+      } else if (document.visibilityState === "visible" && backgroundedAt !== null) {
+        const awayMs = Date.now() - backgroundedAt;
+        backgroundedAt = null;
+        if (awayMs > LOCK_AFTER_BACKGROUND_MS) {
+          setAppLocked(true);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [biometricEnabled, setAppLocked]);
 
   const decodeBuffer = (base64Url: string) => {
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");

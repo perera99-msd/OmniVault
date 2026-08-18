@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { updateCategory, deleteCategory } from "@/actions/finance";
 import { toast } from "sonner";
 import {
@@ -22,6 +23,7 @@ const CATEGORY_ICONS = [
 ];
 
 export function CategoryManagement({ categories, currencySymbol }: { categories: any[], currencySymbol: string }) {
+  const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editIcon, setEditIcon] = useState("✨");
@@ -37,6 +39,7 @@ export function CategoryManagement({ categories, currencySymbol }: { categories:
     if (res.success) {
       toast.success("Category updated successfully");
       setEditingId(null);
+      router.refresh();
     } else {
       toast.error("Failed to update category", { description: res.error });
     }
@@ -51,6 +54,7 @@ export function CategoryManagement({ categories, currencySymbol }: { categories:
     if (res.success) {
       toast.success("Category deleted", { description: "Transactions moved to Uncategorized." });
       setDeletingId(null);
+      router.refresh();
     } else {
       toast.error("Failed to delete category", { description: res.error });
     }
