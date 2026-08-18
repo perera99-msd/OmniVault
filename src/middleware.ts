@@ -16,8 +16,10 @@ export function middleware(request: NextRequest) {
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".ico") ||
     pathname.endsWith(".json") ||
+    pathname.endsWith(".webmanifest") ||
     pathname.endsWith(".svg") ||
-    pathname.endsWith(".webp")
+    pathname.endsWith(".webp") ||
+    pathname === "/sw.js"
   ) {
     return NextResponse.next();
   }
@@ -42,6 +44,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
-    "/((?!api/auth/session|_next/static|_next/image|favicon.ico|manifest.json|apple-icon.png|icon.png).*)",
+    "/((?!api/auth/session|_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|sw.js|apple-icon.png|icon.png).*)",
   ],
 };

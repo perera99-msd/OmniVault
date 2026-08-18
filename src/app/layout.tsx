@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthOverlay } from "@/components/auth/AuthOverlay";
 import { BiometricOverlay } from "@/components/auth/BiometricOverlay";
 import { Toaster } from "sonner";
+import { PWARegister } from "@/components/PWARegister";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +30,6 @@ const cinzel = Cinzel({
 export const metadata: Metadata = {
   title: "Tria — Wealth, Income, Expenses",
   description: "Experience the next generation of private wealth management. Intelligent, secure, and crafted for modern financial clarity.",
-  manifest: "/manifest.json",
   icons: {
     icon: "/icon.png",
     shortcut: "/icon.png",
@@ -77,6 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Toaster position="top-center" richColors theme="system" />
           </div>
         </ThemeProvider>
+        <PWARegister />
       </body>
     </html>
   );
